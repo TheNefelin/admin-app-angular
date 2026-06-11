@@ -6,11 +6,87 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
+import dotenv from 'dotenv';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+// Proxy fetch to external API -------------------------------------------
+dotenv.config();
+
+const API_URL = process.env['API_URL'];
+const API_KEY = process.env['API_KEY'];
+
+async function fetchExternal(url: string, options: any = {}) {
+  return fetch(`${API_URL}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY!,
+      ...(options.headers || {})
+    }
+  });
+}
+
+app.get('/api/:resource', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}`,
+    {
+      method: 'GET'
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.get('/api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    {
+      method: 'GET'
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.post('/api/:resource', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(req.body)
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.put('/api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(req.body)
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.delete('/api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    {
+      method: 'DELETE'
+    }
+  );
+
+  res.json(await response.json());
+});
+// -----------------------------------------------------------------------
 
 /**
  * Example Express Rest API endpoints can be defined here.

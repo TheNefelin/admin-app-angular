@@ -1,3 +1,69 @@
+# Admin Manager - App Angular 22 SSR
+
+### Dependencies
+```sh
+npm install -g pnpm
+```
+- [DaisuUI](https://daisyui.com/docs/install/)
+
+### Environment .env
+```sh
+pnpm add dotenv
+```
+- server.ts fetch external API
+```ts
+import dotenv from 'dotenv';
+dotenv.config();
+
+const API_URL = process.env['API_URL'];
+const API_KEY = process.env['API_KEY'];
+
+async function fetchExternal(url: string, options: any = {}) {
+  return fetch(`${API_URL}${url}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY!,
+      ...(options.headers || {})
+    }
+  });
+}
+```
+
+### Shortcut
+- tsconfig.app.json
+```json
+"compilerOptions": {
+  "paths": {
+    "@core/*": ["./src/app/core/*"],
+    "@features/*": ["./src/app/features/*"],
+    "@layouts/*": ["./src/app/layouts/*"],
+    "@shared/*": ["./src/app/shared/*"]
+  }  
+}
+```
+
+### Commands
+```sh
+# Component
+ng generate component layouts/components/navbar-component --style=none
+ng generate component layouts/components/footer-component --style=none
+# Model
+ng generate interface shared/models/pagination-response
+# Service
+ng generate service features/url/services/url-service
+# Interceptor
+ng generate interceptor core/interceptors/error
+# Module
+ng generate module module-name
+```
+
+---
+---
+---
+---
+---
+
 # AdminAppAngular
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.0.0.

@@ -1,0 +1,7 @@
+<p>url-page works!</p>
+
+@if(getUrlRX.isLoading()) {
+  <app-loading-component/>
+} @else {
+  <pre>{{ getUrlRX.value() | json}}</pre>
+}
