@@ -46,12 +46,11 @@ async function fetchExternal(url: string, options: any = {}) {
 ### Commands
 ```sh
 # Component
-ng generate component layouts/components/navbar-component --style=none
-ng generate component layouts/components/footer-component --style=none
+ng generate component shared/components/modal-action-component --style=none
 # Model
-ng generate interface shared/models/pagination-response
+ng generate interface features/url-grp/models/url-grp-model
 # Service
-ng generate service features/url/services/url-service
+ng generate service features/url-grp/services/url-grp-service
 # Interceptor
 ng generate interceptor core/interceptors/error
 # Module

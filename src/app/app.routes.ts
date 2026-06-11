@@ -11,6 +11,10 @@ export const routes: Routes = [
         loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
       },
       {
+        path: 'url-grp',
+        loadChildren: () => import('@features/url-grp/url-grp.routes').then(m => m.URL_GRP_ROUTES),
+      },
+      {
         path: 'url',
         loadChildren: () => import('@features/url/url.routes').then(m => m.URL_ROUTES),
       },

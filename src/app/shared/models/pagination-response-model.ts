@@ -1,4 +1,4 @@
-export interface PaginationResponse<T> {
+export interface PaginationResponseModel<T> {
   page: number;
   pages: number;
   items: number;

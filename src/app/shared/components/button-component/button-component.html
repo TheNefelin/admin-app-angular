@@ -1,0 +1,38 @@
+<button 
+  (click)="onClick.emit()"  
+  class="btn"
+  [class.btn-primary]="icon() === 'create'"
+  [class.btn-warning]="icon() === 'edit'"
+  [class.btn-error]="icon() === 'delete'"
+  [class.btn-secondary]="icon() === 'clear' || icon() === 'refresh' || icon() === 'search'"
+  [class.text-white]="icon() === 'edit' || icon() === 'delete'">
+
+  @if (icon() === 'create') { <!-- Create -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5v2H5v14h14v-5z"/>
+      <path fill="currentColor" d="M21 7h-4V3h-2v4h-4v2h4v4h2V9h4z"/>
+    </svg>
+  } @else if (icon() === 'edit') { <!-- Edit -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M18.58 2.944a2 2 0 0 0-2.828 0L14.107 4.59l5.303 5.303l1.645-1.644a2 2 0 0 0 0-2.829zm-.584 8.363l-5.303-5.303l-8.835 8.835l-1.076 6.38l6.38-1.077z"/>
+    </svg>
+  } @else if (icon() === 'delete') { <!-- Delete -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+      <path fill="currentColor" d="M7 21q-.825 0-1.412-.587T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .825-.587 1.413T17 21zm2-4h2V8H9zm4 0h2V8h-2z"/>
+    </svg>  
+  } @else if (icon() === 'clear') { <!-- Clear -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 14 14">
+      <path fill="currentColor" d="M7.106.087a.75.75 0 0 1 .413.977L4.8 7.779c.354.124.714.312 1.03.564c.55.439.998 1.1.998 1.979c0 .535.131.98.33 1.344c.318.584 1.016.793 1.682.793a.75.75 0 0 1 0 1.5h-.09v.01H2.251c-1.048 0-2.154-.701-2.182-1.925c-.023-1.026.195-2.193.815-3.084c.52-.747 1.303-1.27 2.368-1.361L6.13.5a.75.75 0 0 1 .977-.413m6.075 13.872a.75.75 0 0 0 0-1.5h-1.927a.75.75 0 1 0 0 1.5zm-.142-3.472a.75.75 0 0 1-.75.75h-1.916a.75.75 0 1 1 0-1.5h1.916a.75.75 0 0 1 .75.75m-1.785-2.073a.75.75 0 0 0 0-1.5H9.338a.75.75 0 1 0 0 1.5z" clip-rule="evenodd"/>
+    </svg>
+  } @else if (icon() === 'refresh') { <!-- Refresh -->
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M12 20q-3.35 0-5.675-2.325T4 12t2.325-5.675T12 4q1.725 0 3.3.712T18 6.75V5q0-.425.288-.712T19 4t.713.288T20 5v5q0 .425-.288.713T19 11h-5q-.425 0-.712-.288T13 10t.288-.712T14 9h3.2q-.8-1.4-2.187-2.2T12 6Q9.5 6 7.75 7.75T6 12t1.75 4.25T12 18q1.7 0 3.113-.862t2.187-2.313q.2-.35.563-.487t.737-.013q.4.125.575.525t-.025.75q-1.025 2-2.925 3.2T12 20"/>
+    </svg>
+  } @else if (icon() === 'search') { <!-- Search --> 
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l5.6 5.6q.275.275.275.7t-.275.7t-.7.275t-.7-.275l-5.6-5.6q-.75.6-1.725.95T9.5 16m0-2q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"/>
+    </svg>
+  }
+
+  {{ textBtn() }}
+</button>
