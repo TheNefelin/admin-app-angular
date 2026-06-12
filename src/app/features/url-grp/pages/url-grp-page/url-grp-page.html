@@ -92,7 +92,7 @@
 
 <app-url-grp-form-component
   [openFormModal]="showFormModal()"
-  [isLoading]="getByIdUrlGrpRX.isLoading()"
+  [isLoading]="getByIdUrlGrpRX.isLoading() || isSaving()"
   [data]="computedUrlGrp()"
   (onSubmit)="onSubmitForm($event)"
   (onClose)="showFormModal.set(false)"

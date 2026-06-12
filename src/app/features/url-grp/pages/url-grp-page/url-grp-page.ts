@@ -1,9 +1,9 @@
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { UrlGrpService } from '@features/url-grp/services/url-grp-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, map, of } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { CreateUrlGrpModel, UpdateUrlGrpModel, UrlGrpModel } from '@features/url-grp/models/url-grp-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
@@ -31,6 +31,8 @@ export class UrlGrpPage {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
+  protected readonly isSaving = signal<boolean>(false);
+  protected readonly isDeleting = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
@@ -43,6 +45,7 @@ export class UrlGrpPage {
     search: this.search()
   }));
   protected readonly getByIdUrlGrpPayload = signal<number | null>(null);
+  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedUrlGrpList = computed<UrlGrpModel[]>(() => this.geAlltUrlGrpRX.value() ?? []);
   protected readonly computedUrlGrp = computed<UrlGrpModel | null>(() => {
     if (this.getByIdUrlGrpRX.isLoading()) return null;
@@ -116,14 +119,45 @@ export class UrlGrpPage {
   }
 
   protected onSubmitForm(data: UpdateUrlGrpModel | CreateUrlGrpModel): void {
+    this.isSaving.set(true);
 
+    const request$ = 'id_urlgrp' in data
+    ? this.serviceUrlGrp.update(data.id_urlgrp, data)
+    : this.serviceUrlGrp.create(data);
+
+    request$.pipe(
+      finalize(() => this.isSaving.set(false))
+    ).subscribe({
+      next: () => {
+        this.showFormModal.set(false);
+        this.geAlltUrlGrpRX.reload();
+      },
+      error: (err) => {
+        this.errorMessage.set(`Error: ${err}`)
+      }
+    });
   }
 
-  protected onDelete(tem: UrlGrpModel): void {
+  protected onDelete(item: UrlGrpModel): void {
+    this.deleteItemId.set(item.id_urlgrp);
     this.showDeleteModal.set(true);
   }
 
   protected onDeleteModalConfirm(): void {
-    this.showDeleteModal.set(false);
+    const id = this.deleteItemId();
+    if (!id) return;
+
+    this.isDeleting.set(true);
+    this.serviceUrlGrp.delete(id).pipe(
+      finalize(() => this.isDeleting.set(false))
+    ).subscribe({
+      next: () => {
+        this.showDeleteModal.set(false);
+        this.geAlltUrlGrpRX.reload();
+      },
+      error: (err) => {
+        this.errorMessage.set(`Error al eliminar: ${err}`)
+      }
+    });
   }
 }

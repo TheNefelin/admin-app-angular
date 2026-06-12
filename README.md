@@ -14,6 +14,7 @@ pnpm add dotenv
 ```ts
 import dotenv from 'dotenv';
 dotenv.config();
+app.use(express.json());
 
 const API_URL = process.env['API_URL'];
 const API_KEY = process.env['API_KEY'];
@@ -28,7 +29,90 @@ async function fetchExternal(url: string, options: any = {}) {
     }
   });
 }
+
+app.get('/ssr-api/:resource', async (req, res) => {
+  const response = await fetchExternal(
+    req.url.replace('/ssr-api', ''),
+    { method: 'GET' }
+  );
+
+  res.json(await response.json());
+});
+
+app.get('/ssr-api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    { method: 'GET' }
+  );
+
+  res.json(await response.json());
+});
+
+app.post('/ssr-api/:resource', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}`,
+    {
+      method: 'POST',
+      body: JSON.stringify(req.body)
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.put('/ssr-api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(req.body)
+    }
+  );
+
+  res.json(await response.json());
+});
+
+app.delete('/ssr-api/:resource/:id', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}`,
+    { method: 'DELETE' }
+  );
+
+  try {
+    res.json(await response.json());
+  } catch {
+    res.status(204).end();
+  }
+});
 ```
+
+### SSR Proxy — server.ts
+
+El proxy SSR redirige peticiones del frontend al backend Python (`API_URL`).  
+Angular envía requests a `/ssr-api/:resource`, Express los reenvía a `http://127.0.0.1:8000/api/:resource`.
+
+**Requisito:** `express.json()` debe registrarse **antes** de las rutas proxy para que `req.body` tenga el JSON parseado:
+
+```ts
+const app = express();
+app.use(express.json());        // ← necesario para POST/PUT con body
+```
+
+**Rutas implementadas:**
+
+| Método | Ruta SSR | Backend destino |
+|--------|----------|-----------------|
+| GET | `/ssr-api/:resource` | `GET /api/:resource?query` |
+| GET | `/ssr-api/:resource/:id` | `GET /api/:resource/:id` |
+| POST | `/ssr-api/:resource` | `POST /api/:resource` (body JSON) |
+| PUT | `/ssr-api/:resource/:id` | `PUT /api/:resource/:id` (body JSON) |
+| DELETE | `/ssr-api/:resource/:id` | `DELETE /api/:resource/:id` |
+
+**Detalles:**
+- El header `X-API-Key` se inyecta automáticamente en todas las requests.
+- Solo el endpoint GET de listado preserva el query string (`req.url`); los demás usan `req.params`.
+- `fetchExternal()` serializa `req.body` con `JSON.stringify` — si falta `express.json()`, el backend recibe body vacío.
+- DELETE puede retornar 204 sin body — se usa `response.text()` + `JSON.parse` condicional para evitar `SyntaxError: Unexpected end of JSON input`.
 
 ### Shortcut
 - tsconfig.app.json

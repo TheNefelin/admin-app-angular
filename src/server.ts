@@ -6,7 +6,6 @@ import {
 } from '@angular/ssr/node';
 import express from 'express';
 import { join } from 'node:path';
-import dotenv from 'dotenv';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
@@ -14,7 +13,9 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 // Proxy fetch to external API -------------------------------------------
+import dotenv from 'dotenv';
 dotenv.config();
+app.use(express.json());
 
 const API_URL = process.env['API_URL'];
 const API_KEY = process.env['API_KEY'];
@@ -78,7 +79,11 @@ app.delete('/ssr-api/:resource/:id', async (req, res) => {
     { method: 'DELETE' }
   );
 
-  res.json(await response.json());
+  try {
+    res.json(await response.json());
+  } catch {
+    res.status(204).end();
+  }
 });
 // -----------------------------------------------------------------------
 

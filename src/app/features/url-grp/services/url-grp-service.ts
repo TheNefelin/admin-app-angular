@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { Observable } from 'rxjs';
-import { UrlGrpModel } from '../models/url-grp-model';
+import { CreateUrlGrpModel, UpdateUrlGrpModel, UrlGrpModel } from '../models/url-grp-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 
@@ -23,6 +23,24 @@ export class UrlGrpService {
 
   getById(id: number): Observable<UrlGrpModel | null> {
     return this.apiService.getById<UrlGrpModel | null>(
+      this.endpoint, id
+    );
+  }
+
+  create(item: CreateUrlGrpModel): Observable<UrlGrpModel> {
+    return this.apiService.create<UrlGrpModel, CreateUrlGrpModel>(
+      this.endpoint, item
+    );
+  }
+
+  update(id: number, item: UpdateUrlGrpModel): Observable<UrlGrpModel> {
+    return this.apiService.update<UrlGrpModel, UpdateUrlGrpModel>(
+      this.endpoint, id, item
+    );
+  }
+
+  delete(id: number): Observable<boolean> {
+    return this.apiService.delete<boolean>(
       this.endpoint, id
     );
   }
