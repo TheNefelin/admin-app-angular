@@ -8,6 +8,6 @@ import { Component, input, output } from '@angular/core';
 export class ModalActionComponent {
   readonly title = input<string | null>('Sin Implementar'); 
   readonly message = input<string | null>('Sin Implementar');
-  protected readonly confirm = output<void>();
-  protected readonly close = output<void>();
+  protected readonly onConfirm = output<void>();
+  protected readonly onClose = output<void>();
 }

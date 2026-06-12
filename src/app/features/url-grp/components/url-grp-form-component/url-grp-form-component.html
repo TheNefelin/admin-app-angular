@@ -1,0 +1,45 @@
+<dialog 
+  class="modal modal-bottom sm:modal-middle"
+  [class.modal-open]="openFormModal()">
+  
+  <div class="modal-box">
+
+    <h3 class="text-lg font-bold text-primary text-center">
+      @if (isLoading()) {
+        <app-loading-component/>
+      } @else {
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Url Grp
+      }
+    </h3>
+
+    @if (!isLoading()) {
+      <fieldset class="fieldset">
+        <label class="label">Nombre</label>
+        <input
+          type="text" class="input validator w-full" placeholder="Nombre" required
+          [value]="formData().name"
+          (input)="updateName($any($event.target).value)"
+        />
+        <p class="validator-hint hidden">Required</p>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label cursor-pointer justify-start gap-2">
+          <input
+            type="checkbox" class="checkbox checkbox-primary"
+            [checked]="formData().is_enable"
+            (change)="updateIsEnable($any($event.target).checked)"
+          />
+          Activo
+        </label>
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <button class="btn btn-primary min-w-32" (click)="submit()">
+          {{ isEditMode() ? 'Guardar' : 'Crear' }}
+        </button>
+        <button (click)="onClose.emit()" class="btn min-w-32">Cancelar</button>
+      </div>
+    }
+  </div>
+</dialog>

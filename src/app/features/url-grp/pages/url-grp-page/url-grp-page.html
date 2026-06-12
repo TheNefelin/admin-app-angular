@@ -3,7 +3,9 @@
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
-  @if (isLoading()) {
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Url Grp'" (onClick)="onCreate()"/>
+
+  @if (geAlltUrlGrpRX.isLoading()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
@@ -21,7 +23,7 @@
         </thead>
   
         <tbody>
-          @for (item of computedUrlGrp(); track item.id_urlgrp) {
+          @for (item of computedUrlGrpList(); track item.id_urlgrp) {
             <tr>
               @if (item.is_enable) {
                 <th class="text-success m-0">
@@ -79,11 +81,19 @@
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showModal()) {
+@if (showDeleteModal()) {
   <app-modal-action-component
     [title]="'Eliminar Url Grp'"
     [message]="'Estas seguro que deceas eliminar UrlGrp'"
-    (confirm)="onModalConfirm()"
-    (close)="showModal.set(false)"
+    (onConfirm)="onDeleteModalConfirm()"
+    (onClose)="showDeleteModal.set(false)"
   />
 }
+
+<app-url-grp-form-component
+  [openFormModal]="showFormModal()"
+  [isLoading]="getByIdUrlGrpRX.isLoading()"
+  [data]="computedUrlGrp()"
+  (onSubmit)="onSubmitForm($event)"
+  (onClose)="showFormModal.set(false)"
+/>

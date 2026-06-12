@@ -1,4 +1,4 @@
-<form class="fieldset bg-base-200 border-base-300 rounded-box border p-4 flex items-center flex-wrap w-full">
+<form (submit)="onSubmit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 flex items-center flex-wrap w-full">
   <fieldset class="fieldset">
     <label class="input">
       <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -16,5 +16,5 @@
       (input)="onLimitInput($event)"/>
   </fieldset>
 
-  <app-button-component (onClick)="onRefreshClick.emit()" class="ms-auto" [icon]="'refresh'" textBtn="Refrescar"/>
+  <app-button-component class="ms-auto" [icon]="'refresh'" textBtn="Refrescar"/>
 </form>

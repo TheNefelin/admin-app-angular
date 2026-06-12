@@ -5,11 +5,13 @@ import { UrlGrpService } from '@features/url-grp/services/url-grp-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { catchError, map, of } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { UrlGrpModel } from '@features/url-grp/models/url-grp-model';
+import { CreateUrlGrpModel, UpdateUrlGrpModel, UrlGrpModel } from '@features/url-grp/models/url-grp-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
+import { UrlGrpFormComponent } from "@features/url-grp/components/url-grp-form-component/url-grp-form-component";
+
 
 @Component({
   selector: 'app-url-grp-page',
@@ -19,20 +21,20 @@ import { PaginationFilterComponent } from "@shared/components/pagination-filter-
     ButtonComponent,
     ModalActionComponent,
     PaginationNavComponent,
-    PaginationFilterComponent
-  ],
+    PaginationFilterComponent,
+    UrlGrpFormComponent
+],
   templateUrl: './url-grp-page.html',
 })
 export class UrlGrpPage {
   protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly showModal = signal<boolean>(false);
+  protected readonly showDeleteModal = signal<boolean>(false);
+  protected readonly showFormModal = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-
-  protected readonly isLoading = computed<boolean>(() => this.geAlltUrlGrpRX.isLoading());
 
   private readonly serviceUrlGrp = inject(UrlGrpService);
   private readonly getAllUrlGrpPayload = computed<PaginationRequestModel>(() => ({
@@ -40,7 +42,12 @@ export class UrlGrpPage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly computedUrlGrp = computed<UrlGrpModel[]>(() => this.geAlltUrlGrpRX.value() ?? []);
+  protected readonly getByIdUrlGrpPayload = signal<number | null>(null);
+  protected readonly computedUrlGrpList = computed<UrlGrpModel[]>(() => this.geAlltUrlGrpRX.value() ?? []);
+  protected readonly computedUrlGrp = computed<UrlGrpModel | null>(() => {
+    if (this.getByIdUrlGrpRX.isLoading()) return null;
+    return this.getByIdUrlGrpRX.value() ?? null;
+  });
 
   protected readonly geAlltUrlGrpRX = rxResource({
     params: () => this.getAllUrlGrpPayload(),
@@ -61,8 +68,22 @@ export class UrlGrpPage {
     },
   });
 
+  protected readonly getByIdUrlGrpRX = rxResource({
+    params: () => this.getByIdUrlGrpPayload(),
+    stream: ({ params: id }) => {
+      if (!id) return of(null);
+
+      return this.serviceUrlGrp.getById(id).pipe(
+        catchError(err => {
+          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
+          console.error('[UrlGrpService] Error fetching:', err);
+          return of(null);
+        })
+      );
+    },
+  });
+
   protected onRefreshClick(): void {
-    this.currentPage.set(1);
     this.geAlltUrlGrpRX.reload();
   }
 
@@ -84,15 +105,25 @@ export class UrlGrpPage {
     }
   }
 
+  protected onCreate(): void {
+    this.getByIdUrlGrpPayload.set(null);
+    this.showFormModal.set(true);
+  }
+  
   protected onEdit(item: UrlGrpModel): void {
+    this.getByIdUrlGrpPayload.set(item.id_urlgrp);
+    this.showFormModal.set(true);
+  }
+
+  protected onSubmitForm(data: UpdateUrlGrpModel | CreateUrlGrpModel): void {
 
   }
 
   protected onDelete(tem: UrlGrpModel): void {
-    this.showModal.set(true);
+    this.showDeleteModal.set(true);
   }
 
-  protected onModalConfirm(): void {
-    this.showModal.set(false);
+  protected onDeleteModalConfirm(): void {
+    this.showDeleteModal.set(false);
   }
 }

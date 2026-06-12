@@ -27,6 +27,11 @@ export class PaginationFilterComponent {
     });
   });
 
+  protected onSubmit(event: Event): void {
+    event.preventDefault();
+    this.onRefreshClick.emit();
+  }
+
   protected onSearchInput(event: Event): void {
     this.searchValue.set((event.target as HTMLInputElement).value);
   }
