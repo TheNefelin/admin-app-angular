@@ -1,97 +1,83 @@
-@if (isLoading()) {
-  <div class="p-4 flex justify-center items-center">
-    <app-loading-component/>
-  </div>
-} @else {
+<section class="grid gap-2">
+  <app-pagination-filter-component 
+    (onRefreshClick)="onRefreshClick()"
+    (onFilterChange)="onFilterChange($event)"/>
 
-  <form class="fieldset bg-base-200 border-base-300 rounded-box border p-4 flex items-center flex-wrap w-full mb-4">
-    <fieldset class="fieldset">
-      <label class="input">
-        <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></g>
-        </svg>
-        <input type="search" class="grow" placeholder="Buscar..." />
-      </label>
-    </fieldset>
-
-    <fieldset class="fieldset">
-      <input type="number" class="input validator" placeholder="10 (cantidad de items)" />
-    </fieldset>
-
-    <app-button-component (onClick)="onSearch()" class="ms-auto" [icon]="'search'" textBtn="Buscar"/>
-  </form>
-
-  <div class="overflow-x-auto">
-    <table class="table bg-base-200">
-      <!-- head -->
-      <thead>
-        <tr>
-          <th>Activo</th>
-          <th>Id / Nombre</th>
-          <th>Creacion / Modificacion</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        @for (item of computedUrlGrp(); track item.id_urlgrp) {
+  @if (isLoading()) {
+    <div class="p-4 flex justify-center items-center">
+      <app-loading-component/>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table bg-base-200">
+        <!-- head -->
+        <thead>
           <tr>
-            @if (item.is_enable) {
-              <th class="text-success m-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-                  <path d="M0 0h24v24H0z" fill="none" />
-                  <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18m-.232-5.36l5-6l-1.536-1.28l-4.3 5.159l-2.225-2.226l-1.414 1.414l3 3l.774.774z" clip-rule="evenodd" />
-                </svg>                
-              </th>
-            } @else {
-              <th class="text-error m-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                  <path d="M0 0h32v32H0z" fill="none" />
-                  <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
-                </svg>     
-              </th>           
-            }
-            <td>
-              <div class="flex items-center gap-3">
-                <div>
-                  <div class="font-bold">ID: {{ item.id_urlgrp }}</div>
-                  <div class="text-sm opacity-50">{{ item.name }}</div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <span>{{ item.created_at | date:'yyyy-MM-dd' }}</span>
-              <br />
-              <span>{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
-            </td>
-            <th class="flex gap-2">
-              <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
-              <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
-            </th>
+            <th>Activo</th>
+            <th>Id / Nombre</th>
+            <th>Creacion / Modificacion</th>
+            <th>Acciones</th>
           </tr>
-        }
-      </tbody>
-   
-      <!-- foot -->
-      <tfoot>
-        <tr>
-          <th>Activo</th>
-          <th>Id / Nombre</th>
-          <th>Creacion / Modificacion</th>
-          <th>Acciones</th>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
+        </thead>
+  
+        <tbody>
+          @for (item of computedUrlGrp(); track item.id_urlgrp) {
+            <tr>
+              @if (item.is_enable) {
+                <th class="text-success m-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path fill="currentColor" fill-rule="evenodd" d="M12 21a9 9 0 1 0 0-18a9 9 0 0 0 0 18m-.232-5.36l5-6l-1.536-1.28l-4.3 5.159l-2.225-2.226l-1.414 1.414l3 3l.774.774z" clip-rule="evenodd" />
+                  </svg>                
+                </th>
+              } @else {
+                <th class="text-error m-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <path d="M0 0h32v32H0z" fill="none" />
+                    <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
+                  </svg>     
+                </th>           
+              }
+              <td>
+                <div class="flex items-center gap-3">
+                  <div>
+                    <div class="font-bold">ID: {{ item.id_urlgrp }}</div>
+                    <div class="text-sm opacity-50">{{ item.name }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span>{{ item.created_at | date:'yyyy-MM-dd' }}</span>
+                <br />
+                <span>{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
+              </td>
+              <th class="flex gap-2">
+                <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
+                <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+              </th>
+            </tr>
+          }
+        </tbody>
+     
+        <!-- foot -->
+        <tfoot>
+          <tr>
+            <th>Activo</th>
+            <th>Id / Nombre</th>
+            <th>Creacion / Modificacion</th>
+            <th>Acciones</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div> 
+  }
 
-  <div class="join p-2 flex justify-center">
-    <button class="join-item btn" (click)="prevPage()">«</button>
-    <button class="join-item btn btn-active">1</button>
-    <button class="join-item btn btn-active">Página {{ currentPage() }}</button>
-    <button class="join-item btn btn-active">{{ totalPages() }}</button>
-    <button class="join-item btn" (click)="nextPage()">»</button>
-  </div>
-}
+  <app-pagination-nav-component 
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+</section>
 
 @if (showModal()) {
   <app-modal-action-component
@@ -101,4 +87,3 @@
     (close)="showModal.set(false)"
   />
 }
-

@@ -30,29 +30,25 @@ async function fetchExternal(url: string, options: any = {}) {
   });
 }
 
-app.get('/api/:resource', async (req, res) => {
+app.get('/ssr-api/:resource', async (req, res) => {
   const response = await fetchExternal(
-    `/${req.params.resource}`,
-    {
-      method: 'GET'
-    }
+    req.url.replace('/ssr-api', ''),
+    { method: 'GET' }
   );
 
   res.json(await response.json());
 });
 
-app.get('/api/:resource/:id', async (req, res) => {
+app.get('/ssr-api/:resource/:id', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}/${req.params.id}`,
-    {
-      method: 'GET'
-    }
+    { method: 'GET' }
   );
 
   res.json(await response.json());
 });
 
-app.post('/api/:resource', async (req, res) => {
+app.post('/ssr-api/:resource', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}`,
     {
@@ -64,7 +60,7 @@ app.post('/api/:resource', async (req, res) => {
   res.json(await response.json());
 });
 
-app.put('/api/:resource/:id', async (req, res) => {
+app.put('/ssr-api/:resource/:id', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}/${req.params.id}`,
     {
@@ -76,12 +72,10 @@ app.put('/api/:resource/:id', async (req, res) => {
   res.json(await response.json());
 });
 
-app.delete('/api/:resource/:id', async (req, res) => {
+app.delete('/ssr-api/:resource/:id', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}/${req.params.id}`,
-    {
-      method: 'DELETE'
-    }
+    { method: 'DELETE' }
   );
 
   res.json(await response.json());

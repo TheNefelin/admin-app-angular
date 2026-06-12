@@ -15,7 +15,7 @@ export class UrlGrpService {
     
     if (params.search && params.search.trim() != '')
       path = `${path}&search=${params.search}`
-      
+
     return this.apiService.getAll<PaginationResponseModel<UrlGrpModel>>(
       `${this.endpoint}/${path}`
     );

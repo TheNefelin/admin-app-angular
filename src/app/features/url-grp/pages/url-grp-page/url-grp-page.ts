@@ -8,6 +8,8 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 import { UrlGrpModel } from '@features/url-grp/models/url-grp-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
+import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
+import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 
 @Component({
   selector: 'app-url-grp-page',
@@ -15,7 +17,9 @@ import { ModalActionComponent } from "@shared/components/modal-action-component/
     DatePipe,
     LoadingComponent,
     ButtonComponent,
-    ModalActionComponent
+    ModalActionComponent,
+    PaginationNavComponent,
+    PaginationFilterComponent
   ],
   templateUrl: './url-grp-page.html',
 })
@@ -25,7 +29,7 @@ export class UrlGrpPage {
   protected readonly showModal = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(10);
+  private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
 
   protected readonly isLoading = computed<boolean>(() => this.geAlltUrlGrpRX.isLoading());
@@ -57,8 +61,15 @@ export class UrlGrpPage {
     },
   });
 
-  protected onSearch(): void {
+  protected onRefreshClick(): void {
+    this.currentPage.set(1);
     this.geAlltUrlGrpRX.reload();
+  }
+
+  protected onFilterChange(filter: { search: string; limit: number }): void {
+    this.search.set(filter.search);
+    this.limit.set(filter.limit);
+    this.currentPage.set(1);
   }
 
   protected nextPage(): void {
