@@ -130,7 +130,7 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ### Commands
 ```sh
 # Component
-ng generate component features/url-grp/components/url-grp-form-component --style=none
+ng generate component shared/components/message-error-component --style=none
 # Model
 ng generate interface features/url-grp/models/url-grp-model
 # Service

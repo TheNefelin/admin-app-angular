@@ -2,9 +2,13 @@
   <div class="modal-box">
     <h3 class="text-lg font-bold text-primary">{{ title() }}</h3>
     <p class="py-4 text-secondary">{{ message() }}</p>
-    <div class="modal-action flex gap-2">
-      <button (click)="onConfirm.emit()" class="btn btn-error text-white">Confirmar</button>
-      <button (click)="onClose.emit()" class="btn">Cerrar</button>
+    <div class="modal-action flex items-center gap-2">
+      @if (isLoading()) {
+        <app-loading-component class="px-10"/>
+      } @else {
+        <button (click)="onConfirm.emit()" class="btn btn-error text-white">Confirmar</button>
+        <button (click)="onClose.emit()" class="btn">Cerrar</button>
+      }
     </div>
   </div>
 </dialog>

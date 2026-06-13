@@ -11,6 +11,8 @@ import { ModalActionComponent } from "@shared/components/modal-action-component/
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { UrlGrpFormComponent } from "@features/url-grp/components/url-grp-form-component/url-grp-form-component";
+import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
+import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 
 @Component({
@@ -22,8 +24,10 @@ import { UrlGrpFormComponent } from "@features/url-grp/components/url-grp-form-c
     ModalActionComponent,
     PaginationNavComponent,
     PaginationFilterComponent,
-    UrlGrpFormComponent
-],
+    UrlGrpFormComponent,
+    MessageSuccessComponent,
+    MessageErrorComponent
+  ],
   templateUrl: './url-grp-page.html',
 })
 export class UrlGrpPage {
@@ -46,13 +50,13 @@ export class UrlGrpPage {
   }));
   protected readonly getByIdUrlGrpPayload = signal<number | null>(null);
   protected readonly deleteItemId = signal<number | null>(null);
-  protected readonly computedUrlGrpList = computed<UrlGrpModel[]>(() => this.geAlltUrlGrpRX.value() ?? []);
+  protected readonly computedUrlGrpList = computed<UrlGrpModel[]>(() => this.getAllUrlGrpRX.value() ?? []);
   protected readonly computedUrlGrp = computed<UrlGrpModel | null>(() => {
     if (this.getByIdUrlGrpRX.isLoading()) return null;
     return this.getByIdUrlGrpRX.value() ?? null;
   });
 
-  protected readonly geAlltUrlGrpRX = rxResource({
+  protected readonly getAllUrlGrpRX = rxResource({
     params: () => this.getAllUrlGrpPayload(),
     stream: ({ params }) => {
       if (!params) return of(null);
@@ -87,7 +91,9 @@ export class UrlGrpPage {
   });
 
   protected onRefreshClick(): void {
-    this.geAlltUrlGrpRX.reload();
+    this.getAllUrlGrpRX.reload();
+    this.successMessage.set(null);
+    this.errorMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -129,8 +135,9 @@ export class UrlGrpPage {
       finalize(() => this.isSaving.set(false))
     ).subscribe({
       next: () => {
+        this.successMessage.set('Guardado correctamente');
         this.showFormModal.set(false);
-        this.geAlltUrlGrpRX.reload();
+        this.getAllUrlGrpRX.reload();
       },
       error: (err) => {
         this.errorMessage.set(`Error: ${err}`)
@@ -144,16 +151,18 @@ export class UrlGrpPage {
   }
 
   protected onDeleteModalConfirm(): void {
+    this.isDeleting.set(true);
+    
     const id = this.deleteItemId();
     if (!id) return;
 
-    this.isDeleting.set(true);
     this.serviceUrlGrp.delete(id).pipe(
       finalize(() => this.isDeleting.set(false))
     ).subscribe({
       next: () => {
+        this.successMessage.set('Eliminado correctamente');
         this.showDeleteModal.set(false);
-        this.geAlltUrlGrpRX.reload();
+        this.getAllUrlGrpRX.reload();
       },
       error: (err) => {
         this.errorMessage.set(`Error al eliminar: ${err}`)

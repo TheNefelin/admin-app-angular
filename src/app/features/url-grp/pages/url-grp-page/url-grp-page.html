@@ -1,11 +1,21 @@
 <section class="grid gap-2">
+  <span class="font-bold text-4xl italic px-2">URL GRP</span>
+
   <app-pagination-filter-component 
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
   <app-button-component [icon]="'create'" [textBtn]="'Crear Url Grp'" (onClick)="onCreate()"/>
 
-  @if (geAlltUrlGrpRX.isLoading()) {
+  @if (successMessage()) {
+    <app-message-success-component [message]="successMessage()"/>
+  }
+
+  @if (errorMessage()) {
+    <app-message-error-component [message]="errorMessage()"/>
+  }
+
+  @if (getAllUrlGrpRX.isLoading()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
@@ -83,6 +93,7 @@
 
 @if (showDeleteModal()) {
   <app-modal-action-component
+    [isLoading]="isDeleting()"
     [title]="'Eliminar Url Grp'"
     [message]="'Estas seguro que deceas eliminar UrlGrp'"
     (onConfirm)="onDeleteModalConfirm()"

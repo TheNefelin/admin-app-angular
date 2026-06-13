@@ -2,5 +2,21 @@
 
 @import 'tailwindcss';
 @plugin "daisyui" {
-  themes: light --default, emerald;
+  themes: light --default, dark --prefersdark;
+}
+
+body::-webkit-scrollbar{
+  display: none !important;
+}
+
+html::-webkit-scrollbar{
+  display: none !important;
+}
+
+body {
+  scrollbar-width: none !important; 
+}
+
+html {
+  scrollbar-width: none !important; 
 }
