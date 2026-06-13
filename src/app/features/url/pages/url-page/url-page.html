@@ -8,7 +8,7 @@
   <div class="flex gap-4">
     <app-button-component [icon]="'create'" [textBtn]="'Crear Url'" (onClick)="onCreate()"/>
     <app-search-select-component 
-      [placeholder]="'Filtrar por UrlGrp'" 
+      [placeholder]="'Filtrar por Url Grp'" 
       [items]="computedUrlGrpList()"
       [isLoading]="getAllUrlGrpRX.isLoading()" 
       (selectionChange)="onUrlGrpChange($event)"
@@ -17,10 +17,6 @@
 
   @if (successMessage()) {
     <app-message-success-component [message]="successMessage()"/>
-  }
-
-  @if (errorMessage()) {
-    <app-message-error-component [message]="errorMessage()"/>
   }
 
   @if (getAllUrlRX.isLoading()) {
@@ -109,9 +105,18 @@
 @if (showDeleteModal()) {
   <app-modal-action-component
     [isLoading]="isDeleting()"
-    [title]="'Eliminar Url Grp'"
+    [title]="'Eliminar Url'"
     [message]="'Estas seguro que deceas eliminar Url'"
     (onConfirm)="onDeleteModalConfirm()"
     (onClose)="showDeleteModal.set(false)"
   />
 }
+
+<app-url-form-component 
+  [openFormModal]="showFormModal()"
+  [isLoading]="getByIdUrlRX.isLoading() || isSaving()"
+  [data]="computedUrl()"
+  [urlgrpList]="computedUrlGrpList()"
+  (onSubmit)="onSubmitForm($event)"
+  (onClose)="showFormModal.set(false)"
+/>

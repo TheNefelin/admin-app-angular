@@ -1,11 +1,13 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { UrlGrpModel, CreateUrlGrpModel, UpdateUrlGrpModel } from '@features/url-grp/models/url-grp-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
+import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 @Component({
   selector: 'app-url-grp-form-component',
   imports: [
-    LoadingComponent
+    LoadingComponent,
+    MessageErrorComponent
   ],
   templateUrl: './url-grp-form-component.html',
 })

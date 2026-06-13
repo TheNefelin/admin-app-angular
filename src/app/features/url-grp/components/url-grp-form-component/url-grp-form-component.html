@@ -2,7 +2,7 @@
   class="modal modal-bottom sm:modal-middle"
   [class.modal-open]="openFormModal()">
   
-  <div class="modal-box">
+  <div class="modal-box overflow-visible">
 
     <h3 class="text-lg font-bold text-primary text-center">
       @if (isLoading()) {
@@ -11,6 +11,12 @@
         {{ isEditMode() ? 'Modificar' : 'Crear' }} Url Grp
       }
     </h3>
+
+    @if (errorMessage()) {
+      <div class="py-2">
+        <app-message-error-component [message]="errorMessage()"/>
+      </div>
+    }
 
     @if (!isLoading()) {
       <fieldset class="fieldset">
@@ -21,13 +27,10 @@
           (input)="updateName($any($event.target).value)"
           maxlength="50"
         />
-        @if (errorMessage()) {
-          <p class="text-error text-sm mt-1">{{ errorMessage() }}</p>
-        }
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label cursor-pointer justify-start gap-2">
+        <label class="label cursor-pointer justify-start gap-2 pt-2">
           <input
             type="checkbox" class="checkbox checkbox-primary"
             [checked]="formData().is_enable"

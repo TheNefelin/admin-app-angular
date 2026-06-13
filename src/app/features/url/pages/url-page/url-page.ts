@@ -9,12 +9,12 @@ import { CreateUrlModel, FilterByUrlGrp, UpdateUrlModel, UrlModel, UrlModelDetai
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
 import { UrlGrpService } from '@features/url-grp/services/url-grp-service';
 import { SelectItemModel } from '@shared/models/select-item-model';
+import { UrlFormComponent } from "@features/url/components/url-form-component/url-form-component";
 
 @Component({
   selector: 'app-url-page',
@@ -24,16 +24,15 @@ import { SelectItemModel } from '@shared/models/select-item-model';
     PaginationFilterComponent,
     ButtonComponent,
     MessageSuccessComponent,
-    MessageErrorComponent,
     PaginationNavComponent,
     ModalActionComponent,
-    SearchSelectComponent
+    SearchSelectComponent,
+    UrlFormComponent
   ],
   templateUrl: './url-page.html',
 })
 export class UrlPage {
   protected readonly successMessage = signal<string | null>(null);
-  protected readonly errorMessage = signal<string | null>(null);
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
@@ -68,8 +67,7 @@ export class UrlPage {
     stream: () => {
       return this.serviceUrlrp.getAll().pipe(
         catchError(err => {
-          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
-          console.error('[UrlGrpService] Error fetching:', err);
+          console.error('[UrlGrpService::UrlPage] getAll:', err);
           return of([]);
         })
       );
@@ -87,8 +85,7 @@ export class UrlPage {
           return response.data;
         }),
         catchError(err => {
-          this.errorMessage.set(`[UrlService] Error fetching: ${err}`);
-          console.error('[UrlService] Error fetching:', err);
+          console.error('[UrlService::UrlPage] getAllPagination:', err);
           return of([]);
         })
       );
@@ -102,8 +99,7 @@ export class UrlPage {
 
       return this.serviceUrl.getById(id).pipe(
         catchError(err => {
-          this.errorMessage.set(`[UrlService] Error fetching: ${err}`);
-          console.error('[UrlService] Error fetching:', err);
+          console.error('[UrlService::UrlPage] getById:', err);
           return of(null);
         })
       );
@@ -124,7 +120,6 @@ export class UrlPage {
     this.getAllUrlRX.reload();
     this.getAllUrlGrpRX.reload();
     this.successMessage.set(null);
-    this.errorMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -171,7 +166,7 @@ export class UrlPage {
         this.getAllUrlRX.reload();
       },
       error: (err) => {
-        this.errorMessage.set(`Error: ${err}`)
+        console.error('[UrlService::UrlPage] onSubmitForm:', err);
       }
     });
   }
@@ -196,7 +191,7 @@ export class UrlPage {
         this.getAllUrlRX.reload();
       },
       error: (err) => {
-        this.errorMessage.set(`Error al eliminar: ${err}`)
+        console.error('[UrlService::UrlPage] onDelete:', err);
       }
     });
   }

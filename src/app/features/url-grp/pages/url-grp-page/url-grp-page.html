@@ -11,10 +11,6 @@
     <app-message-success-component [message]="successMessage()"/>
   }
 
-  @if (errorMessage()) {
-    <app-message-error-component [message]="errorMessage()"/>
-  }
-
   @if (getAllUrlGrpRX.isLoading()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>

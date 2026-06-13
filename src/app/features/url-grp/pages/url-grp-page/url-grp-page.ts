@@ -12,7 +12,6 @@ import { PaginationNavComponent } from "@shared/components/pagination-nav-compon
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { UrlGrpFormComponent } from "@features/url-grp/components/url-grp-form-component/url-grp-form-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 
 @Component({
@@ -25,14 +24,12 @@ import { MessageErrorComponent } from "@shared/components/message-error-componen
     PaginationNavComponent,
     PaginationFilterComponent,
     UrlGrpFormComponent,
-    MessageSuccessComponent,
-    MessageErrorComponent
+    MessageSuccessComponent
   ],
   templateUrl: './url-grp-page.html',
 })
 export class UrlGrpPage {
   protected readonly successMessage = signal<string | null>(null);
-  protected readonly errorMessage = signal<string | null>(null);
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
@@ -67,8 +64,7 @@ export class UrlGrpPage {
           return response.data;
         }),
         catchError(err => {
-          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
-          console.error('[UrlGrpService] Error fetching:', err);
+          console.error('[UrlGrpService::UrlGrpPage] getAllPagination:', err);
           return of([]);
         })
       );
@@ -82,8 +78,7 @@ export class UrlGrpPage {
 
       return this.serviceUrlGrp.getById(id).pipe(
         catchError(err => {
-          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
-          console.error('[UrlGrpService] Error fetching:', err);
+          console.error('[UrlGrpService::UrlGrpPage] getById:', err);
           return of(null);
         })
       );
@@ -93,7 +88,6 @@ export class UrlGrpPage {
   protected onRefreshClick(): void {
     this.getAllUrlGrpRX.reload();
     this.successMessage.set(null);
-    this.errorMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -140,7 +134,7 @@ export class UrlGrpPage {
         this.getAllUrlGrpRX.reload();
       },
       error: (err) => {
-        this.errorMessage.set(`Error: ${err}`)
+        console.error('[UrlGrpService::UrlGrpPage] onSubmitForm:', err);
       }
     });
   }
@@ -165,7 +159,7 @@ export class UrlGrpPage {
         this.getAllUrlGrpRX.reload();
       },
       error: (err) => {
-        this.errorMessage.set(`Error al eliminar: ${err}`)
+        console.error('[UrlGrpService::UrlGrpPage] onDelete:', err);
       }
     });
   }

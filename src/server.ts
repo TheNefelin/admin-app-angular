@@ -37,7 +37,7 @@ app.get('/ssr-api/:resource', async (req, res) => {
     { method: 'GET' }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.get('/ssr-api/:resource/pagination', async (req, res) => {
@@ -46,7 +46,7 @@ app.get('/ssr-api/:resource/pagination', async (req, res) => {
     { method: 'GET' }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.get('/ssr-api/:resource/detail', async (req, res) => {
@@ -55,7 +55,7 @@ app.get('/ssr-api/:resource/detail', async (req, res) => {
     { method: 'GET' }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.get('/ssr-api/:resource/:id', async (req, res) => {
@@ -64,7 +64,7 @@ app.get('/ssr-api/:resource/:id', async (req, res) => {
     { method: 'GET' }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.post('/ssr-api/:resource', async (req, res) => {
@@ -76,7 +76,7 @@ app.post('/ssr-api/:resource', async (req, res) => {
     }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.put('/ssr-api/:resource/:id', async (req, res) => {
@@ -88,7 +88,7 @@ app.put('/ssr-api/:resource/:id', async (req, res) => {
     }
   );
 
-  res.json(await response.json());
+  res.status(response.status).json(await response.json());
 });
 
 app.delete('/ssr-api/:resource/:id', async (req, res) => {
@@ -98,9 +98,9 @@ app.delete('/ssr-api/:resource/:id', async (req, res) => {
   );
 
   try {
-    res.json(await response.json());
+    res.status(response.status).json(await response.json());
   } catch {
-    res.status(204).end();
+    res.status(response.status).end();
   }
 });
 // -----------------------------------------------------------------------
