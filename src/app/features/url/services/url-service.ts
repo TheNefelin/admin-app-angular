@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { CreateUrlModel, UpdateUrlModel, UrlModel } from '@features/url/models/url-model';
+import { CreateUrlModel, FilterByUrlGrp, UpdateUrlModel, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
 import { ApiService } from '@core/services/api-service';
 import { Observable } from 'rxjs';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -10,13 +10,17 @@ export class UrlService {
   private apiService = inject(ApiService)
   private readonly endpoint = 'url';
   
-  getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<UrlModel>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
+  getAllPagination(params: PaginationRequestModel<FilterByUrlGrp | null>): Observable<PaginationResponseModel<UrlModelDetail>> {
+    let path = `pagination?page=${params.page}&limit=${params.limit}`
     
     if (params.search && params.search.trim() != '')
       path = `${path}&search=${params.search}`
 
-    return this.apiService.getAll<PaginationResponseModel<UrlModel>>(
+    if (params.filter)
+      if (params.filter.id_urlgrp && params.filter.id_urlgrp > 0)
+        path = `${path}&id_urlgrp=${params.filter.id_urlgrp}`
+
+    return this.apiService.getAll<PaginationResponseModel<UrlModelDetail>>(
       `${this.endpoint}/${path}`
     );
   }

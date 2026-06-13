@@ -1,0 +1,45 @@
+@if (isLoading()) {
+  <app-loading-component />
+} @else {
+  <div class="dropdown w-full" [class.dropdown-open]="isOpen()">
+    <label class="input input-bordered flex items-center gap-2 w-full">
+      <svg class="w-4 h-4 text-base-content/50 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+      </svg>
+      <input
+        #searchInput
+        type="text"
+        class="grow placeholder-my-pink/75 text-my-purple"
+        [placeholder]="displayPlaceholder()"
+        [value]="searchText()"
+        (input)="onSearch($any($event.target).value)"
+        (focus)="isOpen.set(true)"
+        (blur)="onBlur()"
+      />
+      @if (selectedItem()) {
+        <button class="btn btn-ghost btn-xs btn-circle" (mousedown)="clearSelection($event)">✕</button>
+      }
+    </label>
+    <ul class="dropdown-content menu bg-base-100 rounded-box z-50 w-full shadow-lg border border-base-300 max-h-60 overflow-y-auto flex-nowrap p-0 mt-1 text-my-purple">
+      @if (filteredItems().length === 0) {
+        <li>
+          <span class="text-base-content/50 text-sm py-3 justify-center pointer-events-none">
+            Sin resultados para "{{ searchText() }}"
+          </span>
+        </li>
+      } @else {
+        @for (item of filteredItems(); track item.id) {
+          <li>
+            <button
+              type="button"
+              class="rounded-none"
+              [class.active]="selectedItem()?.id === item.id"
+              (mousedown)="select(item, $event)"
+              [innerHTML]="highlight(item.name)">
+            </button>
+          </li>
+        }
+      }
+    </ul>
+  </div>
+}

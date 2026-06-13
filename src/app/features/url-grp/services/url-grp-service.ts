@@ -11,7 +11,7 @@ export class UrlGrpService {
   private readonly endpoint = 'url-grp';
   
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<UrlGrpModel>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
+    let path = `pagination?page=${params.page}&limit=${params.limit}`
     
     if (params.search && params.search.trim() != '')
       path = `${path}&search=${params.search}`
@@ -19,6 +19,10 @@ export class UrlGrpService {
     return this.apiService.getAll<PaginationResponseModel<UrlGrpModel>>(
       `${this.endpoint}/${path}`
     );
+  }
+
+  getAll(): Observable<UrlGrpModel[]> {
+    return this.apiService.getAll<UrlGrpModel[]>(`${this.endpoint}`);
   }
 
   getById(id: number): Observable<UrlGrpModel | null> {

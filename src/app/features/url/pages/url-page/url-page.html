@@ -5,7 +5,15 @@
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Url'" (onClick)="onCreate()"/>
+  <div class="flex gap-4">
+    <app-button-component [icon]="'create'" [textBtn]="'Crear Url'" (onClick)="onCreate()"/>
+    <app-search-select-component 
+      [placeholder]="'Filtrar por UrlGrp'" 
+      [items]="computedUrlGrpList()"
+      [isLoading]="getAllUrlGrpRX.isLoading()" 
+      (selectionChange)="onUrlGrpChange($event)"
+      (cleared)="onUrlGrpClear()"/>
+  </div>
 
   @if (successMessage()) {
     <app-message-success-component [message]="successMessage()"/>
@@ -34,7 +42,7 @@
         </thead>
   
         <tbody>
-          @for (item of computedUrlList(); track item.id_urlgrp) {
+          @for (item of computedUrlList(); track item.id_url) {
             <tr>
               @if (item.is_enable) {
                 <th class="text-success m-0">
@@ -67,7 +75,7 @@
               <td>
                 <a [href]="item.link" target="_blank" class="text-error">{{ item.link }}</a>
                 <br />
-                <span class="font-bold">{{ item.id_urlgrp }}</span>
+                <span class="font-bold">{{ item.urlgrp_name }}</span>
               </td>
               <th class="flex gap-2">
                 <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>

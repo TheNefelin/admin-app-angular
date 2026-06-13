@@ -16,11 +16,14 @@
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input
-          type="text" class="input validator w-full" placeholder="Nombre" required
+          type="text" class="input w-full" placeholder="Nombre"
           [value]="formData().name"
           (input)="updateName($any($event.target).value)"
+          maxlength="50"
         />
-        <p class="validator-hint hidden">Required</p>
+        @if (errorMessage()) {
+          <p class="text-error text-sm mt-1">{{ errorMessage() }}</p>
+        }
       </fieldset>
 
       <fieldset class="fieldset">

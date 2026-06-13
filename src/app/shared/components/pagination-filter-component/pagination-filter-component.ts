@@ -1,7 +1,7 @@
 import { Component, output, signal } from '@angular/core';
 import { ButtonComponent } from "../button-component/button-component";
-import { debounceTime, distinctUntilChanged, merge } from 'rxjs';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
+import { outputFromObservable, toObservable } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-pagination-filter-component',
@@ -11,21 +11,22 @@ import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
   templateUrl: './pagination-filter-component.html',
 })
 export class PaginationFilterComponent {
-  readonly onFilterChange = output<{ search: string; limit: number }>();
   readonly onRefreshClick = output<void>();
 
   protected searchValue = signal('');
   protected limitValue = signal('10');
 
-  private filterSub = merge(
-    toObservable(this.searchValue).pipe(debounceTime(300), distinctUntilChanged()),
-    toObservable(this.limitValue).pipe(debounceTime(300), distinctUntilChanged()),
-  ).pipe(takeUntilDestroyed()).subscribe(() => {
-    this.onFilterChange.emit({
-      search: this.searchValue(),
-      limit: Number(this.limitValue()) || 10,
-    });
-  });
+  readonly onFilterChange = outputFromObservable(
+    merge(
+      toObservable(this.searchValue).pipe(debounceTime(300), distinctUntilChanged()),
+      toObservable(this.limitValue).pipe(debounceTime(300), distinctUntilChanged()),
+    ).pipe(
+      map(() => ({
+        search: this.searchValue(),
+        limit: Number(this.limitValue()) || 10,
+      })),
+    ),
+  );
 
   protected onSubmit(event: Event): void {
     event.preventDefault();

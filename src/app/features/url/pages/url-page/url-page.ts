@@ -5,13 +5,16 @@ import { UrlService } from '@features/url/services/url-service';
 import { catchError, finalize, map, of } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { CreateUrlModel, UpdateUrlModel, UrlModel } from '@features/url/models/url-model';
+import { CreateUrlModel, FilterByUrlGrp, UpdateUrlModel, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
+import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
+import { UrlGrpService } from '@features/url-grp/services/url-grp-service';
+import { SelectItemModel } from '@shared/models/select-item-model';
 
 @Component({
   selector: 'app-url-page',
@@ -24,6 +27,7 @@ import { ModalActionComponent } from "@shared/components/modal-action-component/
     MessageErrorComponent,
     PaginationNavComponent,
     ModalActionComponent,
+    SearchSelectComponent
   ],
   templateUrl: './url-page.html',
 })
@@ -38,19 +42,38 @@ export class UrlPage {
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(10);
   private readonly search = signal<string>('');
+  private readonly selectedUrlGrpId = signal<number | null>(null);
 
+  private readonly serviceUrlrp = inject(UrlGrpService);
+  protected readonly computedUrlGrpList = computed<SelectItemModel[]>(() => {
+    const items = this.getAllUrlGrpRX.value() ?? []
+    return items.map(e => ({ id: e.id_urlgrp, name: e.name }));
+  });
   private readonly serviceUrl = inject(UrlService);
-  private readonly getAllUrlPayload = computed<PaginationRequestModel>(() => ({
+  private readonly getAllUrlPayload = computed<PaginationRequestModel<FilterByUrlGrp | null>>(() => ({
     page: this.currentPage(),
     limit: this.limit(),
-    search: this.search()
+    search: this.search(),
+    filter: this.selectedUrlGrpId() ? { id_urlgrp: this.selectedUrlGrpId()! } : null,
   }));
   protected readonly getByIdUrlPayload = signal<number | null>(null);
   protected readonly deleteItemId = signal<number | null>(null);
-  protected readonly computedUrlList = computed<UrlModel[]>(() => this.getAllUrlRX.value() ?? []);
-  protected readonly computedGrp = computed<UrlModel | null>(() => {
+  protected readonly computedUrlList = computed<UrlModelDetail[]>(() => this.getAllUrlRX.value() ?? []);
+  protected readonly computedUrl = computed<UrlModel | null>(() => {
     if (this.getByIdUrlRX.isLoading()) return null;
     return this.getByIdUrlRX.value() ?? null;
+  });
+
+  protected readonly getAllUrlGrpRX = rxResource({
+    stream: () => {
+      return this.serviceUrlrp.getAll().pipe(
+        catchError(err => {
+          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
+          console.error('[UrlGrpService] Error fetching:', err);
+          return of([]);
+        })
+      );
+    },
   });
 
   protected readonly getAllUrlRX = rxResource({
@@ -64,8 +87,8 @@ export class UrlPage {
           return response.data;
         }),
         catchError(err => {
-          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
-          console.error('[UrlGrpService] Error fetching:', err);
+          this.errorMessage.set(`[UrlService] Error fetching: ${err}`);
+          console.error('[UrlService] Error fetching:', err);
           return of([]);
         })
       );
@@ -79,16 +102,27 @@ export class UrlPage {
 
       return this.serviceUrl.getById(id).pipe(
         catchError(err => {
-          this.errorMessage.set(`[UrlGrpService] Error fetching: ${err}`);
-          console.error('[UrlGrpService] Error fetching:', err);
+          this.errorMessage.set(`[UrlService] Error fetching: ${err}`);
+          console.error('[UrlService] Error fetching:', err);
           return of(null);
         })
       );
     },
   });
 
+  protected onUrlGrpChange(item: SelectItemModel): void {
+    this.selectedUrlGrpId.set(item.id);
+    this.currentPage.set(1);  
+  }
+
+  protected onUrlGrpClear(): void {
+    this.selectedUrlGrpId.set(null);
+    this.currentPage.set(1);  
+  }
+
   protected onRefreshClick(): void {
     this.getAllUrlRX.reload();
+    this.getAllUrlGrpRX.reload();
     this.successMessage.set(null);
     this.errorMessage.set(null);
   }
@@ -117,7 +151,7 @@ export class UrlPage {
   }
   
   protected onEdit(item: UrlModel): void {
-    this.getByIdUrlPayload.set(item.id_urlgrp);
+    this.getByIdUrlPayload.set(item.id_url);
     this.showFormModal.set(true);
   }
 
@@ -143,7 +177,7 @@ export class UrlPage {
   }
 
   protected onDelete(item: UrlModel): void {
-    this.deleteItemId.set(item.id_urlgrp);
+    this.deleteItemId.set(item.id_url);
     this.showDeleteModal.set(true);
   }
 

@@ -40,6 +40,24 @@ app.get('/ssr-api/:resource', async (req, res) => {
   res.json(await response.json());
 });
 
+app.get('/ssr-api/:resource/pagination', async (req, res) => {
+  const response = await fetchExternal(
+    req.url.replace('/ssr-api', ''),
+    { method: 'GET' }
+  );
+
+  res.json(await response.json());
+});
+
+app.get('/ssr-api/:resource/detail', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/detail`,
+    { method: 'GET' }
+  );
+
+  res.json(await response.json());
+});
+
 app.get('/ssr-api/:resource/:id', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}/${req.params.id}`,

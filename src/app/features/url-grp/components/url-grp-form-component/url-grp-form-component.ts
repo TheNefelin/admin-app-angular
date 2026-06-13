@@ -23,6 +23,8 @@ export class UrlGrpFormComponent {
     is_enable: true,
   });
 
+  protected readonly errorMessage = signal<string | null>(null);
+
   private syncEffect = effect(() => {
     const item = this.data();
     if (item) {
@@ -30,10 +32,12 @@ export class UrlGrpFormComponent {
     } else {
       this.formData.set({ name: '', is_enable: true });
     }
+    this.errorMessage.set(null);
   });
 
   protected updateName(value: string): void {
     this.formData.update(d => ({ ...d, name: value }));
+    this.errorMessage.set(null);
   }
 
   protected updateIsEnable(checked: boolean): void {
@@ -41,16 +45,22 @@ export class UrlGrpFormComponent {
   }
 
   protected submit(): void {
-    const data = this.formData();
-    if (!data.name.trim()) return;
+    const name = this.formData().name.trim();
+
+    if (!name || name.length > 50) {
+      this.errorMessage.set('El nombre debe tener entre 1 y 50 caracteres');
+      return;
+    }
+
+    const payload = { ...this.formData(), name };
 
     if (this.isEditMode()) {
       this.onSubmit.emit({
-        ...data,
+        ...payload,
         id_urlgrp: this.data()!.id_urlgrp,
       });
     } else {
-      this.onSubmit.emit(data);
+      this.onSubmit.emit(payload);
     }
   }
 }
