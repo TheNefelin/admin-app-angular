@@ -18,6 +18,7 @@ export class UrlGrpFormComponent {
   readonly onSubmit = output<CreateUrlGrpModel | UpdateUrlGrpModel>();
   readonly onClose = output<void>();
 
+  protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
 
   protected formData = signal<CreateUrlGrpModel>({
@@ -25,13 +26,12 @@ export class UrlGrpFormComponent {
     is_enable: true,
   });
 
-  protected readonly errorMessage = signal<string | null>(null);
-
   private syncEffect = effect(() => {
+    const isOpen = this.openFormModal();
     const item = this.data();
     if (item) {
       this.formData.set(item);
-    } else {
+    } else if (isOpen) {
       this.formData.set({ name: '', is_enable: true });
     }
     this.errorMessage.set(null);

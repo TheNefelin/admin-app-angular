@@ -16,7 +16,6 @@ export class SearchSelectComponent {
   readonly disabled = input<boolean>(false);
   readonly placeholder = input<string>('Buscar...');
   readonly placeholderWhenSelected = input<string | null>(null);
-  readonly clearTrigger = input<number>(0);
   readonly selectionChange = output<SelectItemModel>();
   readonly cleared = output<void>();
 
@@ -25,11 +24,6 @@ export class SearchSelectComponent {
   protected readonly searchText = signal('');
   protected readonly isOpen = signal(false);
   protected readonly selectedItemInternal = signal<SelectItemModel | null>(null);
-
-  private readonly clearEffect = effect(() => {
-    this.clearTrigger();
-    this.clearSelection();
-  });
 
   private readonly syncInitial = effect(() => {
     const id = this.selectedId();

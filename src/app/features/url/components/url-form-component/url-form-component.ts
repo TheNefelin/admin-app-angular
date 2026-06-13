@@ -22,6 +22,7 @@ export class UrlFormComponent {
   readonly onSubmit = output<CreateUrlModel | UpdateUrlModel>();
   readonly onClose = output<void>();
 
+  protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
   protected readonly selectedUrlGrpId = computed(() => this.data()?.id_urlgrp);
 
@@ -29,16 +30,15 @@ export class UrlFormComponent {
     name: '',
     link: '',
     is_enable: true,
-    id_urlgrp: 0
+    id_urlgrp: 0,
   });
 
-  protected readonly errorMessage = signal<string | null>(null);
-
   private syncEffect = effect(() => {
+    const isOpen = this.openFormModal();
     const item = this.data();
     if (item) {
       this.formData.set(item);
-    } else {
+    } else if (isOpen) {
       this.formData.set({ name: '', link: '', is_enable: true, id_urlgrp: 0 });
     }
     this.errorMessage.set(null);
