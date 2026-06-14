@@ -18,6 +18,14 @@ export const routes: Routes = [
         path: 'url',
         loadChildren: () => import('@features/url/url.routes').then(m => m.URL_ROUTES),
       },
+      {
+        path: 'language',
+        loadChildren: () => import('@features/language/language.routes').then(m => m.LANGUAGE_ROUTES),
+      },
+      {
+        path: 'technology',
+        loadChildren: () => import('@features/technology/technology.routes').then(m => m.TECHNOLOGY_ROUTES),
+      },
     ]
   },
 ];

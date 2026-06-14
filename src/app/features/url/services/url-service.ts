@@ -1,5 +1,5 @@
 import { inject, Service } from '@angular/core';
-import { CreateUrlModel, FilterByUrlGrp, UpdateUrlModel, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
+import { SaveUrlModel, FilterByUrlGrp, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
 import { ApiService } from '@core/services/api-service';
 import { Observable } from 'rxjs';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -31,14 +31,14 @@ export class UrlService {
     );
   }
 
-  create(item: CreateUrlModel): Observable<UrlModel> {
-    return this.apiService.create<UrlModel, CreateUrlModel>(
+  create(item: SaveUrlModel): Observable<UrlModel> {
+    return this.apiService.create<UrlModel, SaveUrlModel>(
       this.endpoint, item
     );
   }
 
-  update(id: number, item: UpdateUrlModel): Observable<UrlModel> {
-    return this.apiService.update<UrlModel, UpdateUrlModel>(
+  update(id: number, item: SaveUrlModel): Observable<UrlModel> {
+    return this.apiService.update<UrlModel, SaveUrlModel>(
       this.endpoint, id, item
     );
   }

@@ -1,40 +1,35 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { SaveUrlGrpModel, UrlGrpModel } from '@features/url-grp/models/url-grp-model';
+import { SaveTechnologyModel, TechnologyModel } from '@features/technology/models/technology-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 @Component({
-  selector: 'app-url-grp-form-component',
+  selector: 'app-technology-form-component',
   imports: [
     LoadingComponent,
     MessageErrorComponent
   ],
-  templateUrl: './url-grp-form-component.html',
+  templateUrl: './technology-form-component.html',
 })
-export class UrlGrpFormComponent {
-  readonly data = input<UrlGrpModel | null>(null);
+export class TechnologyFormComponent {
+  readonly data = input<TechnologyModel | null>(null);
   readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<SaveUrlGrpModel>();
+  readonly onSubmit = output<SaveTechnologyModel>();
   readonly onClose = output<void>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
 
-  protected formData = linkedSignal<SaveUrlGrpModel>(() => {
+  protected formData = linkedSignal<SaveTechnologyModel>(() => {
     const item = this.data();
-    return { 
-      name: item?.name ?? '', 
-      is_enable: item?.is_enable ?? true
+    return {
+      name: item?.name ?? '',
     }
   });
 
   protected updateName(value: string): void {
     this.formData.update(d => ({ ...d, name: value }));
     this.errorMessage.set(null);
-  }
-
-  protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enable: checked }));
   }
 
   protected submit(): void {

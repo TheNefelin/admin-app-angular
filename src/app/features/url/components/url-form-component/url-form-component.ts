@@ -1,5 +1,5 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { CreateUrlModel, UpdateUrlModel, UrlModel } from '@features/url/models/url-model';
+import { SaveUrlModel, UrlModel } from '@features/url/models/url-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
@@ -18,12 +18,12 @@ export class UrlFormComponent {
   readonly data = input<UrlModel | null>(null);
   readonly urlgrpList = input<SelectItemModel[]>([]);
   readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<CreateUrlModel | UpdateUrlModel>();
+  readonly onSubmit = output<SaveUrlModel>();
   readonly onClose = output<void>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
-  protected formData = linkedSignal<CreateUrlModel>(() => {
+  protected formData = linkedSignal<SaveUrlModel>(() => {
     const item = this.data();
     return { 
       name: item?.name ?? '', 
@@ -81,15 +81,6 @@ export class UrlFormComponent {
       return;
     }
 
-    const payload = { ...this.formData(), name, link };
-
-    if (this.isEditMode()) {
-      this.onSubmit.emit({
-        ...payload,
-        id_url: this.data()!.id_url,
-      });
-    } else {
-      this.onSubmit.emit(payload);
-    }
+    this.onSubmit.emit({ ...this.formData(), name, link });
   }
 }

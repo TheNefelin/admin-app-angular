@@ -5,7 +5,7 @@ import { UrlService } from '@features/url/services/url-service';
 import { catchError, finalize, map, of } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { CreateUrlModel, FilterByUrlGrp, UpdateUrlModel, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
+import { SaveUrlModel, FilterByUrlGrp, UrlModel, UrlModelDetail } from '@features/url/models/url-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
@@ -150,11 +150,12 @@ export class UrlPage {
     this.showFormModal.set(true);
   }
 
-  protected onSubmitForm(data: UpdateUrlModel | CreateUrlModel): void {
+  protected onSubmitForm(data: SaveUrlModel): void {
     this.isSaving.set(true);
+    const id = this.getByIdUrlPayload();
 
-    const request$ = 'id_url' in data
-    ? this.serviceUrl.update(data.id_url, data)
+    const request$ = id
+    ? this.serviceUrl.update(id, data)
     : this.serviceUrl.create(data);
 
     request$.pipe(

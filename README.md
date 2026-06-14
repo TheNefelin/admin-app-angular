@@ -130,11 +130,12 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ### Commands
 ```sh
 # Component
-ng generate component layouts/components/theme-toggle-component --style=none
+ng generate component features/technology/components/technology-form-component --style=none
+ng generate component features/technology/page/technology-page --style=none
 # Model
-ng generate interface shared/models/select-item-model
+ng generate interface features/technology/models/technology-model
 # Service
-ng generate service features/url-grp/services/url-grp-service
+ng generate service features/technology/services/technology-service
 # Interceptor
 ng generate interceptor core/interceptors/error
 # Module

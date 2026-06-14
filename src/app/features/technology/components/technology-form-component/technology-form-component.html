@@ -1,0 +1,39 @@
+<dialog
+  class="modal modal-bottom modal-open sm:modal-middle">
+
+  <div class="modal-box overflow-visible">
+
+    <h3 class="text-lg font-bold text-primary text-center">
+      @if (isLoading()) {
+        <app-loading-component/>
+      } @else {
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Technology
+      }
+    </h3>
+
+    @if (errorMessage()) {
+      <div class="py-2">
+        <app-message-error-component [message]="errorMessage()"/>
+      </div>
+    }
+
+    @if (!isLoading()) {
+      <fieldset class="fieldset">
+        <label class="label">Nombre</label>
+        <input
+          type="text" class="input w-full" placeholder="Nombre"
+          [value]="formData().name"
+          (input)="updateName($any($event.target).value)"
+          maxlength="50"
+        />
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <button class="btn btn-primary min-w-32" (click)="submit()">
+          {{ isEditMode() ? 'Guardar' : 'Crear' }}
+        </button>
+        <button (click)="onClose.emit()" class="btn min-w-32">Cancelar</button>
+      </div>
+    }
+  </div>
+</dialog>

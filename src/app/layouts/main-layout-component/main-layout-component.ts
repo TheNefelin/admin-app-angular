@@ -30,4 +30,12 @@ export class MainLayoutComponent {
   protected goToUrl() : void {
     this.router.navigate([ROUTES_CONSTANTS.URL]);
   }
+
+  protected goToLanguage() : void {
+    this.router.navigate([ROUTES_CONSTANTS.LANGUAGE]);
+  }
+
+  protected goToTechnology() : void {
+    this.router.navigate([ROUTES_CONSTANTS.TECHNOLOGY]);
+  }
 }
