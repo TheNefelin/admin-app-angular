@@ -97,10 +97,11 @@
   />
 }
 
-<app-url-grp-form-component
-  [openFormModal]="showFormModal()"
-  [isLoading]="getByIdUrlGrpRX.isLoading() || isSaving()"
-  [data]="computedUrlGrp()"
-  (onSubmit)="onSubmitForm($event)"
-  (onClose)="showFormModal.set(false)"
-/>
+@if (showFormModal()) {
+  <app-url-grp-form-component
+    [isLoading]="getByIdUrlGrpRX.isLoading() || isSaving()"
+    [data]="computedUrlGrp()"
+    (onSubmit)="onSubmitForm($event)"
+    (onClose)="showFormModal.set(false)"
+  />
+}

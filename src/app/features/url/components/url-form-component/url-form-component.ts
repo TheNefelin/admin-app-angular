@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { CreateUrlModel, UpdateUrlModel, UrlModel } from '@features/url/models/url-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
@@ -15,7 +15,6 @@ import { MessageErrorComponent } from "@shared/components/message-error-componen
   templateUrl: './url-form-component.html',
 })
 export class UrlFormComponent {
-  readonly openFormModal = input<boolean>(false);
   readonly data = input<UrlModel | null>(null);
   readonly urlgrpList = input<SelectItemModel[]>([]);
   readonly isLoading = input<boolean>(false);
@@ -24,24 +23,14 @@ export class UrlFormComponent {
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
-  protected readonly selectedUrlGrpId = computed(() => this.data()?.id_urlgrp);
-
-  protected formData = signal<CreateUrlModel>({
-    name: '',
-    link: '',
-    is_enable: true,
-    id_urlgrp: 0,
-  });
-
-  private syncEffect = effect(() => {
-    const isOpen = this.openFormModal();
+  protected formData = linkedSignal<CreateUrlModel>(() => {
     const item = this.data();
-    if (item) {
-      this.formData.set(item);
-    } else if (isOpen) {
-      this.formData.set({ name: '', link: '', is_enable: true, id_urlgrp: 0 });
-    }
-    this.errorMessage.set(null);
+    return { 
+      name: item?.name ?? '', 
+      link: item?.link ?? '', 
+      is_enable: item?.is_enable ?? true, 
+      id_urlgrp: item?.id_urlgrp ?? 0 
+    };
   });
 
   protected updateName(value: string): void {

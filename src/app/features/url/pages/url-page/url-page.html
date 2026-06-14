@@ -112,11 +112,12 @@
   />
 }
 
-<app-url-form-component 
-  [openFormModal]="showFormModal()"
-  [isLoading]="getByIdUrlRX.isLoading() || isSaving()"
-  [data]="computedUrl()"
-  [urlgrpList]="computedUrlGrpList()"
-  (onSubmit)="onSubmitForm($event)"
-  (onClose)="showFormModal.set(false)"
-/>
+@if (showFormModal()) {
+  <app-url-form-component 
+    [isLoading]="getByIdUrlRX.isLoading() || isSaving()"
+    [data]="computedUrl()"
+    [urlgrpList]="computedUrlGrpList()"
+    (onSubmit)="onSubmitForm($event)"
+    (onClose)="showFormModal.set(false)"
+  />
+}

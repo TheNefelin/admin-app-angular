@@ -1,4 +1,4 @@
-import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { UrlGrpModel, CreateUrlGrpModel, UpdateUrlGrpModel } from '@features/url-grp/models/url-grp-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
@@ -12,7 +12,6 @@ import { MessageErrorComponent } from "@shared/components/message-error-componen
   templateUrl: './url-grp-form-component.html',
 })
 export class UrlGrpFormComponent {
-  readonly openFormModal = input<boolean>(false);
   readonly data = input<UrlGrpModel | null>(null);
   readonly isLoading = input<boolean>(false);
   readonly onSubmit = output<CreateUrlGrpModel | UpdateUrlGrpModel>();
@@ -21,20 +20,12 @@ export class UrlGrpFormComponent {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
 
-  protected formData = signal<CreateUrlGrpModel>({
-    name: '',
-    is_enable: true,
-  });
-
-  private syncEffect = effect(() => {
-    const isOpen = this.openFormModal();
+  protected formData = linkedSignal<CreateUrlGrpModel>(() => {
     const item = this.data();
-    if (item) {
-      this.formData.set(item);
-    } else if (isOpen) {
-      this.formData.set({ name: '', is_enable: true });
+    return { 
+      name: item?.name ?? '', 
+      is_enable: item?.is_enable ?? true
     }
-    this.errorMessage.set(null);
   });
 
   protected updateName(value: string): void {

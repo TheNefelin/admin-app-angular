@@ -1,6 +1,5 @@
 <dialog 
-  class="modal modal-bottom sm:modal-middle"
-  [class.modal-open]="openFormModal()">
+  class="modal modal-bottom modal-open sm:modal-middle">
   
   <div class="modal-box overflow-visible">
 
@@ -42,9 +41,8 @@
       <fieldset class="fieldset">
         <label class="label">Seleccionar Url Grp</label>
         <app-search-select-component 
-          [placeholder]="'Filtrar por Url Grp'" 
           [items]="urlgrpList()"
-          [selectedId]="selectedUrlGrpId()"
+          [selectedId]="formData().id_urlgrp"
           [isLoading]="isLoading()" 
           (selectionChange)="updateUrlGrp($event)"
           (cleared)="clearUrlGrp()"
