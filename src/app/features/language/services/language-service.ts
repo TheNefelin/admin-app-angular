@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { SaveLanguageModel, LanguageModel } from '../models/language-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { UploadImageModel } from '@shared/models/upload-image-model';
 
 @Service()
 export class LanguageService {
@@ -39,9 +40,21 @@ export class LanguageService {
     );
   }
 
-  delete(id: number): Observable<boolean> {
-    return this.apiService.delete<boolean>(
+  delete(id: number): Observable<void> {
+    return this.apiService.delete<void>(
       this.endpoint, id
     );
   }
+
+  uploadImage(id: number, image: UploadImageModel): Observable<LanguageModel> {
+    return this.apiService.upload<LanguageModel>(
+      this.endpoint, id, image.file
+    );
+  }
+
+  deleteImage(id: number): Observable<void> {
+    return this.apiService.deleteResource<void>(
+      this.endpoint, id, 'image'
+    );
+  }  
 }

@@ -73,9 +73,11 @@
                 <br />
                 <span class="font-bold">{{ item.urlgrp_name }}</span>
               </td>
-              <th class="flex gap-2">
-                <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
-                <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+              <th>
+                <div class="flex gap-2">
+                  <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
+                  <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+                </div>
               </th>
             </tr>
           }

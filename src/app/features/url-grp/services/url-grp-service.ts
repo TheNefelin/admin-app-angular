@@ -43,8 +43,8 @@ export class UrlGrpService {
     );
   }
 
-  delete(id: number): Observable<boolean> {
-    return this.apiService.delete<boolean>(
+  delete(id: number): Observable<void> {
+    return this.apiService.delete<void>(
       this.endpoint, id
     );
   }

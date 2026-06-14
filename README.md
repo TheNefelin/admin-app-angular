@@ -133,7 +133,7 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ng generate component features/technology/components/technology-form-component --style=none
 ng generate component features/technology/page/technology-page --style=none
 # Model
-ng generate interface features/technology/models/technology-model
+ng generate interface shared/models/upload-image-model
 # Service
 ng generate service features/technology/services/technology-service
 # Interceptor

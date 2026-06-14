@@ -24,4 +24,15 @@ export class ApiService {
   delete<T>(resource: string, id: number) {
     return this.http.delete<T>(`/ssr-api/${resource}/${id}`);
   } 
+
+  upload<T>(resource: string, id: number, file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<T>(`/ssr-api/${resource}/${id}/upload-image`, formData);
+  }
+
+  deleteResource<T>(resource: string, id: number, path: string) {
+    return this.http.delete<T>(`/ssr-api/${resource}/${id}/${path}`);
+  }
 }
