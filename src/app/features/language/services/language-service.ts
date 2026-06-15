@@ -18,7 +18,7 @@ export class LanguageService {
       path = `${path}&search=${params.search}`
 
     return this.apiService.getAll<PaginationResponseModel<LanguageModel>>(
-      `${this.endpoint}/${path}`
+      `${this.endpoint}/pagination/${path}`
     );
   }
 

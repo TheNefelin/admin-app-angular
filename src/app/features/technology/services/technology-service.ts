@@ -18,7 +18,7 @@ export class TechnologyService {
       path = `${path}&search=${params.search}`
 
     return this.apiService.getAll<PaginationResponseModel<TechnologyModel>>(
-      `${this.endpoint}/${path}`
+      `${this.endpoint}/pagination/${path}`
     );
   }
 
