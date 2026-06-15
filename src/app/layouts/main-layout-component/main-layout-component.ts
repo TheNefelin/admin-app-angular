@@ -38,4 +38,8 @@ export class MainLayoutComponent {
   protected goToTechnology() : void {
     this.router.navigate([ROUTES_CONSTANTS.TECHNOLOGY]);
   }
+
+  protected goToProject() : void {
+    this.router.navigate([ROUTES_CONSTANTS.PROJECT]);
+  }
 }
