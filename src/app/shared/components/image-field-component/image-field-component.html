@@ -1,5 +1,5 @@
 <fieldset class="fieldset">
-  <div class="relative w-50 mx-auto">
+  <div class="relative mx-auto" [class.w-50]="aspect() === 'aspect-square'" [class.w-100]="aspect() === 'aspect-video'">
     <div [class]="'overflow-hidden rounded-md shadow-lg ' + aspect()">
       <img
         class="w-full h-full object-cover"

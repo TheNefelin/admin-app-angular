@@ -1,9 +1,11 @@
-<section class="bg-base-200 border-base-300 rounded-box border p-2 flex justify-center flex-wrap w-full">
-  <div class="join p-2">
+<section class="bg-base-200 border-base-300 rounded-box border p-4 flex gap-2 justify-center flex-wrap w-full">
+  <button class="join-item btn btn-active bg-base-200">1</button>
+
+  <div class="join ">
     <button class="join-item btn bg-base-100" (click)="prevPage.emit()">«</button>
-    <button class="join-item btn btn-active bg-base-200">1</button>
     <button class="join-item btn btn-active bg-base-300">Página {{ currentPage() }}</button>
-    <button class="join-item btn btn-active bg-base-200">{{ totalPages() }}</button>
     <button class="join-item btn bg-base-100" (click)="nextPage.emit()">»</button>
-  </div>  
+  </div>
+  
+  <button class="join-item btn btn-active bg-base-200">{{ totalPages() }}</button>
 </section>
