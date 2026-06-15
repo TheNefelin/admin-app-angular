@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { TechnologyService } from '@features/technology/services/technology-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { SaveTechnologyModel, TechnologyModel } from '@features/technology/models/technology-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
@@ -31,6 +31,7 @@ import { MessageSuccessComponent } from "@shared/components/message-success-comp
 })
 export class TechnologyPage {
   protected readonly successMessage = signal<string | null>(null);
+  protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
@@ -119,7 +120,24 @@ export class TechnologyPage {
     this.showFormModal.set(true);
   }
 
-  protected onSubmitForm(data: SaveTechnologyModel): void {
+  protected onDeleteImage(): void {
+    const id = this.getByIdPayload();
+    if (!id) return;
+
+    this.isSaving.set(true);
+
+    this.service.deleteImage(id).pipe(
+      finalize(() => this.isSaving.set(false))
+    ).subscribe({
+      next: () => {
+        this.getByIdRX.reload();
+        this.getAllRX.reload();
+      },
+      error: (err) => console.error('[TechnologyService::TechnologyPage] onDeleteImage:', err)
+    });
+  }
+
+  protected onSubmitForm({ data, file }: { data: SaveTechnologyModel; file: File | null }): void {
     this.isSaving.set(true);
     const id = this.getByIdPayload();
 
@@ -128,20 +146,36 @@ export class TechnologyPage {
     : this.service.create(data);
 
     request$.pipe(
+      switchMap(result => {
+        const entityId = result?.id_technology ?? id;
+
+        if (entityId && file) {
+          return this.service.uploadImage(entityId, { file });
+        }
+        
+        return of(null);
+      }),
       finalize(() => this.isSaving.set(false))
     ).subscribe({
-      next: () => {
-        this.successMessage.set('Guardado correctamente');
-        this.showFormModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[TechnologyService::TechnologyPage] onSubmitForm:', err);
-      }
+      next: () => this.finalizeSave(),
+      error: (err) => console.error('[TechnologyService::TechnologyPage] onSubmitForm:', err)
     });
   }
 
+  private finalizeSave(): void {
+    this.successMessage.set('Guardado correctamente');
+    this.showFormModal.set(false);
+    this.getByIdPayload.set(null);
+    this.getAllRX.reload();
+  }
+
+  protected onCloseForm(): void {
+    this.showFormModal.set(false);
+    this.getByIdPayload.set(null);
+  }
+
   protected onDelete(item: TechnologyModel): void {
+    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
     this.deleteItemId.set(item.id_technology);
     this.showDeleteModal.set(true);
   }

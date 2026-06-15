@@ -31,14 +31,16 @@ async function fetchExternal(url: string, options: any = {}) {
   });
 }
 
-app.get('/ssr-api/:resource', async (req, res) => {
-  const response = await fetchExternal(
-    req.url.replace('/ssr-api', ''),
-    { method: 'GET' }
-  );
-
-  res.status(response.status).json(await response.json());
-});
+async function fetchExternalFile(url: string, contentType: string, rawBody: Buffer) {
+  return fetch(`${API_URL}${url}`, {
+    method: 'POST',
+    headers: {
+      'X-API-Key': API_KEY!,
+      'Content-Type': contentType,
+    },
+    body: rawBody as any,
+  });
+}
 
 app.get('/ssr-api/:resource/pagination', async (req, res) => {
   const response = await fetchExternal(
@@ -49,9 +51,9 @@ app.get('/ssr-api/:resource/pagination', async (req, res) => {
   res.status(response.status).json(await response.json());
 });
 
-app.get('/ssr-api/:resource/detail', async (req, res) => {
+app.get('/ssr-api/:resource', async (req, res) => {
   const response = await fetchExternal(
-    `/${req.params.resource}/detail`,
+    req.url.replace('/ssr-api', ''),
     { method: 'GET' }
   );
 
@@ -79,6 +81,21 @@ app.post('/ssr-api/:resource', async (req, res) => {
   res.status(response.status).json(await response.json());
 });
 
+app.post('/ssr-api/:resource/:id/upload-image', express.raw({ type: 'multipart/form-data', limit: '10mb' }), async (req, res) => {
+  try {
+    const response = await fetchExternalFile(
+      `/${req.params.resource}/${req.params.id}/upload-image`,
+      req.headers['content-type'] as string,
+      req.body as Buffer
+    );
+    const text = await response.text();
+    res.status(response.status).json(text ? JSON.parse(text) : null);
+  } catch (err) {
+    console.error('[server.ts] upload-image error:', err);
+    res.status(500).json({ detail: String(err) });
+  }
+});
+
 app.put('/ssr-api/:resource/:id', async (req, res) => {
   const response = await fetchExternal(
     `/${req.params.resource}/${req.params.id}`,
@@ -89,6 +106,19 @@ app.put('/ssr-api/:resource/:id', async (req, res) => {
   );
 
   res.status(response.status).json(await response.json());
+});
+
+app.delete('/ssr-api/:resource/:id/image', async (req, res) => {
+  const response = await fetchExternal(
+    `/${req.params.resource}/${req.params.id}/image`,
+    { method: 'DELETE' }
+  );
+
+  try {
+    res.status(response.status).json(await response.json());
+  } catch {
+    res.status(response.status).end();
+  }
 });
 
 app.delete('/ssr-api/:resource/:id', async (req, res) => {

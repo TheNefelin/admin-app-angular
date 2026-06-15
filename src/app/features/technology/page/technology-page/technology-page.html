@@ -89,7 +89,7 @@
   <app-modal-action-component
     [isLoading]="isDeleting()"
     [title]="'Eliminar Technology'"
-    [message]="'Estas seguro que deceas eliminar Technology'"
+    [message]="deleteMessage()"
     (onConfirm)="onDeleteModalConfirm()"
     (onClose)="showDeleteModal.set(false)"
   />
@@ -100,6 +100,7 @@
     [isLoading]="getByIdRX.isLoading() || isSaving()"
     [data]="computedItem()"
     (onSubmit)="onSubmitForm($event)"
-    (onClose)="showFormModal.set(false)"
+    (onClose)="onCloseForm()"
+    (onDeleteImage)="onDeleteImage()"
   />
 }

@@ -2,21 +2,25 @@ import { Component, computed, input, linkedSignal, output, signal } from '@angul
 import { SaveTechnologyModel, TechnologyModel } from '@features/technology/models/technology-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
+import { ImageFieldComponent } from "@shared/components/image-field-component/image-field-component";
 
 @Component({
   selector: 'app-technology-form-component',
   imports: [
     LoadingComponent,
-    MessageErrorComponent
+    MessageErrorComponent,
+    ImageFieldComponent
   ],
   templateUrl: './technology-form-component.html',
 })
 export class TechnologyFormComponent {
   readonly data = input<TechnologyModel | null>(null);
   readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<SaveTechnologyModel>();
+  readonly onSubmit = output<{ data: SaveTechnologyModel; file: File | null }>();
   readonly onClose = output<void>();
+  readonly onDeleteImage = output<void>();
 
+  protected readonly selectedFile = signal<File | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
 
@@ -32,6 +36,10 @@ export class TechnologyFormComponent {
     this.errorMessage.set(null);
   }
 
+  protected onFileSelected(file: File | null): void {
+    this.selectedFile.set(file);
+  }
+
   protected submit(): void {
     const name = this.formData().name.trim();
 
@@ -40,6 +48,9 @@ export class TechnologyFormComponent {
       return;
     }
 
-    this.onSubmit.emit({ ...this.formData(), name });
+    this.onSubmit.emit({
+      data: { ...this.formData(), name },
+      file: this.selectedFile()
+    });
   }
 }

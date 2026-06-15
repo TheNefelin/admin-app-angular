@@ -1,8 +1,5 @@
-<dialog
-  class="modal modal-bottom modal-open sm:modal-middle">
-
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
   <div class="modal-box overflow-visible">
-
     <h3 class="text-lg font-bold text-primary text-center">
       @if (isLoading()) {
         <app-loading-component/>
@@ -18,6 +15,12 @@
     }
 
     @if (!isLoading()) {
+      <app-image-field-component
+        [aspect]="'aspect-square'"
+        [imgUrl]="data()?.img_url ?? null"
+        (fileSelected)="onFileSelected($event)"
+        (onDelete)="onDeleteImage.emit()"/>
+
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input

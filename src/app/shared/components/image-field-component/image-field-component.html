@@ -1,0 +1,30 @@
+<fieldset class="fieldset">
+  <div class="relative w-50 mx-auto">
+    <div [class]="'overflow-hidden rounded-md shadow-lg ' + aspect()">
+      <img
+        class="w-full h-full object-cover"
+        [ngSrc]="displayUrl()"
+        [alt]="alt()"
+        fill />
+    </div>
+
+    @if (imgUrl() || previewUrl()) {
+      <div class="absolute top-2 right-2">
+        <app-button-component
+          [icon]="'delete'"
+          [textBtn]="'Eliminar'"
+          (onClick)="onDeleteClick()" />
+      </div>
+    }
+  </div>
+
+  <label class="label">Cargar Imagen</label>
+  <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
+    <span class="text-sm">{{ previewUrl() ? 'Cambiar Imagen' : 'Elegir Imagen' }}</span>
+    <input
+      type="file"
+      class="hidden"
+      accept="image/*"
+      (change)="onFileSelected($any($event.target).files[0])" />
+  </label>
+</fieldset>

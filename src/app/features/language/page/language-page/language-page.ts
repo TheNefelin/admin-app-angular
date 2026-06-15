@@ -3,7 +3,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { LanguageService } from '@features/language/services/language-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { SaveLanguageModel, LanguageModel } from '@features/language/models/language-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
@@ -25,13 +25,13 @@ import { MessageSuccessComponent } from "@shared/components/message-success-comp
     PaginationNavComponent,
     PaginationFilterComponent,
     LanguageFormComponent,
-    MessageSuccessComponent,
-    NgOptimizedImage
-],
+    MessageSuccessComponent
+  ],
   templateUrl: './language-page.html',
 })
 export class LanguagePage {
   protected readonly successMessage = signal<string | null>(null);
+  protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
@@ -120,7 +120,24 @@ export class LanguagePage {
     this.showFormModal.set(true);
   }
 
-  protected onSubmitForm(data: SaveLanguageModel): void {
+  protected onDeleteImage(): void {
+    const id = this.getByIdPayload();
+    if (!id) return;
+
+    this.isSaving.set(true);
+
+    this.service.deleteImage(id).pipe(
+      finalize(() => this.isSaving.set(false))
+    ).subscribe({
+      next: () => {
+        this.getByIdRX.reload();
+        this.getAllRX.reload();
+      },
+      error: (err) => console.error('[LanguageService::LanguagePage] onDeleteImage:', err)
+    });
+  }
+
+  protected onSubmitForm({ data, file }: { data: SaveLanguageModel; file: File | null }): void {
     this.isSaving.set(true);
     const id = this.getByIdPayload();
 
@@ -129,20 +146,36 @@ export class LanguagePage {
     : this.service.create(data);
 
     request$.pipe(
+      switchMap(result => {
+        const entityId = result?.id_language ?? id;
+
+        if (entityId && file) {
+          return this.service.uploadImage(entityId, { file });
+        }
+        
+        return of(null);
+      }),
       finalize(() => this.isSaving.set(false))
     ).subscribe({
-      next: () => {
-        this.successMessage.set('Guardado correctamente');
-        this.showFormModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[LanguageService::LanguagePage] onSubmitForm:', err);
-      }
+      next: () => this.finalizeSave(),
+      error: (err) => console.error('[LanguageService::LanguagePage] onSubmitForm:', err)
     });
   }
 
+  private finalizeSave(): void {
+    this.successMessage.set('Guardado correctamente');
+    this.showFormModal.set(false);
+    this.getByIdPayload.set(null);
+    this.getAllRX.reload();
+  }
+
+  protected onCloseForm(): void {
+    this.showFormModal.set(false);
+    this.getByIdPayload.set(null);
+  }
+
   protected onDelete(item: LanguageModel): void {
+    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
     this.deleteItemId.set(item.id_language);
     this.showDeleteModal.set(true);
   }

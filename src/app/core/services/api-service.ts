@@ -32,7 +32,7 @@ export class ApiService {
     return this.http.post<T>(`/ssr-api/${resource}/${id}/upload-image`, formData);
   }
 
-  deleteResource<T>(resource: string, id: number, path: string) {
-    return this.http.delete<T>(`/ssr-api/${resource}/${id}/${path}`);
+  deleteResource<T>(resource: string, id: number) {
+    return this.http.delete<T>(`/ssr-api/${resource}/${id}/image`);
   }
 }

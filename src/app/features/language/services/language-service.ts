@@ -54,7 +54,7 @@ export class LanguageService {
 
   deleteImage(id: number): Observable<void> {
     return this.apiService.deleteResource<void>(
-      this.endpoint, id, 'image'
+      this.endpoint, id
     );
   }  
 }
