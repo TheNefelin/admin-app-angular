@@ -107,20 +107,26 @@
           <label class="label">Seleccionar Lenguaje</label>
           <app-select-search-component 
             [items]="computedLanguageList()"
-            [isLoading]="isLoading()"/>
+            [isLoading]="isLoading()"
+            [clearTrigger]="clearSelectTrigger()"
+            (selectionChange)="onSelectedNewLanguage($event)"/>
 
           <app-select-list-component
-            [data]="formLanguageList()"/>
+            [data]="formLanguageList()"
+            (onDeleteItem)="onDeleteLanguage($event)"/>
         </fieldset>
     
         <fieldset class="fieldset">
           <label class="label">Seleccionar Tecnologia</label>
           <app-select-search-component 
             [items]="computedTechnologyList()"
-            [isLoading]="isLoading()"/>
+            [isLoading]="isLoading()"
+            [clearTrigger]="clearSelectTrigger()"
+            (selectionChange)="onSelectedNewTechnology($event)"/>
 
           <app-select-list-component 
-            [data]="formTechnologyList()"/>
+            [data]="formTechnologyList()"
+            (onDeleteItem)="onDeleteTechnology($event)"/>
         </fieldset>
       </section>
   

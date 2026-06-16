@@ -46,7 +46,7 @@ export class UrlPage {
   private readonly serviceUrlrp = inject(UrlGrpService);
   protected readonly computedUrlGrpList = computed<SelectItemModel[]>(() => {
     const items = this.getAllUrlGrpRX.value() ?? []
-    return items.map(e => ({ id: e.id_urlgrp, name: e.name }));
+    return items.map(e => ({ id: e.id_urlgrp, name: e.name, img_url: null}));
   });
   private readonly serviceUrl = inject(UrlService);
   private readonly getAllUrlPayload = computed<PaginationRequestModel<FilterByUrlGrp | null>>(() => ({

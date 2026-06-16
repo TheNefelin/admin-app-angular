@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { LoadingComponent } from "../loading-component/loading-component";
 import { NgOptimizedImage } from '@angular/common';
-import { SelectedItemModel } from '@shared/models/selected-item-model';
+import { SelectItemModel } from '@shared/models/select-item-model';
 
 @Component({
   selector: 'app-select-list-component',
@@ -13,6 +13,6 @@ import { SelectedItemModel } from '@shared/models/selected-item-model';
 })
 export class SelectListComponent {
   readonly isLoading = input<boolean>(false);
-  readonly data = input<SelectedItemModel[]>([]);
-  readonly onDeleteItem = output<SelectedItemModel>();
+  readonly data = input<SelectItemModel[]>([]);
+  readonly onDeleteItem = output<SelectItemModel>();
 }

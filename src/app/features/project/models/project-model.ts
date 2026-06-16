@@ -6,16 +6,18 @@ export interface SaveProjectModel {
   repo_url: string | null;
   app_url: string | null;
   is_enable: boolean;
+  language_ids: number[];
+  technology_ids: number[];
 }
 
 export interface ProjectModel extends SaveProjectModel {
   id_project: number;
+  name: string;
+  app_url: string | null;
   img_url: string | null;
+  is_enable: boolean;
   created_at: string;
   updated_at: string;
-}
-
-export interface ProjectDetailModel extends ProjectModel {
   languages: LanguageModel[];
   technologies: TechnologyModel[];
 }

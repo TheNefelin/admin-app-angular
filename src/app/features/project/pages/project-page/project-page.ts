@@ -1,7 +1,7 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { ProjectDetailModel } from '@features/project/models/project-model';
+import { ProjectModel } from '@features/project/models/project-model';
 import { ProjectService } from '@features/project/services/project-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { catchError, finalize, map, of } from 'rxjs';
@@ -46,7 +46,7 @@ export class ProjectPage {
     search: this.search()
   }));
   protected readonly deleteItemId = signal<number | null>(null);
-  protected readonly computedList = computed<ProjectDetailModel[]>(() => this.getAllRX.value() ?? []);
+  protected readonly computedList = computed<ProjectModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
     params: () => this.getAllPayload(),
@@ -93,11 +93,11 @@ export class ProjectPage {
     this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM]);
   }
 
-  protected onEdit(item: ProjectDetailModel): void {
+  protected onEdit(item: ProjectModel): void {
     this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM, item.id_project]);
   }
 
-  protected onDelete(item: ProjectDetailModel): void {
+  protected onDelete(item: ProjectModel): void {
     this.deleteModalMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
     this.deleteItemId.set(item.id_project);
     this.showDeleteModal.set(true);

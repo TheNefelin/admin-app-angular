@@ -12,6 +12,7 @@ import { SelectItemModel } from '@shared/models/select-item-model';
 export class SelectSearchComponent {
   readonly items = input.required<SelectItemModel[]>();
   readonly selectedId = input<number | undefined>(undefined);
+  readonly clearTrigger = input<number>(0);
   readonly isLoading = input<boolean>(false);
   readonly disabled = input<boolean>(false);
   readonly placeholder = input<string>('Buscar...');
@@ -24,6 +25,13 @@ export class SelectSearchComponent {
   protected readonly searchText = signal('');
   protected readonly isOpen = signal(false);
   protected readonly selectedItemInternal = signal<SelectItemModel | null>(null);
+
+  private readonly onClearTrigger = effect(() => {
+    if (this.clearTrigger() > 0) {
+      this.selectedItemInternal.set(null);
+      this.searchText.set('');
+    }
+  });
 
   private readonly syncInitial = effect(() => {
     const id = this.selectedId();

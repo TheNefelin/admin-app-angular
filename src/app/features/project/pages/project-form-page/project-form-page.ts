@@ -1,6 +1,6 @@
 import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { ProjectDetailModel, SaveProjectModel } from '@features/project/models/project-model';
+import { ProjectModel, SaveProjectModel } from '@features/project/models/project-model';
 import { ProjectService } from '@features/project/services/project-service';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { catchError, finalize, map, of, switchMap } from 'rxjs';
@@ -14,7 +14,8 @@ import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
-import { SelectedItemModel } from '@shared/models/selected-item-model';
+import { ProjectLanguageModel } from '@features/project-language/models/project-language-model';
+import { ProjectTechnologyModel } from '@features/project-technology/models/project-technology-model';
 
 @Component({
   selector: 'app-project-form-page',
@@ -47,6 +48,7 @@ export class ProjectFormPage {
     ].some(e => e.isLoading())
   );
 
+  protected readonly clearSelectTrigger = signal<number>(0);
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
@@ -65,31 +67,33 @@ export class ProjectFormPage {
       repo_url: item?.repo_url ?? null,
       app_url: item?.app_url ?? null,
       is_enable: item?.is_enable ?? false,
+      language_ids: item?.languages.map(e => e.id_language) ?? [],
+      technology_ids: item?.technologies.map(e => e.id_technology) ?? []
     }
   });
-  protected formLanguageList = computed<SelectedItemModel[]>(() => {
+  protected formLanguageList = linkedSignal<SelectItemModel[]>(() => {
     const items = this.computedProject()?.languages ?? [];
     return items.map(e => ({ id: e.id_language, name: e.name, img_url: e.img_url }));
   });
-  protected formTechnologyList = computed<SelectedItemModel[]>(() => {
+  protected formTechnologyList = linkedSignal<SelectItemModel[]>(() => {
     const items = this.computedProject()?.technologies ?? [];
     return items.map(e => ({ id: e.id_technology, name: e.name, img_url: e.img_url }));
   });
 
   private readonly serviceProject = inject(ProjectService);
   private readonly getProjectByIdPayload = computed(() => this.routeId());
-  protected readonly computedProject = computed<ProjectDetailModel | null>(() => this.getProjectByIdRX.value() ?? null);
+  protected readonly computedProject = computed<ProjectModel | null>(() => this.getProjectByIdRX.value() ?? null);
 
   private readonly serviceLanguage = inject(LanguageService);
   protected readonly computedLanguageList = computed<SelectItemModel[]>(() => {
     const items = this.getAllLanguageRX.value() ?? []
-    return items.map(e => ({ id: e.id_language, name: e.name }));
+    return items.map(e => ({ id: e.id_language, name: e.name, img_url: e.img_url }));
   });
   
   private readonly serviceTechnology = inject(TechnologyService);
   protected readonly computedTechnologyList = computed<SelectItemModel[]>(() => {
     const items = this.getAllTechnologyRX.value() ?? []
-    return items.map(e => ({ id: e.id_technology, name: e.name }));
+    return items.map(e => ({ id: e.id_technology, name: e.name, img_url: e.img_url }));
   });
   
   protected readonly getProjectByIdRX = rxResource({
@@ -99,7 +103,6 @@ export class ProjectFormPage {
 
       return this.serviceProject.getById(id).pipe(
         map(result => {
-          console.log(result)
           return result
         }),
         catchError(err => {
@@ -150,6 +153,30 @@ export class ProjectFormPage {
         },
         error: (err) => console.error('[ProjectService::ProjectFormPage] onDeleteImage:', err)
       });
+    }
+  }
+
+  protected onDeleteLanguage(item: SelectItemModel): void {
+    const id_project = this.getProjectByIdPayload();
+
+    if (!id_project) {
+      this.formLanguageList.update(list =>
+        list.filter(e => e.id !== item.id)
+      );
+    } else {
+      const deleteLanguage: ProjectLanguageModel = { id_project: id_project, id_language: item.id }
+    }
+  }
+
+  protected onDeleteTechnology(item: SelectItemModel): void {
+    const id_project = this.getProjectByIdPayload();
+
+    if (!id_project) {
+      this.formTechnologyList.update(list =>
+        list.filter(e => e.id !== item.id)
+      );
+    } else {
+      const deleteTechnology: ProjectTechnologyModel = { id_project: id_project, id_technology: item.id }
     }
   }
 
@@ -225,6 +252,28 @@ export class ProjectFormPage {
     reader.onload = () => this.previewUrl.set(reader.result as string);
     reader.readAsDataURL(file);
     this.selectedFile.set(file);
+  }
+
+  protected onSelectedNewLanguage(item: SelectItemModel): void {
+    this.clearSelectTrigger.update(e => e + 1);
+    
+    this.formLanguageList.update(list => {
+      const exists = list.some(e => e.id === item.id);
+      if (exists) return list;
+
+      return [...list, item]
+    });
+  }
+
+  protected onSelectedNewTechnology(item: SelectItemModel): void {
+    this.clearSelectTrigger.update(e => e + 1);
+
+    this.formTechnologyList.update(list => {
+      const exists = list.some(e => e.id === item.id);
+      if (exists) return list;
+
+      return [...list, item]
+    });
   }
 
   protected goToProject(): void {
