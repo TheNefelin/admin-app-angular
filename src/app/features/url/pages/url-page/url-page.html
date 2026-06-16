@@ -7,7 +7,7 @@
 
   <div class="flex gap-4">
     <app-button-component [icon]="'create'" [textBtn]="'Crear Url'" (onClick)="onCreate()"/>
-    <app-search-select-component 
+    <app-select-search-component 
       [placeholder]="'Filtrar por Url Grp'" 
       [items]="computedUrlGrpList()"
       [isLoading]="getAllUrlGrpRX.isLoading()" 

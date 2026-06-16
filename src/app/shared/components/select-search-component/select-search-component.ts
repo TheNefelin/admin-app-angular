@@ -3,13 +3,13 @@ import { LoadingComponent } from "../loading-component/loading-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
 
 @Component({
-  selector: 'app-search-select-component',
+  selector: 'app-select-search-component',
   imports: [
     LoadingComponent
   ],
-  templateUrl: './search-select-component.html',
+  templateUrl: './select-search-component.html',
 })
-export class SearchSelectComponent {
+export class SelectSearchComponent {
   readonly items = input.required<SelectItemModel[]>();
   readonly selectedId = input<number | undefined>(undefined);
   readonly isLoading = input<boolean>(false);

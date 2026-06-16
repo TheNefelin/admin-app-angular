@@ -9,7 +9,7 @@ import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LanguageService } from '@features/language/services/language-service';
 import { TechnologyService } from '@features/technology/services/technology-service';
-import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
+import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
@@ -21,7 +21,7 @@ import { NgOptimizedImage } from "@angular/common";
     NgOptimizedImage,
     LoadingComponent,
     ButtonComponent,
-    SearchSelectComponent,
+    SelectSearchComponent,
     MessageErrorComponent,
     MessageSuccessComponent,
     NgOptimizedImage
@@ -90,6 +90,10 @@ export class ProjectFormPage {
       if (!id) return of(null);
 
       return this.serviceProject.getById(id).pipe(
+        map(result => {
+          console.log(result)
+          return result
+        }),
         catchError(err => {
           console.error('[ProjectService::ProjectFormPage] getById:', err);
           return of(null);

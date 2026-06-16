@@ -35,7 +35,8 @@
             <img
               class="w-full h-full object-cover"
               [ngSrc]="displayUrl() ?? '/images/placeholder.webp'"
-              [alt]="computedProject()?.name"/>
+              [alt]="computedProject()?.name"
+              fill priority/>
 
             @if (displayUrl() || previewUrl()) {
               <div class="absolute top-2 right-2">
@@ -104,7 +105,7 @@
       <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <fieldset class="fieldset">
           <label class="label">Seleccionar Lenguaje</label>
-          <app-search-select-component 
+          <app-select-search-component 
             [items]="computedLanguageList()"
             [isLoading]="isLoading()"
             />          
@@ -112,7 +113,7 @@
     
         <fieldset class="fieldset">
           <label class="label">Seleccionar Tecnologia</label>
-          <app-search-select-component 
+          <app-select-search-component 
             [items]="computedTechnologyList()"
             [isLoading]="isLoading()"
             />

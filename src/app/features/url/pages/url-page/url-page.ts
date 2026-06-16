@@ -11,7 +11,7 @@ import { ButtonComponent } from "@shared/components/button-component/button-comp
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
-import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
+import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
 import { UrlGrpService } from '@features/url-grp/services/url-grp-service';
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { UrlFormComponent } from "@features/url/components/url-form-component/url-form-component";
@@ -26,7 +26,7 @@ import { UrlFormComponent } from "@features/url/components/url-form-component/ur
     MessageSuccessComponent,
     PaginationNavComponent,
     ModalActionComponent,
-    SearchSelectComponent,
+    SelectSearchComponent,
     UrlFormComponent
   ],
   templateUrl: './url-page.html',

@@ -4,7 +4,7 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { ImageFieldComponent } from "@shared/components/image-field-component/image-field-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
+import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
 
 @Component({
   selector: 'app-project-form-component',
@@ -12,7 +12,7 @@ import { SearchSelectComponent } from "@shared/components/search-select-componen
     LoadingComponent, 
     MessageErrorComponent, 
     ImageFieldComponent, 
-    SearchSelectComponent
+    SelectSearchComponent
   ],
   templateUrl: './project-form-component.html',
 })

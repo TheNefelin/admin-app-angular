@@ -132,7 +132,7 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 # Component
 ng generate component features/project/components/form-component --style=none
 ng generate component features/project/pages/project-form-page --style=none
-ng generate component shared/pages/not-found-page --style=none
+ng generate component shared/components/select-list-component --style=none
 # Model
 ng generate interface features/project-language/models/project-language-model
 ng generate interface features/project-technology/models/project-technology-model

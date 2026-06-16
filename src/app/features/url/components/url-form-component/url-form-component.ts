@@ -1,7 +1,7 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { SaveUrlModel, UrlModel } from '@features/url/models/url-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
+import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
@@ -9,7 +9,7 @@ import { MessageErrorComponent } from "@shared/components/message-error-componen
   selector: 'app-url-form-component',
   imports: [
     LoadingComponent,
-    SearchSelectComponent,
+    SelectSearchComponent,
     MessageErrorComponent
   ],
   templateUrl: './url-form-component.html',
