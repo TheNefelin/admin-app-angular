@@ -107,17 +107,21 @@
           <label class="label">Seleccionar Lenguaje</label>
           <app-select-search-component 
             [items]="computedLanguageList()"
-            [isLoading]="isLoading()"
-            />          
+            [isLoading]="isLoading()"/>
+
+          <app-select-list-component
+            [data]="formLanguageList()"/>
         </fieldset>
     
         <fieldset class="fieldset">
           <label class="label">Seleccionar Tecnologia</label>
           <app-select-search-component 
             [items]="computedTechnologyList()"
-            [isLoading]="isLoading()"
-            />
-        </fieldset>  
+            [isLoading]="isLoading()"/>
+
+          <app-select-list-component 
+            [data]="formTechnologyList()"/>
+        </fieldset>
       </section>
   
       <div class="flex justify-end">

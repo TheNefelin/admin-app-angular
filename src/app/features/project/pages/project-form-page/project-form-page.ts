@@ -13,6 +13,8 @@ import { SelectSearchComponent } from "@shared/components/select-search-componen
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
+import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
+import { SelectedItemModel } from '@shared/models/selected-item-model';
 
 @Component({
   selector: 'app-project-form-page',
@@ -22,7 +24,8 @@ import { MessageSuccessComponent } from "@shared/components/message-success-comp
     SelectSearchComponent,
     MessageErrorComponent,
     MessageSuccessComponent,
-],
+    SelectListComponent
+  ],
   templateUrl: './project-form-page.html',
 })
 export class ProjectFormPage {
@@ -63,6 +66,14 @@ export class ProjectFormPage {
       app_url: item?.app_url ?? null,
       is_enable: item?.is_enable ?? false,
     }
+  });
+  protected formLanguageList = computed<SelectedItemModel[]>(() => {
+    const items = this.computedProject()?.languages ?? [];
+    return items.map(e => ({ id: e.id_language, name: e.name, img_url: e.img_url }));
+  });
+  protected formTechnologyList = computed<SelectedItemModel[]>(() => {
+    const items = this.computedProject()?.technologies ?? [];
+    return items.map(e => ({ id: e.id_technology, name: e.name, img_url: e.img_url }));
   });
 
   private readonly serviceProject = inject(ProjectService);
