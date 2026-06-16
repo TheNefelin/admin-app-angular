@@ -13,18 +13,15 @@ import { SelectSearchComponent } from "@shared/components/select-search-componen
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { NgOptimizedImage } from "@angular/common";
 
 @Component({
   selector: 'app-project-form-page',
   imports: [
-    NgOptimizedImage,
     LoadingComponent,
     ButtonComponent,
     SelectSearchComponent,
     MessageErrorComponent,
     MessageSuccessComponent,
-    NgOptimizedImage
 ],
   templateUrl: './project-form-page.html',
 })
