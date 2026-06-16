@@ -1,0 +1,63 @@
+<form (submit)="submit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+  <div class="grid gap-2">
+    <div [class]="'overflow-hidden rounded-md shadow-lg aspect-video'">
+      <img
+        class="w-full h-full object-cover"
+        src="/images/placeholder.jpg"
+        alt="123"
+        fill />
+    </div>
+
+    <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
+      <span class="text-sm">{{ true ? 'Cambiar Imagen' : 'Elegir Imagen' }}</span>
+      <input
+        type="file"
+        class="hidden"
+        accept="image/*"
+        />
+    </label>
+  </div>
+
+  <div>
+    <fieldset class="fieldset">
+      <label class="label">Nombre</label>
+      <input
+        type="text" class="input w-full" placeholder="Nombre"
+        [value]="formData().name"
+        (input)="updateName($any($event.target).value)"
+        maxlength="50"
+      />
+    </fieldset>
+  
+    <fieldset class="fieldset">
+      <label class="label">Repo Url</label>
+      <input
+        type="text" class="input w-full" placeholder="URL"
+        [value]="formData().repo_url"
+        (input)="updateRepoUrl($any($event.target).value)"
+        maxlength="256"
+      />
+    </fieldset>
+  
+    <fieldset class="fieldset">
+      <label class="label">App url</label>
+      <input
+        type="text" class="input w-full" placeholder="URL"
+        [value]="formData().app_url"
+        (input)="updateAppUrl($any($event.target).value)"
+        maxlength="256"
+      />
+    </fieldset>
+  
+    <fieldset class="fieldset">
+      <label class="label cursor-pointer justify-start gap-2 pt-2">
+        <input
+          type="checkbox" class="checkbox checkbox-primary"
+          [checked]="formData().is_enable"
+          (change)="updateIsEnable($any($event.target).checked)"
+        />
+        Activo
+      </label>
+    </fieldset>
+  </div>
+</form>

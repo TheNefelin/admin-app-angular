@@ -1,36 +1,22 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { ProjectDetailModel, SaveProjectModel } from '@features/project/models/project-model';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
-import { ImageFieldComponent } from "@shared/components/image-field-component/image-field-component";
-import { SelectItemModel } from '@shared/models/select-item-model';
-import { SearchSelectComponent } from "@shared/components/search-select-component/search-select-component";
 
 @Component({
-  selector: 'app-project-form-component',
-  imports: [
-    LoadingComponent, 
-    MessageErrorComponent, 
-    ImageFieldComponent, 
-    SearchSelectComponent
-  ],
-  templateUrl: './project-form-component.html',
+  selector: 'app-form-component',
+  imports: [],
+  templateUrl: './form-component.html',
 })
-export class ProjectFormComponent {
+export class FormComponent {
   readonly data = input<ProjectDetailModel | null>(null);
-  readonly languageList = input<SelectItemModel[]>([]);
-  readonly technologyList = input<SelectItemModel[]>([]);
-  readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<{ data: SaveProjectModel; file: File | null }>();
-  readonly onClose = output<void>();
-  readonly onDeleteImage = output<void>();
-
-  protected readonly selectedFile = signal<File | null>(null);
+  readonly onSubmit = output<SaveProjectModel>();
+  
+  protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.data() !== null);
 
   protected formData = linkedSignal<SaveProjectModel>(() => {
     const item = this.data();
+
     return {
       name: item?.name ?? '',
       repo_url: item?.repo_url ?? null,
@@ -38,7 +24,7 @@ export class ProjectFormComponent {
       is_enable: item?.is_enable ?? false,
     }
   });
-
+  
   protected updateName(value: string): void {
     this.formData.update(d => ({ ...d, name: value }));
     this.errorMessage.set(null);
@@ -58,21 +44,15 @@ export class ProjectFormComponent {
     this.formData.update(d => ({ ...d, is_enable: checked }));
   }
 
-  protected onFileSelected(file: File | null): void {
-    this.selectedFile.set(file);
-  }
+  protected submit(event: Event): void {
+    event.preventDefault();
 
-  protected submit(): void {
     const name = this.formData().name.trim();
-
     if (!name || name.length > 50) {
       this.errorMessage.set('El nombre debe tener entre 1 y 50 caracteres');
       return;
     }
 
-    this.onSubmit.emit({
-      data: { ...this.formData(), name },
-      file: this.selectedFile()
-    });
+    this.onSubmit.emit(this.formData());
   }
 }

@@ -22,6 +22,12 @@ export class LanguageService {
     );
   }
 
+  getAll(): Observable<LanguageModel[]> {
+    return this.apiService.getAll<LanguageModel[]>(
+      this.endpoint
+    );
+  }
+
   getById(id: number): Observable<LanguageModel | null> {
     return this.apiService.getById<LanguageModel | null>(
       this.endpoint, id

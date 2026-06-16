@@ -4,6 +4,10 @@ export const ROUTES_CONSTANTS = {
   URL: '/url',
   LANGUAGE: '/language',
   TECHNOLOGY: '/technology',
-  PROJECT: '/project',
+  PROJECT: {
+    ROOT: '/project',
+    FORM: '/project/form',
+  },
   FORBIDDEN: '/forbidden',
+  NOT_FOUND: '/not-found',
 }

@@ -1,11 +1,11 @@
 <section class="grid gap-2">
-  <span class="font-bold text-4xl italic px-2">PROJECT</span>
+  <span class="font-bold text-4xl italic px-2">PROJECTOS</span>
 
   <app-pagination-filter-component
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Project'" (onClick)="onCreate()"/>
+  <app-button-component [icon]="'create'" [textBtn]="'Crear projecto'" (onClick)="onCreate()"/>
 
   @if (successMessage()) {
     <app-message-success-component [message]="successMessage()"/>
@@ -53,7 +53,7 @@
                   <div class="mask w-30 aspect-video">
                     <img
                       class="object-cover relative" 
-                      [ngSrc]="item.img_url ?? '/images/placeholder.png'"
+                      [ngSrc]="item.img_url ?? '/images/placeholder.webp'"
                       [alt]="item.name"
                       fill
                       priority
@@ -76,7 +76,7 @@
                       <div class="mask size-7">
                         <img
                           class="object-cover" 
-                          [ngSrc]="language.img_url ?? '/images/placeholder.png'"
+                          [ngSrc]="language.img_url ?? ''"
                           [alt]="language.name"
                           fill
                           priority
@@ -85,13 +85,13 @@
                     </div>
                   }
                 </div>
-                <div class="flex gap-1">
+                <div class="flex gap-1 mt-2">
                   @for (technology of item.technologies; track technology.id_technology) {
                     <div class="avatar">
                       <div class="mask size-7">
                         <img
                           class="object-cover" 
-                          [ngSrc]="technology.img_url ?? '/images/placeholder.png'"
+                          [ngSrc]="technology.img_url ?? ''"
                           [alt]="technology.name"
                           fill
                           priority
@@ -147,18 +147,8 @@
   <app-modal-action-component
     [isLoading]="isDeleting()"
     [title]="'Eliminar Proyecto'"
-    [message]="deleteMessage()"
+    [message]="deleteModalMessage()"
     (onConfirm)="onDeleteModalConfirm()"
     (onClose)="showDeleteModal.set(false)"
-  />
-}
-
-@if (showFormModal()) {
-  <app-project-form-component
-    [isLoading]="getByIdRX.isLoading() || isSaving()"
-    [data]="computedItem()"
-    (onSubmit)="onSubmitForm($event)"
-    (onClose)="onCloseForm()"
-    (onDeleteImage)="onDeleteImage()"
   />
 }

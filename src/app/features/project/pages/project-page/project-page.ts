@@ -1,17 +1,18 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { ProjectDetailModel, SaveProjectModel } from '@features/project/models/project-model';
+import { ProjectDetailModel } from '@features/project/models/project-model';
 import { ProjectService } from '@features/project/services/project-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, finalize, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
-import { ProjectFormComponent } from "@features/project/components/project-form-component/project-form-component";
+import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-project-page',
@@ -24,16 +25,14 @@ import { ProjectFormComponent } from "@features/project/components/project-form-
     LoadingComponent,
     PaginationNavComponent,
     ModalActionComponent,
-    ProjectFormComponent
-],
+  ],
   templateUrl: './project-page.html',
 })
 export class ProjectPage {
+  private readonly router = inject(Router);
   protected readonly successMessage = signal<string | null>(null);
-  protected readonly deleteMessage = signal<string>('');
+  protected readonly deleteModalMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
-  protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
   protected readonly isDeleting = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
@@ -46,13 +45,8 @@ export class ProjectPage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly getByIdPayload = signal<number | null>(null);
   protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedList = computed<ProjectDetailModel[]>(() => this.getAllRX.value() ?? []);
-  protected readonly computedItem = computed<ProjectDetailModel | null>(() => {
-    if (this.getByIdRX.isLoading()) return null;
-    return this.getByIdRX.value() ?? null;
-  });
 
   protected readonly getAllRX = rxResource({
     params: () => this.getAllPayload(),
@@ -67,20 +61,6 @@ export class ProjectPage {
         catchError(err => {
           console.error('[ProjectService::ProjectPage] getAllPagination:', err);
           return of([]);
-        })
-      );
-    },
-  });
-
-  protected readonly getByIdRX = rxResource({
-    params: () => this.getByIdPayload(),
-    stream: ({ params: id }) => {
-      if (!id) return of(null);
-
-      return this.service.getById(id).pipe(
-        catchError(err => {
-          console.error('[ProjectService::ProjectPage] getById:', err);
-          return of(null);
         })
       );
     },
@@ -110,71 +90,15 @@ export class ProjectPage {
   }
 
   protected onCreate(): void {
-    this.getByIdPayload.set(null);
-    this.showFormModal.set(true);
+    this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM]);
   }
 
   protected onEdit(item: ProjectDetailModel): void {
-    this.getByIdPayload.set(item.id_project);
-    this.showFormModal.set(true);
-  }
-
-  protected onDeleteImage(): void {
-    const id = this.getByIdPayload();
-    if (!id) return;
-
-    this.isSaving.set(true);
-
-    this.service.deleteImage(id).pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.getByIdRX.reload();
-        this.getAllRX.reload();
-      },
-      error: (err) => console.error('[ProjectService::ProjectPage] onDeleteImage:', err)
-    });
-  }
-
-  protected onSubmitForm({ data, file }: { data: SaveProjectModel; file: File | null }): void {
-    this.isSaving.set(true);
-    const id = this.getByIdPayload();
-
-    const request$ = id
-    ? this.service.update(id, data)
-    : this.service.create(data);
-
-    request$.pipe(
-      switchMap(result => {
-        const entityId = result?.id_project ?? id;
-
-        if (entityId && file) {
-          return this.service.uploadImage(entityId, { file });
-        }
-
-        return of(null);
-      }),
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => this.finalizeSave(),
-      error: (err) => console.error('[ProjectService::ProjectPage] onSubmitForm:', err)
-    });
-  }
-
-  private finalizeSave(): void {
-    this.successMessage.set('Guardado correctamente');
-    this.showFormModal.set(false);
-    this.getByIdPayload.set(null);
-    this.getAllRX.reload();
-  }
-
-  protected onCloseForm(): void {
-    this.showFormModal.set(false);
-    this.getByIdPayload.set(null);
+    this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM, item.id_project]);
   }
 
   protected onDelete(item: ProjectDetailModel): void {
-    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
+    this.deleteModalMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
     this.deleteItemId.set(item.id_project);
     this.showDeleteModal.set(true);
   }

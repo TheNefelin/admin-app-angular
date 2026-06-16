@@ -22,6 +22,12 @@ export class TechnologyService {
     );
   }
 
+  getAll(): Observable<TechnologyModel[]> {
+    return this.apiService.getAll<TechnologyModel[]>(
+      this.endpoint
+    );
+  }
+
   getById(id: number): Observable<TechnologyModel | null> {
     return this.apiService.getById<TechnologyModel | null>(
       this.endpoint, id

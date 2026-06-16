@@ -40,6 +40,6 @@ export class MainLayoutComponent {
   }
 
   protected goToProject() : void {
-    this.router.navigate([ROUTES_CONSTANTS.PROJECT]);
+    this.router.navigate([ROUTES_CONSTANTS.PROJECT.ROOT]);
   }
 }

@@ -1,0 +1,129 @@
+<section class="grid gap-2">
+  <span class="font-bold text-2xl italic px-2">
+    @if (isLoading()) {
+      <app-loading-component/>
+    } @else {
+      {{ isEditMode() ? 'MODIFICAR' : 'CREAR' }}
+    }
+    PROJECTO
+  </span>
+
+  <div class="flex justify-end">
+    <app-button-component 
+      [icon]="'goto'" 
+      [textBtn]="'Volver'"
+      (onClick)="goToProject()"/>
+  </div>
+
+  @if (successMessage()) {
+    <app-message-success-component [message]="successMessage()"/>
+  }
+
+  @if (errorMessage()) {
+    <app-message-error-component [message]="errorMessage()"/>
+  }
+
+  @if (isLoading() || isSaving()) {
+    <div class="flex justify-center p-4">
+      <app-loading-component/>   
+    </div>
+  } @else {
+    <form (submit)="onSubmit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid gap-2">
+          <div [class]="'relative overflow-hidden rounded-md shadow-lg aspect-video'">
+            <img
+              class="w-full h-full object-cover"
+              [ngSrc]="displayUrl() ?? '/images/placeholder.webp'"
+              [alt]="computedProject()?.name"/>
+
+            @if (displayUrl() || previewUrl()) {
+              <div class="absolute top-2 right-2">
+                <app-button-component
+                  [icon]="'delete'"
+                  [textBtn]="'Eliminar'"
+                  (onClick)="onDeleteImageClick()" />
+              </div>
+            }
+          </div>
+      
+          <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
+            <span class="text-sm">{{ displayUrl() ? 'Cambiar Imagen' : 'Elegir Imagen' }}</span>
+            <input
+              type="file"
+              class="hidden"
+              accept="image/*"
+              (change)="onSelectedFile($any($event.target).files[0])" />
+          </label>
+        </div>
+  
+        <div>
+          <fieldset class="fieldset">
+            <label class="label">Nombre</label>
+            <input
+              type="text" class="input w-full" placeholder="Nombre"
+              [value]="formData().name"
+              (input)="updateName($any($event.target).value)"
+              maxlength="50"
+            />
+          </fieldset>
+        
+          <fieldset class="fieldset">
+            <label class="label">Repo Url</label>
+            <input
+              type="text" class="input w-full" placeholder="URL"
+              [value]="formData().repo_url"
+              (input)="updateRepoUrl($any($event.target).value)"
+              maxlength="256"
+            />
+          </fieldset>
+        
+          <fieldset class="fieldset">
+            <label class="label">App url</label>
+            <input
+              type="text" class="input w-full" placeholder="URL"
+              [value]="formData().app_url"
+              (input)="updateAppUrl($any($event.target).value)"
+              maxlength="256"
+            />
+          </fieldset>
+        
+          <fieldset class="fieldset">
+            <label class="label cursor-pointer justify-start gap-2 pt-2">
+              <input
+                type="checkbox" class="checkbox checkbox-primary"
+                [checked]="formData().is_enable"
+                (change)="updateIsEnable($any($event.target).checked)"
+              />
+              Activo
+            </label>
+          </fieldset>
+        </div>
+      </section>
+  
+      <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <fieldset class="fieldset">
+          <label class="label">Seleccionar Lenguaje</label>
+          <app-search-select-component 
+            [items]="computedLanguageList()"
+            [isLoading]="isLoading()"
+            />          
+        </fieldset>
+    
+        <fieldset class="fieldset">
+          <label class="label">Seleccionar Tecnologia</label>
+          <app-search-select-component 
+            [items]="computedTechnologyList()"
+            [isLoading]="isLoading()"
+            />
+        </fieldset>  
+      </section>
+  
+      <div class="flex justify-end">
+        <app-button-component
+          [icon]="'save'" 
+          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"/>
+      </div>
+    </form>    
+  }
+</section>

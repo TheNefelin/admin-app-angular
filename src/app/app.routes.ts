@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { MainLayoutComponent } from '@layouts/main-layout-component/main-layout-component';
+import { NotFoundPage } from '@shared/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
   {
@@ -35,5 +36,9 @@ export const routes: Routes = [
         loadChildren: () => import('@features/project/project.routes').then(m => m.PROJECT_ROUTES),
       },
     ]
+  },
+  {
+    path: '**',
+    component: NotFoundPage
   },
 ];

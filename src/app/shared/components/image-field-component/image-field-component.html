@@ -3,7 +3,7 @@
     <div [class]="'overflow-hidden rounded-md shadow-lg ' + aspect()">
       <img
         class="w-full h-full object-cover"
-        [ngSrc]="displayUrl()"
+        [ngSrc]="displayUrl() ?? '/images/placeholder.webp'"
         [alt]="alt()"
         fill />
     </div>

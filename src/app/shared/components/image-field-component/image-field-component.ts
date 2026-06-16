@@ -20,7 +20,7 @@ export class ImageFieldComponent {
   protected readonly previewUrl = signal<string | null>(null);
   
   protected readonly displayUrl = computed(() =>
-    this.previewUrl() ?? this.imgUrl() ?? '/images/placeholder.png'
+    this.previewUrl() ?? this.imgUrl() ?? null
   );
 
   protected onFileSelected(file: File | null): void {

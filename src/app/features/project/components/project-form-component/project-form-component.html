@@ -1,5 +1,4 @@
-<dialog 
-  class="modal modal-bottom modal-open sm:modal-middle">
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
   
   <div class="modal-box overflow-visible">
 
@@ -11,7 +10,7 @@
       }
     </h3>
 
-    @if (errorMessage()) {
+    @if (!errorMessage()) {
       <div class="py-2">
         <app-message-error-component [message]="errorMessage()"/>
       </div>
@@ -52,6 +51,22 @@
           (input)="updateAppUrl($any($event.target).value)"
           maxlength="256"
         />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Seleccionar Lenguaje</label>
+        <app-search-select-component 
+          [items]="languageList()"
+          [isLoading]="isLoading()"
+          />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Seleccionar Tecnologia</label>
+        <app-search-select-component 
+          [items]="technologyList()"
+          [isLoading]="isLoading()"
+          />
       </fieldset>
 
       <fieldset class="fieldset">
