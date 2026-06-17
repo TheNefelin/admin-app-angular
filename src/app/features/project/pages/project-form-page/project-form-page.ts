@@ -72,12 +72,12 @@ export class ProjectFormPage {
     }
   });
   protected formLanguageList = linkedSignal<SelectItemModel[]>(() => {
-    const items = this.computedProject()?.languages ?? [];
-    return items.map(e => ({ id: e.id_language, name: e.name, img_url: e.img_url }));
+    const ids = this.formData().language_ids;
+    return this.computedLanguageList().filter(e => ids.includes(e.id));
   });
   protected formTechnologyList = linkedSignal<SelectItemModel[]>(() => {
-    const items = this.computedProject()?.technologies ?? [];
-    return items.map(e => ({ id: e.id_technology, name: e.name, img_url: e.img_url }));
+    const ids = this.formData().technology_ids;
+    return this.computedTechnologyList().filter(e => ids.includes(e.id));
   });
 
   private readonly serviceProject = inject(ProjectService);
@@ -159,25 +159,20 @@ export class ProjectFormPage {
   protected onDeleteLanguage(item: SelectItemModel): void {
     const id_project = this.getProjectByIdPayload();
 
-    if (!id_project) {
-      this.formLanguageList.update(list =>
-        list.filter(e => e.id !== item.id)
-      );
-    } else {
-      const deleteLanguage: ProjectLanguageModel = { id_project: id_project, id_language: item.id }
-    }
+    this.formData.update(data => ({
+      ...data,
+      language_ids: data.language_ids.filter(id => id !== item.id)
+    }));
+  
   }
 
   protected onDeleteTechnology(item: SelectItemModel): void {
     const id_project = this.getProjectByIdPayload();
 
-    if (!id_project) {
-      this.formTechnologyList.update(list =>
-        list.filter(e => e.id !== item.id)
-      );
-    } else {
-      const deleteTechnology: ProjectTechnologyModel = { id_project: id_project, id_technology: item.id }
-    }
+    this.formData.update(data => ({
+      ...data,
+      technology_ids: data.technology_ids.filter(id => id !== item.id)
+    }));  
   }
 
   protected onSubmit(event: Event): void {
@@ -242,6 +237,34 @@ export class ProjectFormPage {
     this.formData.update(d => ({ ...d, is_enable: checked }));
   }
 
+  protected updateLanguage(item: SelectItemModel): void {
+    this.clearSelectTrigger.update(e => e + 1);
+
+    this.formData.update(data => {
+      const exists = data.language_ids.some(id => id === item.id)
+      if (exists) return data;
+
+      return { 
+        ...data, 
+        language_ids: [...data.language_ids, item.id]
+      }
+    });
+  }
+
+  protected updateTechnology(item: SelectItemModel): void {
+    this.clearSelectTrigger.update(e => e + 1);
+
+    this.formData.update(data => {
+      const exists = data.technology_ids.some(id => id === item.id)
+      if (exists) return data;
+
+      return { 
+        ...data, 
+        technology_ids: [...data.technology_ids, item.id]
+      }
+    });
+  }
+
   protected onSelectedFile(file: File | null): void {
     if (!file) {
       this.previewUrl.set(null);
@@ -252,28 +275,6 @@ export class ProjectFormPage {
     reader.onload = () => this.previewUrl.set(reader.result as string);
     reader.readAsDataURL(file);
     this.selectedFile.set(file);
-  }
-
-  protected onSelectedNewLanguage(item: SelectItemModel): void {
-    this.clearSelectTrigger.update(e => e + 1);
-    
-    this.formLanguageList.update(list => {
-      const exists = list.some(e => e.id === item.id);
-      if (exists) return list;
-
-      return [...list, item]
-    });
-  }
-
-  protected onSelectedNewTechnology(item: SelectItemModel): void {
-    this.clearSelectTrigger.update(e => e + 1);
-
-    this.formTechnologyList.update(list => {
-      const exists = list.some(e => e.id === item.id);
-      if (exists) return list;
-
-      return [...list, item]
-    });
   }
 
   protected goToProject(): void {

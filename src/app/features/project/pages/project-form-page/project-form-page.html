@@ -109,7 +109,7 @@
             [items]="computedLanguageList()"
             [isLoading]="isLoading()"
             [clearTrigger]="clearSelectTrigger()"
-            (selectionChange)="onSelectedNewLanguage($event)"/>
+            (selectionChange)="updateLanguage($event)"/>
 
           <app-select-list-component
             [data]="formLanguageList()"
@@ -122,7 +122,7 @@
             [items]="computedTechnologyList()"
             [isLoading]="isLoading()"
             [clearTrigger]="clearSelectTrigger()"
-            (selectionChange)="onSelectedNewTechnology($event)"/>
+            (selectionChange)="updateTechnology($event)"/>
 
           <app-select-list-component 
             [data]="formTechnologyList()"
