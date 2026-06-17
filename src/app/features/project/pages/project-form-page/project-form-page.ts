@@ -14,8 +14,6 @@ import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
-import { ProjectLanguageModel } from '@features/project-language/models/project-language-model';
-import { ProjectTechnologyModel } from '@features/project-technology/models/project-technology-model';
 
 @Component({
   selector: 'app-project-form-page',
@@ -157,22 +155,17 @@ export class ProjectFormPage {
   }
 
   protected onDeleteLanguage(item: SelectItemModel): void {
-    const id_project = this.getProjectByIdPayload();
-
     this.formData.update(data => ({
       ...data,
       language_ids: data.language_ids.filter(id => id !== item.id)
     }));
-  
   }
 
   protected onDeleteTechnology(item: SelectItemModel): void {
-    const id_project = this.getProjectByIdPayload();
-
     this.formData.update(data => ({
       ...data,
       technology_ids: data.technology_ids.filter(id => id !== item.id)
-    }));  
+    }));
   }
 
   protected onSubmit(event: Event): void {
