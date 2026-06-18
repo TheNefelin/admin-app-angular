@@ -5,7 +5,7 @@ export interface FilterByUrlGrp {
 export interface SaveUrlModel {
   name: string;
   link: string;
-  is_enable: boolean;
+  is_enabled: boolean;
   id_urlgrp: number;
 }
 

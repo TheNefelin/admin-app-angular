@@ -1,6 +1,6 @@
 export interface SaveUrlGrpModel {
   name: string;
-  is_enable: boolean;
+  is_enabled: boolean;
 }
 
 export interface UrlGrpModel extends SaveUrlGrpModel {

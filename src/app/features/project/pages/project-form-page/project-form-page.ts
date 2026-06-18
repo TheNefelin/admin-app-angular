@@ -64,7 +64,7 @@ export class ProjectFormPage {
       name: item?.name ?? '',
       repo_url: item?.repo_url ?? null,
       app_url: item?.app_url ?? null,
-      is_enable: item?.is_enable ?? false,
+      is_enabled: item?.is_enabled ?? false,
       language_ids: item?.languages.map(e => e.id_language) ?? [],
       technology_ids: item?.technologies.map(e => e.id_technology) ?? []
     }
@@ -227,7 +227,7 @@ export class ProjectFormPage {
   }
   
   protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enable: checked }));
+    this.formData.update(d => ({ ...d, is_enabled: checked }));
   }
 
   protected updateLanguage(item: SelectItemModel): void {

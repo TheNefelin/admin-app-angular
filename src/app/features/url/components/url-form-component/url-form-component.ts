@@ -28,7 +28,7 @@ export class UrlFormComponent {
     return { 
       name: item?.name ?? '', 
       link: item?.link ?? '', 
-      is_enable: item?.is_enable ?? true, 
+      is_enabled: item?.is_enabled ?? true, 
       id_urlgrp: item?.id_urlgrp ?? 0 
     };
   });
@@ -44,7 +44,7 @@ export class UrlFormComponent {
   }
 
   protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enable: checked }));
+    this.formData.update(d => ({ ...d, is_enabled: checked }));
   }
 
   protected updateUrlGrp(item: SelectItemModel): void {

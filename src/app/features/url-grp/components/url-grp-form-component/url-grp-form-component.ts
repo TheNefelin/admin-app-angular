@@ -24,7 +24,7 @@ export class UrlGrpFormComponent {
     const item = this.data();
     return { 
       name: item?.name ?? '', 
-      is_enable: item?.is_enable ?? true
+      is_enabled: item?.is_enabled ?? true
     }
   });
 
@@ -34,7 +34,7 @@ export class UrlGrpFormComponent {
   }
 
   protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enable: checked }));
+    this.formData.update(d => ({ ...d, is_enabled: checked }));
   }
 
   protected submit(): void {

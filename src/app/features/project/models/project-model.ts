@@ -5,7 +5,7 @@ export interface SaveProjectModel {
   name: string;
   repo_url: string | null;
   app_url: string | null;
-  is_enable: boolean;
+  is_enabled: boolean;
   language_ids: number[];
   technology_ids: number[];
 }
@@ -15,7 +15,7 @@ export interface ProjectModel extends SaveProjectModel {
   name: string;
   app_url: string | null;
   img_url: string | null;
-  is_enable: boolean;
+  is_enabled: boolean;
   created_at: string;
   updated_at: string;
   languages: LanguageModel[];
