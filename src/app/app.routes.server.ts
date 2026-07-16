@@ -1,12 +1,13 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
+import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 
 export const serverRoutes: ServerRoute[] = [
   {
-    path: 'project/form/:id',
+    path:  `${ ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM }/:id`,
     renderMode: RenderMode.Client
   },
   {
-    path: 'project/form',
+    path: ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM,
     renderMode: RenderMode.Client
   },
   {

@@ -1,11 +1,23 @@
 import { Routes } from '@angular/router';
+import { GuideGamesLayoutComponent } from '@layouts/guide-games-layout-component/guide-games-layout-component';
 import { MainLayoutComponent } from '@layouts/main-layout-component/main-layout-component';
+import { PortfolioLayoutComponent } from '@layouts/portfolio-layout-component/portfolio-layout-component';
 import { NotFoundPage } from '@shared/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+      },
+    ]
+  },
+  {
+    path: "portfolio",
+    component: PortfolioLayoutComponent,
     children: [
       {
         path: '',
@@ -38,7 +50,17 @@ export const routes: Routes = [
     ]
   },
   {
+    path: "game-guides",
+    component: GuideGamesLayoutComponent,
+    children: [
+      {
+        path: '',
+        loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+      },
+    ]
+  },
+  {
     path: '**',
-    component: NotFoundPage
+    component: NotFoundPage,
   },
 ];

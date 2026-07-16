@@ -202,7 +202,7 @@ export class ProjectFormPage {
       next: (result) => {
         this.successMessage.set('Guardado correctamente');
         if (!id && result) {
-          this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM, result.id_project]);
+          this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM, result.id_project]);
         }    
       },
       error: (err) => {
@@ -271,6 +271,6 @@ export class ProjectFormPage {
   }
 
   protected goToProject(): void {
-    this.router.navigate([ROUTES_CONSTANTS.PROJECT.ROOT]);
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.ROOT]);
   }
 }

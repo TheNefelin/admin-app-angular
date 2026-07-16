@@ -90,11 +90,11 @@ export class ProjectPage {
   }
 
   protected onCreate(): void {
-    this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM]);
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM]);
   }
 
   protected onEdit(item: ProjectModel): void {
-    this.router.navigate([ROUTES_CONSTANTS.PROJECT.FORM, item.id_project]);
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM, item.id_project]);
   }
 
   protected onDelete(item: ProjectModel): void {

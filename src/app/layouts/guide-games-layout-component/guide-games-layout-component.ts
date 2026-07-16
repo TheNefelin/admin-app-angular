@@ -1,20 +1,20 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from "@angular/router";
 import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
-import { ErrorService } from "@core/services/error-service";
-import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { NavbarComponent } from "@layouts/components/navbar-component/navbar-component";
+import { Router, RouterOutlet } from "@angular/router";
+import { ErrorService } from '@core/services/error-service';
+import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 
 @Component({
-  selector: 'app-main-layout-component',
+  selector: 'app-guide-games-layout-component',
   imports: [
     RouterOutlet,
-    ModalErrorComponent,
+    ModalErrorComponent, 
     NavbarComponent
-],
-  templateUrl: './main-layout-component.html',
+  ],
+  templateUrl: './guide-games-layout-component.html',
 })
-export class MainLayoutComponent {
+export class GuideGamesLayoutComponent {
   private router = inject(Router);
   
   protected readonly errorService = inject(ErrorService);
