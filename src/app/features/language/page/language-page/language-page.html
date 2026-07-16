@@ -11,6 +11,12 @@
     <app-message-success-component [message]="successMessage()"/>
   }
 
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+
   @if (getAllRX.isLoading()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
