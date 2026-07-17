@@ -12,7 +12,7 @@
         class="grow placeholder-my-pink/75 text-my-purple"
         [placeholder]="displayPlaceholder()"
         [value]="searchText()"
-        (input)="onSearch($any($event.target).value)"
+        (input)="onSearch(searchInput.value)"
         (focus)="isOpen.set(true)"
         (blur)="onBlur()"
       />

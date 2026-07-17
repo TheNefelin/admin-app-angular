@@ -26,9 +26,10 @@
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input
+          #name
           type="text" class="input w-full" placeholder="Nombre"
           [value]="formData().name"
-          (input)="updateName($any($event.target).value)"
+          (input)="updateName(name.value)"
           maxlength="50"
         />
       </fieldset>

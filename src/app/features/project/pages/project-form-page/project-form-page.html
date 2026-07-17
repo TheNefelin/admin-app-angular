@@ -51,10 +51,11 @@
           <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
             <span class="text-sm">{{ displayUrl() ? 'Cambiar Imagen' : 'Elegir Imagen' }}</span>
             <input
+              #fileInput
               type="file"
               class="hidden"
               accept="image/*"
-              (change)="onSelectedFile($any($event.target).files[0])" />
+              (change)="onSelectedFile(fileInput.files?.[0] ?? null)" />
           </label>
         </div>
   
@@ -62,9 +63,10 @@
           <fieldset class="fieldset">
             <label class="label">Nombre</label>
             <input
+              #name
               type="text" class="input w-full" placeholder="Nombre"
               [value]="formData().name"
-              (input)="updateName($any($event.target).value)"
+              (input)="updateName(name.value)"
               maxlength="50"
             />
           </fieldset>
@@ -72,9 +74,10 @@
           <fieldset class="fieldset">
             <label class="label">Repo Url</label>
             <input
+              #repoUrl
               type="text" class="input w-full" placeholder="URL"
               [value]="formData().repo_url"
-              (input)="updateRepoUrl($any($event.target).value)"
+              (input)="updateRepoUrl(repoUrl.value)"
               maxlength="256"
             />
           </fieldset>
@@ -82,9 +85,10 @@
           <fieldset class="fieldset">
             <label class="label">App url</label>
             <input
+              #appUrl
               type="text" class="input w-full" placeholder="URL"
               [value]="formData().app_url"
-              (input)="updateAppUrl($any($event.target).value)"
+              (input)="updateAppUrl(appUrl.value)"
               maxlength="256"
             />
           </fieldset>
@@ -92,9 +96,10 @@
           <fieldset class="fieldset">
             <label class="label cursor-pointer justify-start gap-2 pt-2">
               <input
+                #isEnabled
                 type="checkbox" class="checkbox checkbox-primary"
                 [checked]="formData().is_enabled"
-                (change)="updateIsEnable($any($event.target).checked)"
+                (change)="updateIsEnable(isEnabled.checked)"
               />
               Activo
             </label>

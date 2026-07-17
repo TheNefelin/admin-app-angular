@@ -21,9 +21,10 @@
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input
+          #name
           type="text" class="input w-full" placeholder="Nombre"
           [value]="formData().name"
-          (input)="updateName($any($event.target).value)"
+          (input)="updateName(name.value)"
           maxlength="50"
         />
       </fieldset>
@@ -31,9 +32,10 @@
       <fieldset class="fieldset">
         <label class="label cursor-pointer justify-start gap-2 pt-2">
           <input
+            #isEnabled
             type="checkbox" class="checkbox checkbox-primary"
             [checked]="formData().is_enabled"
-            (change)="updateIsEnable($any($event.target).checked)"
+            (change)="updateIsEnable(isEnabled.checked)"
           />
           Activo
         </label>
