@@ -62,8 +62,8 @@ export class TechnologyPage {
 
       return this.service.getAllPagination(params).pipe(
         map(response => {
-          this.totalPages.set(response.pages);
-          return response.data;
+          this.totalPages.set(response.total);
+          return response.items;
         }),
         catchError(err => {
           console.error('[TechnologyService::TechnologyPage] getAllPagination:', err);

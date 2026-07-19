@@ -60,8 +60,8 @@ export class UrlGrpPage {
 
       return this.serviceUrlGrp.getAllPagination(params).pipe(
         map(response => {
-          this.totalPages.set(response.pages);
-          return response.data;
+          this.totalPages.set(response.total);
+          return response.items;
         }),
         catchError(err => {
           console.error('[UrlGrpService::UrlGrpPage] getAllPagination:', err);
