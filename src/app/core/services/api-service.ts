@@ -4,35 +4,35 @@ import { inject, Service } from '@angular/core';
 @Service()
 export class ApiService {
   private http = inject(HttpClient);
-  
-  getAll<T>(resource: string) {
-    return this.http.get<T>(`/ssr-api/${resource}`);
+
+  getAll<T>(namespace: string, resource: string) {
+    return this.http.get<T>(`/ssr-api/${namespace}/${resource}`);
   }
 
-  getById<T>(resource: string, id: number) {
-    return this.http.get<T>(`/ssr-api/${resource}/${id}`);
+  getById<T>(namespace: string, resource: string, id: number) {
+    return this.http.get<T>(`/ssr-api/${namespace}/${resource}/${id}`);
   }
 
-  create<T, TBody>(resource: string, body: TBody) {
-    return this.http.post<T>(`/ssr-api/${resource}`, body);
+  create<T, TBody>(namespace: string, resource: string, body: TBody) {
+    return this.http.post<T>(`/ssr-api/${namespace}/${resource}`, body);
   }
 
-  update<T, TBody>(resource: string, id: number, body: TBody) {
-    return this.http.put<T>(`/ssr-api/${resource}/${id}`, body);
+  update<T, TBody>(namespace: string, resource: string, id: number, body: TBody) {
+    return this.http.put<T>(`/ssr-api/${namespace}/${resource}/${id}`, body);
   } 
 
-  delete<T>(resource: string, id: number) {
-    return this.http.delete<T>(`/ssr-api/${resource}/${id}`);
+  delete<T>(namespace: string, resource: string, id: number) {
+    return this.http.delete<T>(`/ssr-api/${namespace}/${resource}/${id}`);
   } 
 
-  upload<T>(resource: string, id: number, file: File) {
+  upload<T>(namespace: string, resource: string, id: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);
 
-    return this.http.post<T>(`/ssr-api/${resource}/${id}/upload-image`, formData);
+    return this.http.post<T>(`/ssr-api/${namespace}/${resource}/${id}/upload-image`, formData);
   }
 
-  deleteResource<T>(resource: string, id: number) {
-    return this.http.delete<T>(`/ssr-api/${resource}/${id}/image`);
+  deleteResource<T>(namespace: string, resource: string, id: number) {
+    return this.http.delete<T>(`/ssr-api/${namespace}/${resource}/${id}/image`);
   }
 }

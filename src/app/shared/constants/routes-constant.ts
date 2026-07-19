@@ -1,3 +1,8 @@
+export const API_NAMESPACE = {
+  PORTFOLIO: 'portfolio',
+  GAME_GUIDES: 'game-guides',
+} as const
+
 export const ROUTES_CONSTANTS = {
   DASHBOARD: {
     ROOT: '/',
@@ -12,7 +17,7 @@ export const ROUTES_CONSTANTS = {
         FORM: 'portfolio/project/form',
       },
     },
-    GAME_GUIDE: 'game-guide',
+    GAME_GUIDE: 'game-guides',
   },
   FORBIDDEN: 'forbidden',
   NOT_FOUND: 'not-found',

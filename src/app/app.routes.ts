@@ -40,10 +40,6 @@ export const routes: Routes = [
         loadChildren: () => import('@features/technology/technology.routes').then(m => m.TECHNOLOGY_ROUTES),
       },
       {
-        path: 'technology',
-        loadChildren: () => import('@features/technology/technology.routes').then(m => m.TECHNOLOGY_ROUTES),
-      },
-      {
         path: 'project',
         loadChildren: () => import('@features/project/project.routes').then(m => m.PROJECT_ROUTES),
       },

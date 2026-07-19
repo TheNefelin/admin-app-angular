@@ -5,10 +5,12 @@ import { SaveLanguageModel, LanguageModel } from '../models/language-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { UploadImageModel } from '@shared/models/upload-image-model';
+import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
 export class LanguageService {
   private apiService = inject(ApiService)
+  private readonly namespace = API_NAMESPACE.PORTFOLIO;
   private readonly endpoint = 'language';
 
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<LanguageModel>> {
@@ -18,49 +20,50 @@ export class LanguageService {
       path = `${path}&search=${params.search}`
 
     return this.apiService.getAll<PaginationResponseModel<LanguageModel>>(
+      this.namespace,
       `${this.endpoint}/pagination/${path}`
     );
   }
 
   getAll(): Observable<LanguageModel[]> {
     return this.apiService.getAll<LanguageModel[]>(
-      this.endpoint
+      this.namespace, this.endpoint
     );
   }
 
   getById(id: number): Observable<LanguageModel | null> {
     return this.apiService.getById<LanguageModel | null>(
-      this.endpoint, id
+      this.namespace, this.endpoint, id
     );
   }
 
   create(item: SaveLanguageModel): Observable<LanguageModel> {
     return this.apiService.create<LanguageModel, SaveLanguageModel>(
-      this.endpoint, item
+      this.namespace, this.endpoint, item
     );
   }
 
   update(id: number, item: SaveLanguageModel): Observable<LanguageModel> {
     return this.apiService.update<LanguageModel, SaveLanguageModel>(
-      this.endpoint, id, item
+      this.namespace, this.endpoint, id, item
     );
   }
 
   delete(id: number): Observable<void> {
     return this.apiService.delete<void>(
-      this.endpoint, id
+      this.namespace, this.endpoint, id
     );
   }
 
   uploadImage(id: number, image: UploadImageModel): Observable<LanguageModel> {
     return this.apiService.upload<LanguageModel>(
-      this.endpoint, id, image.file
+      this.namespace, this.endpoint, id, image.file
     );
   }
 
   deleteImage(id: number): Observable<void> {
     return this.apiService.deleteResource<void>(
-      this.endpoint, id
+      this.namespace, this.endpoint, id
     );
   }  
 }
