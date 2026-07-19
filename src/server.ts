@@ -12,125 +12,156 @@ const browserDistFolder = join(import.meta.dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-// Proxy fetch to external API -------------------------------------------
+// ═══════════════════════════════════════════════════════════════════════
+// PROXY - BFF (Backend For Frontend)
+// ═══════════════════════════════════════════════════════════════════════
+//
+// ¿Qué hace esto?
+//   Angular corre en el navegador. Si llamara DIRECTAMENTE a la API
+//   externa, las API keys quedarían expuestas en el código del cliente.
+//   Este proxy intermedia todas las llamadas: el navegador pide a
+//   /ssr-api/*, el servidor Node recibe, agrega la API key, reenvía
+//   a la API externa y devuelve la respuesta.
+//
+//   Es un patrón BFF (Backend For Frontend) — el backend que habla
+//   específicamente con el frontend.
+//
+// ═══════════════════════════════════════════════════════════════════════
 import dotenv from 'dotenv';
 dotenv.config();
 app.use(express.json());
 
-const API_URL = process.env['API_URL'];
-const API_KEY = process.env['API_KEY'];
+// API_KEY → Se envía en cada request a la API externa como header
+// 'X-API-Key'. Nunca llega al navegador.
+const API_KEY = process.env['API_KEY']!;
 
-async function fetchExternal(url: string, options: any = {}) {
-  return fetch(`${API_URL}${url}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'X-API-Key': API_KEY!,
-      ...(options.headers || {})
-    }
-  });
+// API_ORIGINS → Mapa que vincula cada "recurso" (project, language, etc.)
+// con la URL base de la API que le corresponde.
+//
+//   Ejemplo:
+//     project → API_URL_PORTFOLIO (http://api.portfolio.com/api)
+//     game-guide → API_URL_GAME_GUIDES (http://api.guides.com/api)
+//
+//   Si el frontend pide /ssr-api/project/1, el proxy busca "project"
+//   en este mapa, obtiene la URL base y reenvía la llamada.
+//
+//   Para agregar un nuevo recurso, solo hay que añadirlo aquí.
+const API_ORIGINS: Record<string, string> = {
+  project:    process.env['API_URL_PORTFOLIO']!,
+  language:   process.env['API_URL_PORTFOLIO']!,
+  technology: process.env['API_URL_PORTFOLIO']!,
+  'url-grp':  process.env['API_URL_PORTFOLIO']!,
+  url:        process.env['API_URL_PORTFOLIO']!,
+  'game-guide': process.env['API_URL_GAME_GUIDES']!,
+};
+
+/** Busca la URL base de la API para un recurso dado. */
+function getOrigin(resource: string): string | undefined {
+  return API_ORIGINS[resource];
 }
 
-async function fetchExternalFile(url: string, contentType: string, rawBody: Buffer) {
-  return fetch(`${API_URL}${url}`, {
-    method: 'POST',
-    headers: {
-      'X-API-Key': API_KEY!,
-      'Content-Type': contentType,
-    },
-    body: rawBody as any,
-  });
-}
+// ─── Upload de imágenes (caso especial) ──────────────────────────────
+//
+//   Las imágenes se envían como "multipart/form-data" (raw), NO como
+//   JSON. Por eso necesita su propio handler con express.raw().
+//
+//   Express intenta parsear el body de todos los requests como JSON
+//   (express.json() al inicio). Para multipart, express.json() lo
+//   ignora porque el Content-Type no es application/json, y este
+//   handler recibe el body crudo (Buffer) para reenviarlo igual.
+//
+app.post(
+  '/ssr-api/:resource/:id/upload-image',
+  express.raw({ type: 'multipart/form-data', limit: '10mb' }),
+  async (req, res) => {
+    try {
+      const { resource, id } = req.params;
+      const origin = getOrigin(resource);
 
-app.get('/ssr-api/:resource/pagination', async (req, res) => {
-  const response = await fetchExternal(
-    req.url.replace('/ssr-api', ''),
-    { method: 'GET' }
-  );
+      // Si el recurso no está en API_ORIGINS, no sabemos a dónde enviarlo
+      if (!origin) {
+        res.status(404).json({ detail: `Unknown resource: ${resource}` });
+        return;
+      }
 
-  res.status(response.status).json(await response.json());
-});
+      // Reenvía el archivo exactamente como llegó (raw)
+      const response = await fetch(`${origin}/${resource}/${id}/upload-image`, {
+        method: 'POST',
+        headers: {
+          'X-API-Key': API_KEY,
+          'Content-Type': req.headers['content-type'] as string,
+        },
+        body: new Uint8Array(req.body as Buffer),
+      });
 
-app.get('/ssr-api/:resource', async (req, res) => {
-  const response = await fetchExternal(
-    req.url.replace('/ssr-api', ''),
-    { method: 'GET' }
-  );
-
-  res.status(response.status).json(await response.json());
-});
-
-app.get('/ssr-api/:resource/:id', async (req, res) => {
-  const response = await fetchExternal(
-    `/${req.params.resource}/${req.params.id}`,
-    { method: 'GET' }
-  );
-
-  res.status(response.status).json(await response.json());
-});
-
-app.post('/ssr-api/:resource', async (req, res) => {
-  const response = await fetchExternal(
-    `/${req.params.resource}`,
-    {
-      method: 'POST',
-      body: JSON.stringify(req.body)
+      const text = await response.text();
+      res.status(response.status).json(text ? JSON.parse(text) : null);
+    } catch (err) {
+      console.error('[server.ts] upload error:', err);
+      res.status(502).json({ detail: 'Error al subir la imagen' });
     }
-  );
+  },
+);
 
-  res.status(response.status).json(await response.json());
-});
-
-app.post('/ssr-api/:resource/:id/upload-image', express.raw({ type: 'multipart/form-data', limit: '10mb' }), async (req, res) => {
+// ─── Proxy genérico para todo /ssr-api/ ──────────────────────────────
+//
+//   Este middleware captura TODAS las llamadas a /ssr-api/* sin importar
+//   el método (GET, POST, PUT, DELETE) y las reenvía a la API externa.
+//
+//   Flujo para cada request:
+//     1. Extrae el "recurso" de la URL (project, language, etc.)
+//     2. Busca la URL base en API_ORIGINS
+//     3. Reconstruye la URL completa con el path y query string
+//     4. Agrega la API key y (si aplica) el body JSON
+//     5. Hace fetch a la API externa
+//     6. Devuelve la misma respuesta al frontend
+//
+//   Ejemplo:
+//     Frontend pide:  GET /ssr-api/project/pagination?page=1
+//     Proxy envía:     GET http://api.portfolio.com/api/project/pagination?page=1
+//                      Con header: X-API-Key: <secreto>
+//     Proxy devuelve:  La respuesta JSON exacta que devolvió la API
+//
+app.use('/ssr-api', async (req, res) => {
   try {
-    const response = await fetchExternalFile(
-      `/${req.params.resource}/${req.params.id}/upload-image`,
-      req.headers['content-type'] as string,
-      req.body as Buffer
-    );
+    // 1. Extraer el recurso de la URL
+    //    /ssr-api/project/pagination?page=1 → "project"
+    const afterPrefix = req.originalUrl.split('?')[0].replace('/ssr-api/', '');
+    const resource = afterPrefix.split('/')[0];
+    const origin = getOrigin(resource);
+
+    if (!origin) {
+      res.status(404).json({ detail: `Resource '${resource}' not mapped to any API origin` });
+      return;
+    }
+
+    // 2. Reconstruir la URL externa completa
+    //    Con req.originalUrl.replace('/ssr-api', '') aprovechamos que
+    //    la URL del frontend es idéntica a la de la API externa, salvo
+    //    el prefijo /ssr-api.
+    const url = `${origin}${req.originalUrl.replace('/ssr-api', '')}`;
+
+    // 3. Armar el request. Solo POST/PUT/PATCH llevan body.
+    const options: RequestInit = {
+      method: req.method,
+      headers: {
+        'X-API-Key': API_KEY,
+        'Content-Type': 'application/json',
+      },
+    };
+
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
+      options.body = JSON.stringify(req.body);
+    }
+
+    // 4. Ejecutar el fetch y devolver la respuesta
+    const response = await fetch(url, options);
     const text = await response.text();
+
     res.status(response.status).json(text ? JSON.parse(text) : null);
   } catch (err) {
-    console.error('[server.ts] upload-image error:', err);
-    res.status(500).json({ detail: String(err) });
-  }
-});
-
-app.put('/ssr-api/:resource/:id', async (req, res) => {
-  const response = await fetchExternal(
-    `/${req.params.resource}/${req.params.id}`,
-    {
-      method: 'PUT',
-      body: JSON.stringify(req.body)
-    }
-  );
-
-  res.status(response.status).json(await response.json());
-});
-
-app.delete('/ssr-api/:resource/:id/image', async (req, res) => {
-  const response = await fetchExternal(
-    `/${req.params.resource}/${req.params.id}/image`,
-    { method: 'DELETE' }
-  );
-
-  try {
-    res.status(response.status).json(await response.json());
-  } catch {
-    res.status(response.status).end();
-  }
-});
-
-app.delete('/ssr-api/:resource/:id', async (req, res) => {
-  const response = await fetchExternal(
-    `/${req.params.resource}/${req.params.id}`,
-    { method: 'DELETE' }
-  );
-
-  try {
-    res.status(response.status).json(await response.json());
-  } catch {
-    res.status(response.status).end();
+    console.error(`[server.ts] proxy error:`, err);
+    res.status(502).json({ detail: 'Error de conexión con el servicio externo' });
   }
 });
 // -----------------------------------------------------------------------
