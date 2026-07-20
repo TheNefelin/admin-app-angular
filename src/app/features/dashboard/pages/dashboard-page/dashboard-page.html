@@ -1,22 +1,28 @@
-<section class="flex gap-4 flex-wrap justify-center">
-  <app-dashboard-btn-component
-    href="/"
-    image="/images/btn.jpg"
-    title="Main"
-    variant="primary">
-  </app-dashboard-btn-component>
-
-  <app-dashboard-btn-component
-    href="/portfolio"
-    image="/images/btn.jpg"
-    title="Portfolio"
-    variant="primary">
-  </app-dashboard-btn-component>
-
-  <app-dashboard-btn-component
-    href="/game-guides"
-    image="/images/btn.jpg"
-    title="Game Guides"
-    variant="primary">
-  </app-dashboard-btn-component>
-</section>
+<div
+  class="hero min-h-screen"
+  style="background-image: url(/images/btn.jpg);"
+>
+  <div class="hero-overlay"></div>
+  <section class="flex gap-4 flex-wrap justify-center absolute top-28">
+    <app-dashboard-btn-component
+      href="/"
+      image="/images/btn.jpg"
+      title="Main"
+      variant="primary">
+    </app-dashboard-btn-component>
+  
+    <app-dashboard-btn-component
+      href="/portfolio"
+      image="/images/btn.jpg"
+      title="Portfolio"
+      variant="primary">
+    </app-dashboard-btn-component>
+  
+    <app-dashboard-btn-component
+      href="/game-guides"
+      image="/images/btn.jpg"
+      title="Game Guides"
+      variant="primary">
+    </app-dashboard-btn-component>
+  </section>  
+</div>
