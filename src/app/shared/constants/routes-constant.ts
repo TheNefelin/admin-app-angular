@@ -21,6 +21,10 @@ export const ROUTES_CONSTANTS = {
       ROOT: 'game-guides',
       GENRE: 'game-guides/genre',
       PLATFORM: 'game-guides/platform',
+      GAME: {
+        ROOT: 'game-guides/game',
+        FORM: 'game-guides/game/form',
+      },
     },
   },
   FORBIDDEN: 'forbidden',

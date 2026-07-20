@@ -30,4 +30,8 @@ export class GuideGamesLayoutComponent {
   protected goToPlatform(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.PLATFORM]);
   }
+
+  protected goToGame(): void {
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
+  }
 }

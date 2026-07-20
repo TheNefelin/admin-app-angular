@@ -1,8 +1,8 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, finalize, map, of } from 'rxjs';
-import { PlatformModel, SavePlatformModel } from '@features/game-guides/platform/models/platform-model';
-import { PlatformService } from '@features/game-guides/platform/services/platform-service';
+import { GameModel } from '@features/game-guides/game/models/game-model';
+import { GameService } from '@features/game-guides/game/services/game-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
@@ -10,10 +10,11 @@ import { MessageSuccessComponent } from "@shared/components/message-success-comp
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
-import { PlatformFormComponent } from '@features/game-guides/platform/components/platform-form-component/platform-form-component';
+import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-platform-page',
+  selector: 'app-game-page',
   imports: [
     PaginationFilterComponent,
     ButtonComponent,
@@ -21,31 +22,29 @@ import { PlatformFormComponent } from '@features/game-guides/platform/components
     LoadingComponent,
     PaginationNavComponent,
     ModalActionComponent,
-    PlatformFormComponent,
   ],
-  templateUrl: './platform-page.html',
+  templateUrl: './game-page.html',
 })
-export class PlatformPage {
+export class GamePage {
+  private readonly router = inject(Router);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
-  protected readonly showFormModal = signal<boolean>(false);
   protected readonly isDeleting = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-  protected readonly editItem = signal<PlatformModel | null>(null);
+  protected readonly editItem = signal<GameModel | null>(null);
 
-  private readonly service = inject(PlatformService);
+  private readonly service = inject(GameService);
   private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
     page: this.currentPage(),
     limit: this.limit(),
     search: this.search()
   }));
   protected readonly deleteItemId = signal<number | null>(null);
-  protected readonly computedList = computed<PlatformModel[]>(() => this.getAllRX.value() ?? []);
+  protected readonly computedList = computed<GameModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
     params: () => this.getAllPayload(),
@@ -58,7 +57,7 @@ export class PlatformPage {
           return response.items;
         }),
         catchError(err => {
-          console.error('[PlatformService::PlatformPage] getAllPagination:', err);
+          console.error('[GameService::GamePage] getAllPagination:', err);
           return of([]);
         })
       );
@@ -89,43 +88,14 @@ export class PlatformPage {
   }
 
   protected onCreate(): void {
-    this.editItem.set(null);
-    this.showFormModal.set(true);
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM]);
   }
 
-  protected onEdit(item: PlatformModel): void {
-    this.editItem.set(item);
-    this.showFormModal.set(true);
+  protected onEdit(item: GameModel): void {
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM, item.id]);
   }
 
-  protected onCloseForm(): void {
-    this.showFormModal.set(false);
-  }
-
-  protected onSubmitForm(data: SavePlatformModel): void {
-    this.isSaving.set(true);
-    this.successMessage.set(null);
-
-    const id = this.editItem()?.id;
-    const request$ = id
-      ? this.service.update(id, data)
-      : this.service.create(data);
-
-    request$.pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.successMessage.set(id ? 'Modificado correctamente' : 'Creado correctamente');
-        this.showFormModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[PlatformService::PlatformPage] onSubmitForm:', err);
-      }
-    });
-  }
-
-  protected onDelete(item: PlatformModel): void {
+  protected onDelete(item: GameModel): void {
     this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
     this.deleteItemId.set(item.id);
     this.showDeleteModal.set(true);
@@ -146,7 +116,7 @@ export class PlatformPage {
         this.getAllRX.reload();
       },
       error: (err) => {
-        console.error('[PlatformService::PlatformPage] onDelete:', err);
+        console.error('[GameService::GamePage] onDelete:', err);
       }
     });
   }

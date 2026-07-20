@@ -61,6 +61,10 @@ export const routes: Routes = [
         path: 'platform',
         loadChildren: () => import('@features/game-guides/platform/platform.routes').then(m => m.PLATFORM_ROUTES),
       },
+      {
+        path: 'game',
+        loadChildren: () => import('@features/game-guides/game/game.routes').then(m => m.GAME_ROUTES),
+      },
     ]
   },
   {

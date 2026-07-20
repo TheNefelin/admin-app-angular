@@ -1,0 +1,104 @@
+<section class="grid gap-2">
+  <span class="font-bold text-2xl italic px-2">GAMES</span>
+
+  <app-pagination-filter-component
+    (onRefreshClick)="onRefreshClick()"
+    (onFilterChange)="onFilterChange($event)"/>
+
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Game'" (onClick)="onCreate()"/>
+
+  @if (successMessage()) {
+    <app-message-success-component [message]="successMessage()"/>
+  }
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+
+  @if (getAllRX.isLoading()) {
+    <div class="p-4 flex justify-center items-center">
+      <app-loading-component/>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table bg-base-200">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Slug</th>
+            <th>Año</th>
+            <th>Rating</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (item of computedList(); track item.id) {
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.name }}</td>
+              <td>{{ item.slug }}</td>
+              <td>{{ item.release_year ?? '-' }}</td>
+              <td>{{ item.rating ?? '-' }}</td>
+              <td>
+                @if (item.is_enabled) {
+                  <th class="text-success m-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
+                      <path d="M0 0h1024v1024H0z" fill="none" />
+                      <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896m-55.8 536.4l-99.5-99.6a38.4 38.4 0 1 0-54.4 54.3L429.1 682a38.3 38.3 0 0 0 54.3 0l262.4-262.5a38.4 38.4 0 1 0-54.3-54.3z" />
+                    </svg>
+                  </th>
+                } @else {
+                  <th class="text-error m-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                      <path d="M0 0h32v32H0z" fill="none" />
+                      <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
+                    </svg>
+                  </th>
+                }
+              </td>
+              <th>
+                <div class="flex gap-2">
+                  <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
+                  <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+                </div>
+              </th>
+            </tr>
+          }
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Slug</th>
+            <th>Año</th>
+            <th>Rating</th>
+            <th>Activo</th>
+            <th>Acciones</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+</section>
+
+@if (showDeleteModal()) {
+  <app-modal-action-component
+    [isLoading]="isDeleting()"
+    [title]="'Eliminar Game'"
+    [message]="deleteMessage()"
+    (onConfirm)="onDeleteModalConfirm()"
+    (onClose)="showDeleteModal.set(false)"
+  />
+}

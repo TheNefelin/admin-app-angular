@@ -60,7 +60,7 @@ export class UrlGrpPage {
 
       return this.serviceUrlGrp.getAllPagination(params).pipe(
         map(response => {
-          this.totalPages.set(response.total);
+          this.totalPages.set(Math.ceil(response.total / this.limit()));
           return response.items;
         }),
         catchError(err => {

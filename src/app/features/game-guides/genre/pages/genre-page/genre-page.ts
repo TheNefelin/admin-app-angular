@@ -57,7 +57,7 @@ export class GenrePage {
 
       return this.service.getAllPagination(params).pipe(
         map(response => {
-          this.totalPages.set(response.total);
+          this.totalPages.set(Math.ceil(response.total / this.limit()));
           return response.items;
         }),
         catchError(err => {
