@@ -25,23 +25,23 @@ export const routes: Routes = [
       },
       {
         path: 'url-grp',
-        loadChildren: () => import('@features/url-grp/url-grp.routes').then(m => m.URL_GRP_ROUTES),
+        loadChildren: () => import('@features/portfolio/url-grp/url-grp.routes').then(m => m.URL_GRP_ROUTES),
       },
       {
         path: 'url',
-        loadChildren: () => import('@features/url/url.routes').then(m => m.URL_ROUTES),
+        loadChildren: () => import('@features/portfolio/url/url.routes').then(m => m.URL_ROUTES),
       },
       {
         path: 'language',
-        loadChildren: () => import('@features/language/language.routes').then(m => m.LANGUAGE_ROUTES),
+        loadChildren: () => import('@features/portfolio/language/language.routes').then(m => m.LANGUAGE_ROUTES),
       },
       {
         path: 'technology',
-        loadChildren: () => import('@features/technology/technology.routes').then(m => m.TECHNOLOGY_ROUTES),
+        loadChildren: () => import('@features/portfolio/technology/technology.routes').then(m => m.TECHNOLOGY_ROUTES),
       },
       {
         path: 'project',
-        loadChildren: () => import('@features/project/project.routes').then(m => m.PROJECT_ROUTES),
+        loadChildren: () => import('@features/portfolio/project/project.routes').then(m => m.PROJECT_ROUTES),
       },
     ]
   },
@@ -52,6 +52,14 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+      },
+      {
+        path: 'genre',
+        loadChildren: () => import('@features/game-guides/genre/genre.routes').then(m => m.GENRE_ROUTES),
+      },
+      {
+        path: 'platform',
+        loadChildren: () => import('@features/game-guides/platform/platform.routes').then(m => m.PLATFORM_ROUTES),
       },
     ]
   },

@@ -1,0 +1,85 @@
+<section class="grid gap-2">
+  <span class="font-bold text-2xl italic px-2">GENRES</span>
+
+  <app-pagination-filter-component
+    (onRefreshClick)="onRefreshClick()"
+    (onFilterChange)="onFilterChange($event)"/>
+
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Genre'" (onClick)="onCreate()"/>
+
+  @if (successMessage()) {
+    <app-message-success-component [message]="successMessage()"/>
+  }
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+
+  @if (getAllRX.isLoading()) {
+    <div class="p-4 flex justify-center items-center">
+      <app-loading-component/>
+    </div>
+  } @else {
+    <div class="overflow-x-auto">
+      <table class="table bg-base-200">
+        <thead>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (item of computedList(); track item.id) {
+            <tr>
+              <td>{{ item.id }}</td>
+              <td>{{ item.name }}</td>
+              <th>
+                <div class="flex gap-2">
+                  <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
+                  <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+                </div>
+              </th>
+            </tr>
+          }
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <th>Id</th>
+            <th>Nombre</th>
+            <th>Acciones</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  }
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+</section>
+
+@if (showDeleteModal()) {
+  <app-modal-action-component
+    [isLoading]="isDeleting()"
+    [title]="'Eliminar Genre'"
+    [message]="deleteMessage()"
+    (onConfirm)="onDeleteModalConfirm()"
+    (onClose)="showDeleteModal.set(false)"
+  />
+}
+
+@if (showFormModal()) {
+  <app-genre-form-component
+    [isLoading]="isSaving()"
+    [data]="editItem()"
+    (onSubmit)="onSubmitForm($event)"
+    (onClose)="onCloseForm()"
+  />
+}

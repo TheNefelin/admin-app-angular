@@ -22,4 +22,12 @@ export class GuideGamesLayoutComponent {
   protected goToMain(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.ROOT]);
   }
+
+  protected goToGenre(): void {
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GENRE]);
+  }
+
+  protected goToPlatform(): void {
+    this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.PLATFORM]);
+  }
 }

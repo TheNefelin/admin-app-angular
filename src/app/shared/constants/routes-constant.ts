@@ -17,7 +17,11 @@ export const ROUTES_CONSTANTS = {
         FORM: 'portfolio/project/form',
       },
     },
-    GAME_GUIDE: 'game-guides',
+    GAME_GUIDE: {
+      ROOT: 'game-guides',
+      GENRE: 'game-guides/genre',
+      PLATFORM: 'game-guides/platform',
+    },
   },
   FORBIDDEN: 'forbidden',
   NOT_FOUND: 'not-found',
