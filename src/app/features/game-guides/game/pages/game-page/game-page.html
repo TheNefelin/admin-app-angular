@@ -26,12 +26,12 @@
       <table class="table bg-base-200">
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Slug</th>
-            <th>Año</th>
-            <th>Rating</th>
             <th>Activo</th>
+            <th>Cáratula</th>
+            <th>Id / Año</th>
+            <th>Nombre / Slug</th>
+            <th>Calificación / Orden</th>
+            <th>Creacion / Modificacion</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -39,11 +39,6 @@
         <tbody>
           @for (item of computedList(); track item.id) {
             <tr>
-              <td>{{ item.id }}</td>
-              <td>{{ item.name }}</td>
-              <td>{{ item.slug }}</td>
-              <td>{{ item.release_year ?? '-' }}</td>
-              <td>{{ item.rating ?? '-' }}</td>
               <td>
                 @if (item.is_enabled) {
                   <th class="text-success m-0">
@@ -61,6 +56,42 @@
                   </th>
                 }
               </td>
+              <td>
+                <div class="avatar">
+                  <div class="mask w-20 aspect-square">
+                    <img
+                      class="object-cover relative" 
+                      [ngSrc]="item.cover_url ?? '/images/placeholder.webp'"
+                      [alt]="item.name"
+                      fill
+                      priority
+                    />
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div>
+                    <div class="font-bold">ID: {{ item.id }}</div>
+                    <div class="text-sm opacity-50">{{ item.release_year ?? '-' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span>{{ item.name }}</span>
+                <br/>
+                <span>{{ item.slug }}</span>
+              </td>
+              <td>
+                <span>{{ item.rating ?? '-' }}</span>
+                <br/>
+                <span>{{ item.sort_order }}</span>
+              </td>
+              <td>
+                <span>{{ item.created_at | date:'yyyy-MM-dd' }}</span>
+                <br />
+                <span>{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
+              </td>
               <th>
                 <div class="flex gap-2">
                   <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
@@ -73,12 +104,12 @@
 
         <tfoot>
           <tr>
-            <th>Id</th>
-            <th>Nombre</th>
-            <th>Slug</th>
-            <th>Año</th>
-            <th>Rating</th>
             <th>Activo</th>
+            <th>Cáratula</th>
+            <th>Id / Año</th>
+            <th>Nombre / Slug</th>
+            <th>Calificación / Orden</th>
+            <th>Creacion / Modificacion</th>
             <th>Acciones</th>
           </tr>
         </tfoot>

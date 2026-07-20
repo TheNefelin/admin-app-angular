@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { SaveGameModel, GameModel } from '../models/game-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { UploadImageModel } from '@shared/models/upload-image-model';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
@@ -43,6 +44,18 @@ export class GameService {
 
   delete(id: number): Observable<void> {
     return this.apiService.delete<void>(
+      this.namespace, this.endpoint, id
+    );
+  }
+
+  uploadImage(id: number, image: UploadImageModel): Observable<GameModel> {
+    return this.apiService.upload<GameModel>(
+      this.namespace, this.endpoint, id, image.file
+    );
+  }
+
+  deleteImage(id: number): Observable<GameModel> {
+    return this.apiService.deleteResource<GameModel>(
       this.namespace, this.endpoint, id
     );
   }

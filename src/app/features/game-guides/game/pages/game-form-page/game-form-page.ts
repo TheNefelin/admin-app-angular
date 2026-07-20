@@ -4,8 +4,9 @@ import { GameModel, SaveGameModel } from '@features/game-guides/game/models/game
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { GenreService } from '@features/game-guides/genre/services/genre-service';
 import { PlatformService } from '@features/game-guides/platform/services/platform-service';
+import { NgOptimizedImage } from '@angular/common';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -18,6 +19,7 @@ import { SelectListComponent } from "@shared/components/select-list-component/se
 @Component({
   selector: 'app-game-form-page',
   imports: [
+    NgOptimizedImage,
     LoadingComponent,
     ButtonComponent,
     SelectSearchComponent,
@@ -47,10 +49,15 @@ export class GameFormPage {
   );
 
   protected readonly clearSelectTrigger = signal<number>(0);
+  protected readonly selectedFile = signal<File | null>(null);
+  protected readonly previewUrl = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isSaving = signal<boolean>(false);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
+  protected readonly displayUrl = computed<string | null>(() =>
+    this.previewUrl() ?? this.computedGame()?.cover_url ?? null
+  );
 
   protected formData = linkedSignal<SaveGameModel>(() => {
     const item = this.computedGame();
@@ -131,19 +138,6 @@ export class GameFormPage {
     },
   });
 
-  protected deleteSlug(): void {
-    this.formData.update(d => ({ ...d, slug: '' }));
-  }
-
-  protected generateSlug(): void {
-    const name = this.formData().name;
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '');
-    this.formData.update(d => ({ ...d, slug }));
-  }
-
   protected onSubmit(event: Event): void {
     event.preventDefault();
     this.successMessage.set(null);
@@ -162,6 +156,7 @@ export class GameFormPage {
 
     this.isSaving.set(true);
     const data = { ...this.formData(), name, slug };
+    const file = this.selectedFile();
     const id = this.getGameByIdPayload();
 
     const request$ = id
@@ -169,11 +164,24 @@ export class GameFormPage {
       : this.serviceGame.create(data);
 
     request$.pipe(
-      finalize(() => this.isSaving.set(false))
+      switchMap(result => {
+        if (file)
+          return this.serviceGame.uploadImage(result.id, { file });
+
+        return of(result);
+      }),
+      finalize(() => {
+        this.getGameByIdRX.reload();
+        this.isSaving.set(false)
+      })
     ).subscribe({
-      next: () => {
+      next: (result) => {
         this.successMessage.set('Guardado correctamente');
-        this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
+        if (!id && result) {
+          this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM, result.id]);
+        } else {
+          this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
+        }
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onSubmitForm:', err);
@@ -182,8 +190,16 @@ export class GameFormPage {
   }
 
   protected updateName(value: string): void {
-    this.formData.update(d => ({ ...d, name: value }));
+    const slug = this.generateSlug(value);
+    this.formData.update(d => ({ ...d, name: value, slug }));
     this.errorMessage.set(null);
+  }
+
+  private generateSlug(value: string): string {
+    return value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
   }
 
   protected updateSlug(value: string): void {
@@ -205,7 +221,7 @@ export class GameFormPage {
   }
 
   protected updateRating(value: string): void {
-    const num = value ? parseFloat(value) : null;
+    const num = value ? parseInt(value, 10) : null;
     this.formData.update(d => ({ ...d, rating: num }));
   }
 
@@ -258,6 +274,39 @@ export class GameFormPage {
       ...data,
       genre_ids: data.genre_ids.filter(id => id !== item.id)
     }));
+  }
+
+  protected onDeleteImageClick(): void {
+    if (this.previewUrl()) {
+      this.previewUrl.set(null);
+      this.selectedFile.set(null);
+    } else {
+      const id = this.getGameByIdPayload();
+      if (!id) return;
+
+      this.isSaving.set(true);
+
+      this.serviceGame.deleteImage(id).pipe(
+        finalize(() => this.isSaving.set(false))
+      ).subscribe({
+        next: () => {
+          this.getGameByIdRX.reload();
+        },
+        error: (err) => console.error('[GameService::GameFormPage] onDeleteImage:', err)
+      });
+    }
+  }
+
+  protected onSelectedFile(file: File | null): void {
+    if (!file) {
+      this.previewUrl.set(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.readAsDataURL(file);
+    this.selectedFile.set(file);
   }
 
   protected goToGame(): void {

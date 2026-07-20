@@ -1,6 +1,7 @@
 <button 
   (click)="onClick.emit()"  
   class="btn"
+  class="btn"
   [class.btn-primary]="icon() === 'create' || icon() === 'save'"
   [class.btn-warning]="icon() === 'edit'"
   [class.btn-error]="icon() === 'delete'"

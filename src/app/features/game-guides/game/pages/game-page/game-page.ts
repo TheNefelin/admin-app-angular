@@ -12,10 +12,13 @@ import { PaginationNavComponent } from "@shared/components/pagination-nav-compon
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-game-page',
   imports: [
+    DatePipe,
+    NgOptimizedImage,
     PaginationFilterComponent,
     ButtonComponent,
     MessageSuccessComponent,

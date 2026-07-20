@@ -31,19 +31,49 @@
     <form (submit)="onSubmit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
       <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <fieldset class="fieldset">
-          <label class="label">Nombre</label>
-          <input
-            #name
-            type="text" class="input w-full" placeholder="Nombre"
-            [value]="formData().name"
-            (input)="updateName(name.value)"
-            maxlength="100"
-          />
+          <label class="label">Imagen de Portada</label>
+          <div [class]="'relative overflow-hidden rounded-md shadow-lg aspect-square'">
+            <img
+              class="w-full h-full object-cover"
+              [ngSrc]="displayUrl() ?? '/images/placeholder.webp'"
+              [alt]="computedGame()?.name"
+              fill priority/>
+
+            @if (displayUrl()) {
+              <div class="absolute top-2 right-2">
+                <app-button-component
+                  [icon]="'delete'"
+                  [textBtn]="'Eliminar'"
+                  (onClick)="onDeleteImageClick()" />
+              </div>
+            }
+          </div>
+
+          <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
+            <span class="text-sm">{{ displayUrl() ? 'Cambiar Imagen' : 'Elegir Imagen' }}</span>
+            <input
+              #fileInput
+              type="file"
+              class="hidden"
+              accept="image/*"
+              (change)="onSelectedFile(fileInput.files?.[0] ?? null)" />
+          </label>
         </fieldset>
 
-        <fieldset class="fieldset">
-          <label class="label">Slug</label>
-          <div class="flex gap-2">
+        <div>
+          <fieldset class="fieldset">
+            <label class="label">Nombre</label>
+            <input
+              #name
+              type="text" class="input w-full" placeholder="Nombre"
+              [value]="formData().name"
+              (input)="updateName(name.value)"
+              maxlength="100"
+            />
+          </fieldset>
+  
+          <fieldset class="fieldset">
+            <label class="label">Slug</label>
             <input
               #slug
               type="text" class="input w-full" placeholder="Slug"
@@ -51,10 +81,53 @@
               (input)="updateSlug(slug.value)"
               maxlength="100"
             />
-            <app-button-component [icon]="'create'" (onClick)="generateSlug()"/>
-            <app-button-component [icon]="'delete'" (onClick)="deleteSlug()"/>
-          </div>
-        </fieldset>
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <label class="label">Año de Lanzamiento</label>
+            <input
+              #releaseYear
+              type="number" class="input w-full" placeholder="2024"
+              [value]="formData().release_year"
+              (input)="updateReleaseYear(releaseYear.value)"
+              min="1900" max="2100"
+            />
+          </fieldset>
+  
+          <fieldset class="fieldset">
+            <label class="label">Rating (1-10)</label>
+            <input
+              #rating
+              type="number" class="input w-full" placeholder="1 - 10"
+              [value]="formData().rating"
+              (input)="updateRating(rating.value)"
+              min="1" max="10" step="1"
+            />
+          </fieldset>
+  
+          <fieldset class="fieldset">
+            <label class="label">Sort Order</label>
+            <input
+              #sortOrder
+              type="number" class="input w-full" placeholder="0"
+              [value]="formData().sort_order"
+              (input)="updateSortOrder(sortOrder.value)"
+              min="0"
+            />
+          </fieldset>
+
+          <fieldset class="fieldset">
+            <label class="label cursor-pointer justify-start gap-2 pt-2">
+              <input
+                #isEnabled
+                type="checkbox" class="checkbox checkbox-primary"
+                [checked]="formData().is_enabled"
+                (change)="updateIsEnable(isEnabled.checked)"
+              />
+              Activo
+            </label>
+          </fieldset>
+        </div>
       </section>
 
       <fieldset class="fieldset">
@@ -66,64 +139,6 @@
           (input)="updateDescription(description.value)"
           rows="3"
         ></textarea>
-      </fieldset>
-
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <fieldset class="fieldset">
-          <label class="label">Cover URL</label>
-          <input
-            #coverUrl
-            type="text" class="input w-full" placeholder="https://..."
-            [value]="formData().cover_url"
-            (input)="updateCoverUrl(coverUrl.value)"
-            maxlength="512"
-          />
-        </fieldset>
-
-        <fieldset class="fieldset">
-          <label class="label">Año de Lanzamiento</label>
-          <input
-            #releaseYear
-            type="number" class="input w-full" placeholder="2024"
-            [value]="formData().release_year"
-            (input)="updateReleaseYear(releaseYear.value)"
-            min="1900" max="2100"
-          />
-        </fieldset>
-
-        <fieldset class="fieldset">
-          <label class="label">Rating</label>
-          <input
-            #rating
-            type="number" class="input w-full" placeholder="0.0 - 10.0"
-            [value]="formData().rating"
-            (input)="updateRating(rating.value)"
-            min="0" max="10" step="0.1"
-          />
-        </fieldset>
-
-        <fieldset class="fieldset">
-          <label class="label">Sort Order</label>
-          <input
-            #sortOrder
-            type="number" class="input w-full" placeholder="0"
-            [value]="formData().sort_order"
-            (input)="updateSortOrder(sortOrder.value)"
-            min="0"
-          />
-        </fieldset>
-      </section>
-
-      <fieldset class="fieldset">
-        <label class="label cursor-pointer justify-start gap-2 pt-2">
-          <input
-            #isEnabled
-            type="checkbox" class="checkbox checkbox-primary"
-            [checked]="formData().is_enabled"
-            (change)="updateIsEnable(isEnabled.checked)"
-          />
-          Activo
-        </label>
       </fieldset>
 
       <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
