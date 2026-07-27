@@ -132,14 +132,15 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 # Component
 ng generate component layouts/components/navbar-component --style=none
 ng generate component features/dashboard/components/dashboard-btn-component --style=none
-ng generate component features/project/pages/project-form-page --style=none
+ng generate component features/game-guides/game/components/image-upload-component --style=none
+ng generate component features/game-guides/game/components/image-list-component --style=none
 ng generate component shared/components/select-list-component --style=none
 # Model
-ng generate interface features/project-language/models/project-language-model
-ng generate interface features/project-technology/models/project-technology-model
+ng generate interface features/game-guides/screenshot/models/screenshot-model
+ng generate interface features/game-guides/map/models/map-model
 # Service
-ng generate service features/project-language/services/project-language-service
-ng generate service features/project-technology/services/project-technology-service
+ng generate service features/game-guides/screenshot/services/screenshot-service
+ng generate service features/game-guides/map/services/map-service
 # Interceptor
 ng generate interceptor core/interceptors/error
 # Module

@@ -98,6 +98,41 @@ app.post(
   },
 );
 
+// ─── Upload multipart genérico (crear recurso con archivo) ───────────
+//   POST /ssr-api/game-guides/screenshots
+//     → FormData { game_id, file, alt_text }
+//     → reenvía raw a backend sin parsear
+app.post(
+  '/ssr-api/:namespace/:resource',
+  express.raw({ type: 'multipart/form-data', limit: '10mb' }),
+  async (req, res) => {
+    try {
+      const { namespace, resource } = req.params;
+      const origin = getOrigin(namespace);
+
+      if (!origin) {
+        res.status(404).json({ detail: `Unknown namespace: ${namespace}` });
+        return;
+      }
+
+      const response = await fetch(`${origin.url}/${resource}`, {
+        method: 'POST',
+        headers: {
+          'X-API-Key': origin.key,
+          'Content-Type': req.headers['content-type'] as string,
+        },
+        body: new Uint8Array(req.body as Buffer),
+      });
+
+      const text = await response.text();
+      res.status(response.status).json(text ? JSON.parse(text) : null);
+    } catch (err) {
+      console.error('[server.ts] multipart upload error:', err);
+      res.status(502).json({ detail: 'Error al subir el archivo' });
+    }
+  },
+);
+
 // ─── Proxy genérico para todo /ssr-api/ ──────────────────────────────
 app.use('/ssr-api', async (req, res) => {
   try {

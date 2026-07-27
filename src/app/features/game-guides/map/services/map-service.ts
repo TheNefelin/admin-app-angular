@@ -1,0 +1,22 @@
+import { inject, Service } from '@angular/core';
+import { ApiService } from '@core/services/api-service';
+import { API_NAMESPACE } from '@shared/constants/routes-constant';
+import { MapModel, SaveMapModel } from '../models/map-model';
+import { Observable } from 'rxjs';
+
+@Service()
+export class MapService {
+  private apiService = inject(ApiService)
+  private readonly namespace = API_NAMESPACE.GAME_GUIDES;
+  private readonly endpoint = 'maps';
+
+  create(data: SaveMapModel): Observable<MapModel> {
+    const fields: Record<string, string> = { game_id: data.game_id.toString() };
+    if (data.alt_text) fields['alt_text'] = data.alt_text;
+    return this.apiService.createWithFile<MapModel>(this.namespace, this.endpoint, data.file!, fields);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.apiService.delete<void>(this.namespace, this.endpoint, id);
+  }
+}

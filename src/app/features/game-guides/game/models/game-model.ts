@@ -1,3 +1,8 @@
+import { GenreModel } from "@features/game-guides/genre/models/genre-model";
+import { MapModel } from "@features/game-guides/map/models/map-model";
+import { PlatformModel } from "@features/game-guides/platform/models/platform-model";
+import { ScreenshotModel } from "@features/game-guides/screenshot/models/screenshot-model";
+
 export interface GameModel {
   id: number;
   name: string;
@@ -10,8 +15,10 @@ export interface GameModel {
   sort_order: number;
   created_at: string;
   updated_at: string;
-  platforms: { id: number; name: string }[];
-  genres: { id: number; name: string }[];
+  platforms: PlatformModel[];
+  genres: GenreModel[];
+  screenshots: ScreenshotModel[];
+  maps: MapModel[];
 }
 
 export interface SaveGameModel {

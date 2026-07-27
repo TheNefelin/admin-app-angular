@@ -1,5 +1,5 @@
 <button 
-  (click)="onClick.emit()"  
+  (click)="btnClick($event)"  
   class="btn"
   class="btn"
   [class.btn-primary]="icon() === 'create' || icon() === 'save'"

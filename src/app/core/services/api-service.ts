@@ -25,6 +25,17 @@ export class ApiService {
     return this.http.delete<T>(`/ssr-api/${namespace}/${resource}/${id}`);
   } 
 
+  createWithFile<T>(namespace: string, resource: string, file: File, fields?: Record<string, string>) {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (fields) {
+      for (const [key, value] of Object.entries(fields)) {
+        formData.append(key, value);
+      }
+    }
+    return this.http.post<T>(`/ssr-api/${namespace}/${resource}`, formData);
+  }
+
   upload<T>(namespace: string, resource: string, id: number, file: File) {
     const formData = new FormData();
     formData.append('file', file);

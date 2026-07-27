@@ -1,0 +1,21 @@
+<div class="grid md:grid-cols-2 gap-4 pt-4">
+  @for (item of imageList(); track item.id) {
+    <div class="relative rounded-xl overflow-hidden shadow-xl border border-white/5">
+      <img
+        [ngSrc]="item.image_url"
+        [alt]="item.alt_text"
+        width="100"
+        height="100"
+        class="w-full h-auto object-cover"
+        loading="lazy"
+      />
+
+      <div class="absolute top-2 right-2">
+        <app-button-component
+          [icon]="'delete'"
+          [textBtn]="'Eliminar'"
+          (onClick)="onDeleteImageClick(item.id)" />
+      </div>
+    </div>
+  }
+</div>

@@ -15,6 +15,12 @@ import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
+import { ImageUploadComponent } from '@features/game-guides/game/components/image-upload-component/image-upload-component';
+import { ImageListComponent } from '@features/game-guides/game/components/image-list-component/image-list-component';
+import { ScreenshotService } from '@features/game-guides/screenshot/services/screenshot-service';
+import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
+import { SaveMapModel } from '@features/game-guides/map/models/map-model';
+import { MapService } from '@features/game-guides/map/services/map-service';
 
 @Component({
   selector: 'app-game-form-page',
@@ -25,7 +31,9 @@ import { SelectListComponent } from "@shared/components/select-list-component/se
     SelectSearchComponent,
     MessageErrorComponent,
     MessageSuccessComponent,
-    SelectListComponent
+    SelectListComponent,
+    ImageUploadComponent,
+    ImageListComponent,
   ],
   templateUrl: './game-form-page.html',
 })
@@ -54,6 +62,7 @@ export class GameFormPage {
   protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isSaving = signal<boolean>(false);
+  protected readonly isSavingImage = signal<boolean>(false);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
   protected readonly displayUrl = computed<string | null>(() =>
     this.previewUrl() ?? this.computedGame()?.cover_url ?? null
@@ -100,6 +109,9 @@ export class GameFormPage {
     return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
   });
 
+  private readonly serviceScreenshot = inject(ScreenshotService);
+  private readonly serviceMap = inject(MapService);
+
   protected readonly getGameByIdRX = rxResource({
     params: () => this.getGameByIdPayload(),
     stream: ({ params: id }) => {
@@ -137,6 +149,70 @@ export class GameFormPage {
       );
     },
   });
+
+  protected onUploadScreenshot(item: SaveScreenshotModel): void {
+    this.isSavingImage.set(true);
+    this.serviceScreenshot.create(item).pipe(
+      finalize(() => {
+        this.isSavingImage.set(false);
+        this.getGameByIdRX.reload();
+      })
+    ).subscribe({
+      next: () => this.successMessage.set('Screenshot guardado'),
+      error: (err) => {
+        console.error('[GameFormPage] onUploadScreenshot:', err);
+        this.errorMessage.set('Error al guardar screenshot');
+      }
+    });
+  }
+
+  protected onDeleteScreenshot(id: number): void {
+    this.isSavingImage.set(true);
+    this.serviceScreenshot.delete(id).pipe(
+      finalize(() => {
+        this.isSavingImage.set(false);
+        this.getGameByIdRX.reload();
+      })
+    ).subscribe({
+      next: () => this.successMessage.set('Screenshot eliminado'),
+      error: (err) => {
+        console.error('[GameFormPage] onDeleteScreenshot:', err);
+        this.errorMessage.set('Error al eliminar screenshot');
+      }
+    });
+  }
+
+  protected onUploadMap(item: SaveMapModel): void {
+    this.isSavingImage.set(true);
+    this.serviceMap.create(item).pipe(
+      finalize(() => {
+        this.isSavingImage.set(false);
+        this.getGameByIdRX.reload();
+      })
+    ).subscribe({
+      next: () => this.successMessage.set('Screenshot guardado'),
+      error: (err) => {
+        console.error('[GameFormPage] onUploadScreenshot:', err);
+        this.errorMessage.set('Error al guardar screenshot');
+      }
+    });
+  }
+
+  protected onDeleteMap(id: number): void {
+    this.isSavingImage.set(true);
+    this.serviceMap.delete(id).pipe(
+      finalize(() => {
+        this.isSavingImage.set(false);
+        this.getGameByIdRX.reload();
+      })
+    ).subscribe({
+      next: () => this.successMessage.set('Screenshot eliminado'),
+      error: (err) => {
+        console.error('[GameFormPage] onDeleteScreenshot:', err);
+        this.errorMessage.set('Error al eliminar screenshot');
+      }
+    });
+  }
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
