@@ -169,8 +169,15 @@
         </fieldset>
       </section>
 
-      <!-- name of each tab group should be unique -->
-      @if (isEditMode()) {
+      <div class="flex justify-end">
+        <app-button-component
+          [icon]="'save'"
+          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"/>
+      </div>
+    </form>
+
+    @if (isEditMode()) {
+      <div class="bg-base-200 border-base-300 p-4">
         <div class="tabs tabs-lift">
           <label class="tab">
             <input type="radio" name="my_tabs_4" checked="checked" />
@@ -204,13 +211,7 @@
               (onDeleteImage)="onDeleteMap($event)" />
           </div>
         </div>
-      }      
-      
-      <div class="flex justify-end">
-        <app-button-component
-          [icon]="'save'"
-          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"/>
       </div>
-    </form>
+    }
   }
 </section>
