@@ -1,11 +1,12 @@
 import { Component, computed, inject, input, linkedSignal, output } from '@angular/core';
 import { SaveGenreModel, GenreModel } from '@features/game-guides/genre/models/genre-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
 
 @Component({
   selector: 'app-genre-form-component',
-  imports: [LoadingComponent],
+  imports: [
+    LoadingComponent
+  ],
   templateUrl: './genre-form-component.html',
 })
 export class GenreFormComponent {

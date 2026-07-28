@@ -11,7 +11,7 @@ export class ButtonComponent {
   protected readonly onClick = output<void>();
 
   protected btnClick(event: Event) {
-    event.preventDefault()
+    event.preventDefault();
     this.onClick.emit()
   }
 }
