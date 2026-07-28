@@ -13,7 +13,7 @@ export class MapService {
   create(data: SaveMapModel): Observable<MapModel> {
     const fields: Record<string, string> = { game_id: data.game_id.toString() };
     if (data.alt_text) fields['alt_text'] = data.alt_text;
-    return this.apiService.createWithFile<MapModel>(this.namespace, this.endpoint, data.file!, fields);
+    return this.apiService.postWithFile<MapModel>(this.namespace, this.endpoint, data.file!, fields);
   }
 
   delete(id: number): Observable<void> {

@@ -25,7 +25,7 @@ export class ApiService {
     return this.http.delete<T>(`/ssr-api/${namespace}/${resource}/${id}`);
   } 
 
-  createWithFile<T>(namespace: string, resource: string, file: File, fields?: Record<string, string>) {
+  postWithFile<T>(namespace: string, resource: string, file: File, fields?: Record<string, string>) {
     const formData = new FormData();
     formData.append('file', file);
     if (fields) {
