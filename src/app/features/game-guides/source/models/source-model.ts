@@ -2,7 +2,7 @@ export interface SaveSourceModel {
   game_id: number;
   name: string;
   url: string;
-  sort_order: number;
+  sort_order?: number;
 }
 
 export interface SourceModel extends SaveSourceModel {

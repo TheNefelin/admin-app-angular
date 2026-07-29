@@ -1,4 +1,4 @@
-<div class="overflow-x-auto bg-base-300 my-2">
+<div class="overflow-x-auto bg-base-300 mt-2">
   <table class="table">
     <!-- head -->
     <thead>
@@ -19,8 +19,13 @@
           <td>{{ item.url }}</td>
           <td>{{ item.sort_order }}</td>
           <td>
-            <app-button-component 
-              [icon]="'delete'" />
+            @if (isLoading()) {
+              <app-loading-component/>
+            } @else {
+              <app-button-component 
+                [icon]="'delete'" 
+                (onClick)="delete(item)"/>
+            }
           </td>
         </tr>
       }

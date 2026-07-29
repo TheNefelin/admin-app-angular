@@ -21,7 +21,7 @@ import { MapService } from '@features/game-guides/map/services/map-service';
 import { GameFormComponent } from "@features/game-guides/game/components/game-form-component/game-form-component";
 import { SourcesFormComponent } from "@features/game-guides/source/components/source-form-component/source-form-component";
 import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
-import { SaveSourceModel } from '@features/game-guides/source/models/source-model';
+import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from "@features/game-guides/source/components/source-list-component/sources-list-component";
 
@@ -232,6 +232,27 @@ export class GameFormPage {
       error: (err) => {
         console.error('[GameService::GameFormPage] onDeleteImage:', err);
         this.errorMessage.set('Error al eliminar la imagen');
+      }
+    });
+  }
+
+  protected onDeleteSource(item: SourceModel): void {
+    const id = item.id;
+    if (!id) return;
+
+    this.isSavingSource.set(true);
+
+    this.serviceSource.delete(id)
+    .pipe(
+      finalize(() => this.isSavingSource.set(false))
+    )
+    .subscribe({
+      next: () => {
+        this.getGameByIdRX.reload();
+      },
+      error: (err) => {
+        console.error('[SourceService::GameFormPage] onDeleteSource:', err);
+        this.errorMessage.set('Error al eliminar la fuente');
       }
     });
   }

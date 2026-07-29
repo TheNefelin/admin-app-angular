@@ -24,6 +24,7 @@
       #sort
       type="number" class="input w-full" placeholder="Orden" maxlength="3"
       [disabled]="isLoading()"
+      [value]="formData().sort_order"
       (input)="updateSort(sort.value)"
     />
   </fieldset>

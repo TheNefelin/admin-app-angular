@@ -26,7 +26,7 @@ export class SourcesFormComponent {
       game_id: id,
       name: '',
       url: '',
-      sort_order: 0,
+      sort_order: undefined,
     }
   });
 
@@ -46,6 +46,7 @@ export class SourcesFormComponent {
   protected submit(): void {
     const name = this.formData().name.trim();
     const url = this.formData().url.trim();
+    const sort = this.formData().sort_order ?? 0;
 
     if (!name || name.length > 200) {
       this.errorMessage.emit('[Form Fuente] - El nombre debe tener entre 1 y 200 caracteres');
@@ -66,6 +67,7 @@ export class SourcesFormComponent {
       ...this.formData(), 
       name: name,
       url: url,
+      sort_order: sort,
     }
 
     this.onSubmit.emit(data);

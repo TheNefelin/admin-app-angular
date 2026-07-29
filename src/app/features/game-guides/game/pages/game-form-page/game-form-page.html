@@ -44,7 +44,9 @@
         (onSubmit)="onSubmitSource($event)"/>
 
       <app-sources-list-component
-        [sourceList]="computedGame()?.sources ?? []" />
+        [isLoading]="isSavingSource()"
+        [sourceList]="computedGame()?.sources ?? []" 
+        (onDelete)="onDeleteSource($event)"/>
     </section>
   }
   
