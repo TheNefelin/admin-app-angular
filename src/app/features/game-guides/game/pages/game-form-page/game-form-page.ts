@@ -195,7 +195,7 @@ export class GameFormPage {
     request$.pipe(
       switchMap(result => {
         if (file)
-          return this.serviceGame.uploadImage(result.id, { file });
+          return this.serviceGame.uploadImage(result.id, file);
 
         return of(result);
       }),

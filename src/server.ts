@@ -98,12 +98,12 @@ app.post(
   },
 );
 
-// ─── Upload multipart genérico (crear recurso con archivo) ───────────
-//   POST /ssr-api/game-guides/screenshots
-//     → FormData { game_id, file, alt_text }
-//     → reenvía raw a backend sin parsear
+// ─── Upload multipart por recurso (game-guides) ─────────────────────
+//   POST /ssr-api/game-guides/games/upload-image
+//   POST /ssr-api/game-guides/screenshots/upload-image
+//   POST /ssr-api/game-guides/maps/upload-image
 app.post(
-  '/ssr-api/:namespace/:resource',
+  '/ssr-api/:namespace/:resource/upload-image',
   express.raw({ type: 'multipart/form-data', limit: '10mb' }),
   async (req, res, next) => {
     try {
@@ -118,7 +118,7 @@ app.post(
         return;
       }
 
-      const response = await fetch(`${origin.url}/${resource}`, {
+      const response = await fetch(`${origin.url}/${resource}/upload-image`, {
         method: 'POST',
         headers: {
           'X-API-Key': origin.key,
@@ -130,7 +130,7 @@ app.post(
       const text = await response.text();
       res.status(response.status).json(text ? JSON.parse(text) : null);
     } catch (err) {
-      console.error('[server.ts] multipart upload error:', err);
+      console.error('[server.ts] upload-image error:', err);
       res.status(502).json({ detail: 'Error al subir el archivo' });
     }
   },
