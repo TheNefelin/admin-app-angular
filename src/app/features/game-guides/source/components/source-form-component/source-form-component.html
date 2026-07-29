@@ -1,0 +1,43 @@
+<form (submit)="submit()" class="grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+  <fieldset class="fieldset">
+    <input
+      #name
+      type="text" class="input w-full" placeholder="Nombre Fuente" maxlength="100"
+      [disabled]="isLoading()"
+      [value]="formData().name"
+      (input)="updateName(name.value)"
+    />
+  </fieldset>
+
+  <fieldset class="fieldset">
+    <input
+      #url
+      type="text" class="input w-full" placeholder="Url Fuente" maxlength="256"
+      [disabled]="isLoading()"
+      [value]="formData().url"
+      (input)="updateUrl(url.value)"
+    />
+  </fieldset>
+
+  <fieldset class="fieldset">
+    <input
+      #sort
+      type="number" class="input w-full" placeholder="Orden" maxlength="3"
+      [disabled]="isLoading()"
+      (input)="updateSort(sort.value)"
+    />
+  </fieldset>
+
+  @if (isLoading()) {
+    <div class="flex justify-center">
+      <app-loading-component/>
+    </div>
+  } @else {
+    <div class="flex justify-end">
+      <app-button-component
+        [icon]="'save'"
+        [textBtn]="'Guardar Fuente'" 
+        (onClick)="submit()" />
+    </div>
+  }
+</form>

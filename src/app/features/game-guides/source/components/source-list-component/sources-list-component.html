@@ -1,0 +1,29 @@
+<div class="overflow-x-auto bg-base-300 my-2">
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Nombre</th>
+        <th>Url</th>
+        <th>Sort</th>
+        <th>Accion</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- row -->
+      @for (item of sourceList(); track item.id) {
+        <tr>
+          <th>{{ item.id }}</th>
+          <td>{{ item.name }}</td>
+          <td>{{ item.url }}</td>
+          <td>{{ item.sort_order }}</td>
+          <td>
+            <app-button-component 
+              [icon]="'delete'" />
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

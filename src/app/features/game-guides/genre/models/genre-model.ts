@@ -1,8 +1,7 @@
-export interface GenreModel {
-  id: number;
+export interface SaveGenreModel {
   name: string;
 }
 
-export interface SaveGenreModel {
-  name: string;
+export interface GenreModel extends SaveGenreModel {
+  id: number;
 }

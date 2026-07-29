@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { SaveGameModel, GameModel } from '../models/game-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { UploadImageModel } from '@shared/models/upload-image-model';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
@@ -47,10 +48,9 @@ export class GameService {
     );
   }
 
-  uploadImage(gameId: number, file: File): Observable<GameModel> {
-    return this.apiService.postWithFile<GameModel>(
-      this.namespace, `${this.endpoint}/upload-image`, file,
-      { game_id: String(gameId) }
+  uploadImage(id: number, image: UploadImageModel): Observable<GameModel> {
+    return this.apiService.upload<GameModel>(
+      this.namespace, this.endpoint, id, image.file
     );
   }
 

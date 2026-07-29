@@ -28,11 +28,13 @@ export class ApiService {
   postWithFile<T>(namespace: string, resource: string, file: File, fields?: Record<string, string>) {
     const formData = new FormData();
     formData.append('file', file);
+
     if (fields) {
       for (const [key, value] of Object.entries(fields)) {
         formData.append(key, value);
       }
     }
+    
     return this.http.post<T>(`/ssr-api/${namespace}/${resource}`, formData);
   }
 

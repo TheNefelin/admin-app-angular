@@ -36,7 +36,20 @@
   />
 
   @if (isEditMode()) {
-    <div class="bg-base-200 border-base-300 p-4">
+    <section class="bg-base-200 border-base-300 p-4 rounded-box border">
+      <app-source-form-component
+        [isLoading]="isSavingSource()"
+        [gameId]="computedGame()?.id ?? 0"
+        (errorMessage)="errorMessage.set($event)"
+        (onSubmit)="onSubmitSource($event)"/>
+
+      <app-sources-list-component
+        [sourceList]="computedGame()?.sources ?? []" />
+    </section>
+  }
+  
+  @if (isEditMode()) {
+    <div class="bg-base-200 border-base-300 p-4 rounded-box border">
       <div class="tabs tabs-lift">
         <label class="tab">
           <input type="radio" name="my_tabs_4" checked="checked" />
@@ -72,5 +85,11 @@
       </div>
     </div>
   }
-
 </section>
+
+@if (errorMessage()) {
+  <app-modal-error-component
+    [message]="errorMessage()"
+    (close)="clearError()"
+  />
+}

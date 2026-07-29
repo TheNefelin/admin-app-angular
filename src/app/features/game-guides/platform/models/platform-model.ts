@@ -1,8 +1,7 @@
-export interface PlatformModel {
-  id: number;
+export interface SavePlatformModel {
   name: string;
 }
 
-export interface SavePlatformModel {
-  name: string;
+export interface PlatformModel extends SavePlatformModel {
+  id: number;
 }

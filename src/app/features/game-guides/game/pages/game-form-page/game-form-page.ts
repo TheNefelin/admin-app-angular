@@ -19,6 +19,11 @@ import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/scr
 import { SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { MapService } from '@features/game-guides/map/services/map-service';
 import { GameFormComponent } from "@features/game-guides/game/components/game-form-component/game-form-component";
+import { SourcesFormComponent } from "@features/game-guides/source/components/source-form-component/source-form-component";
+import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
+import { SaveSourceModel } from '@features/game-guides/source/models/source-model';
+import { SourceService } from '@features/game-guides/source/services/source-service';
+import { SourcesListComponent } from "@features/game-guides/source/components/source-list-component/sources-list-component";
 
 @Component({
   selector: 'app-game-form-page',
@@ -29,7 +34,10 @@ import { GameFormComponent } from "@features/game-guides/game/components/game-fo
     MessageSuccessComponent,
     ImageUploadComponent,
     ImageListComponent,
-    GameFormComponent
+    GameFormComponent,
+    SourcesFormComponent,
+    ModalErrorComponent,
+    SourcesListComponent
 ],
   templateUrl: './game-form-page.html',
 })
@@ -56,6 +64,7 @@ export class GameFormPage {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isSaving = signal<boolean>(false);
   protected readonly isSavingImage = signal<boolean>(false);
+  protected readonly isSavingSource = signal<boolean>(false);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
 
   private readonly serviceGame = inject(GameService);
@@ -76,6 +85,7 @@ export class GameFormPage {
 
   private readonly serviceScreenshot = inject(ScreenshotService);
   private readonly serviceMap = inject(MapService);
+  private readonly serviceSource = inject(SourceService)
 
   protected readonly getGameByIdRX = rxResource({
     params: () => this.getGameByIdPayload(),
@@ -172,7 +182,6 @@ export class GameFormPage {
 
   protected onSubmit(payload: { data: SaveGameModel; file: File | null }): void {
     this.successMessage.set(null);
-    this.errorMessage.set(null);
 
     this.isSaving.set(true);
     const data = { ...payload.data, name: payload.data.name.trim(), slug: payload.data.slug.trim() };
@@ -186,7 +195,7 @@ export class GameFormPage {
     request$.pipe(
       switchMap(result => {
         if (file)
-          return this.serviceGame.uploadImage(result.id, file);
+          return this.serviceGame.uploadImage(result.id, { file });
 
         return of(result);
       }),
@@ -227,7 +236,30 @@ export class GameFormPage {
     });
   }
 
+  protected onSubmitSource(item: SaveSourceModel): void {
+    this.isSavingSource.set(true);
+
+    this.serviceSource.create(item)
+    .pipe(
+      finalize(() => this.isSavingSource.set(false))
+    )
+    .subscribe({
+      next: (result) => {
+        this.successMessage.set('Fuente Guardada correctamente');
+        this.getGameByIdRX.reload();
+      },
+      error: (err) => {
+        console.error('[SourceService::SourceFormPage] onSubmitSource:', err);
+        this.errorMessage.set('Error al guardar la Fuente');
+      }
+    });
+  }
+
   protected goToGame(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
+  }
+
+  protected clearError(): void {
+    this.errorMessage.set(null)
   }
 }
