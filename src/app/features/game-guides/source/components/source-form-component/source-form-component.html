@@ -34,11 +34,14 @@
       <app-loading-component/>
     </div>
   } @else {
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-2">
       <app-button-component
         [icon]="'save'"
-        [textBtn]="'Guardar Fuente'" 
         (onClick)="submit()" />
+
+      <app-button-component
+        [icon]="'clear'"
+        (onClick)="clear()" />
     </div>
   }
 </form>

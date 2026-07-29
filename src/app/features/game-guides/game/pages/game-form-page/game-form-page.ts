@@ -86,6 +86,7 @@ export class GameFormPage {
   private readonly serviceScreenshot = inject(ScreenshotService);
   private readonly serviceMap = inject(MapService);
   private readonly serviceSource = inject(SourceService)
+  protected readonly saveSourcePayload = signal<SourceModel | null>(null);
 
   protected readonly getGameByIdRX = rxResource({
     params: () => this.getGameByIdPayload(),
@@ -128,58 +129,9 @@ export class GameFormPage {
     },
   });
 
-  private handleImageAction<T>(
-    action: Observable<T>,
-    successMsg: string,
-    errorMsg: string,
-  ): void {
-    this.isSavingImage.set(true);
-    action.pipe(
-      finalize(() => {
-        this.isSavingImage.set(false);
-        this.getGameByIdRX.reload();
-      })
-    ).subscribe({
-      next: () => this.successMessage.set(successMsg),
-      error: (err) => {
-        console.error(`[GameFormPage] ${errorMsg}:`, err);
-        this.errorMessage.set(errorMsg);
-      }
-    });
-  }
-
-  protected onUploadScreenshot(item: SaveScreenshotModel): void {
-    this.handleImageAction(
-      this.serviceScreenshot.create(item),
-      'Screenshot guardado',
-      'Error al guardar screenshot'
-    );
-  }
-
-  protected onDeleteScreenshot(id: number): void {
-    this.handleImageAction(
-      this.serviceScreenshot.delete(id),
-      'Screenshot eliminado',
-      'Error al eliminar screenshot'
-    );
-  }
-
-  protected onUploadMap(item: SaveMapModel): void {
-    this.handleImageAction(
-      this.serviceMap.create(item),
-      'Map guardado',
-      'Error al guardar Map'
-    );
-  }
-
-  protected onDeleteMap(id: number): void {
-    this.handleImageAction(
-      this.serviceMap.delete(id),
-      'Map eliminado',
-      'Error al eliminar Map'
-    );
-  }
-
+  // FORM -----------------------------------------------------------
+  // ----------------------------------------------------------------
+  
   protected onSubmit(payload: { data: SaveGameModel; file: File | null }): void {
     this.successMessage.set(null);
 
@@ -236,6 +188,72 @@ export class GameFormPage {
     });
   }
 
+  // SCREENCHOTS AND MAPS -------------------------------------------
+  // ----------------------------------------------------------------
+
+  private handleImageAction<T>(
+    action: Observable<T>,
+    successMsg: string,
+    errorMsg: string,
+  ): void {
+    this.isSavingImage.set(true);
+    action.pipe(
+      finalize(() => {
+        this.isSavingImage.set(false);
+        this.getGameByIdRX.reload();
+      })
+    ).subscribe({
+      next: () => this.successMessage.set(successMsg),
+      error: (err) => {
+        console.error(`[GameFormPage] ${errorMsg}:`, err);
+        this.errorMessage.set(errorMsg);
+      }
+    });
+  }
+
+  protected onUploadScreenshot(item: SaveScreenshotModel): void {
+    this.handleImageAction(
+      this.serviceScreenshot.create(item),
+      'Screenshot guardado',
+      'Error al guardar screenshot'
+    );
+  }
+
+  protected onDeleteScreenshot(id: number): void {
+    this.handleImageAction(
+      this.serviceScreenshot.delete(id),
+      'Screenshot eliminado',
+      'Error al eliminar screenshot'
+    );
+  }
+
+  protected onUploadMap(item: SaveMapModel): void {
+    this.handleImageAction(
+      this.serviceMap.create(item),
+      'Map guardado',
+      'Error al guardar Map'
+    );
+  }
+
+  protected onDeleteMap(id: number): void {
+    this.handleImageAction(
+      this.serviceMap.delete(id),
+      'Map eliminado',
+      'Error al eliminar Map'
+    );
+  }
+  
+  // SOURCES --------------------------------------------------------
+  // ----------------------------------------------------------------
+
+  protected onClearSource(): void {
+    this.saveSourcePayload.set(null);
+  }
+
+  protected onEditSource(item: SourceModel): void {
+    this.saveSourcePayload.set(item);
+  }
+
   protected onDeleteSource(item: SourceModel): void {
     const id = item.id;
     if (!id) return;
@@ -260,21 +278,42 @@ export class GameFormPage {
   protected onSubmitSource(item: SaveSourceModel): void {
     this.isSavingSource.set(true);
 
-    this.serviceSource.create(item)
+    const sourceId = this.saveSourcePayload()?.id;
+
+    const data: SaveSourceModel = {
+      ...item,
+      game_id: this.computedGame()!.id,
+    };
+
+    const request$ = sourceId
+    ? this.serviceSource.update(sourceId, data)
+    : this.serviceSource.create(data);
+
+    request$
     .pipe(
-      finalize(() => this.isSavingSource.set(false))
+      finalize(() => {
+        this.isSavingSource.set(false)
+        this.onClearSource();
+      })
     )
     .subscribe({
       next: (result) => {
-        this.successMessage.set('Fuente Guardada correctamente');
+        this.successMessage.set(
+          sourceId ? 'Fuente modificada correctamente' : 'Fuente creada correctamente'
+        );
         this.getGameByIdRX.reload();
       },
       error: (err) => {
         console.error('[SourceService::SourceFormPage] onSubmitSource:', err);
-        this.errorMessage.set('Error al guardar la Fuente');
+        this.errorMessage.set(
+          sourceId ? 'Error al modificar la Fuente' : 'Error al crear la Fuente'
+        );
       }
     });
   }
+
+  // ACTIONS --------------------------------------------------------
+  // ----------------------------------------------------------------
 
   protected goToGame(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);

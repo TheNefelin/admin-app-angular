@@ -22,9 +22,14 @@
             @if (isLoading()) {
               <app-loading-component/>
             } @else {
-              <app-button-component 
-                [icon]="'delete'" 
-                (onClick)="delete(item)"/>
+              <div class="flex gap-2">
+                <app-button-component 
+                  [icon]="'edit'" 
+                  (onClick)="onEdit.emit(item)"/>
+                <app-button-component 
+                  [icon]="'delete'" 
+                  (onClick)="onDelete.emit(item)"/>
+              </div>
             }
           </td>
         </tr>

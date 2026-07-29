@@ -38,14 +38,16 @@
   @if (isEditMode()) {
     <section class="bg-base-200 border-base-300 p-4 rounded-box border">
       <app-source-form-component
-        [isLoading]="isSavingSource()"
-        [gameId]="computedGame()?.id ?? 0"
-        (errorMessage)="errorMessage.set($event)"
+        [isLoading]="isSavingSource()"  
+        [sourcePayload]="saveSourcePayload()"
+        (errorMessage)="errorMessage.set($event)"  
+        (onClear)="onClearSource()"      
         (onSubmit)="onSubmitSource($event)"/>
 
       <app-sources-list-component
         [isLoading]="isSavingSource()"
         [sourceList]="computedGame()?.sources ?? []" 
+        (onEdit)="onEditSource($event)"
         (onDelete)="onDeleteSource($event)"/>
     </section>
   }

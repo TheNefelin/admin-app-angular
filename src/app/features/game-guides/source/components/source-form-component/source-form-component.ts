@@ -1,6 +1,6 @@
 import { Component, input, linkedSignal, output, signal } from '@angular/core';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { SaveSourceModel } from '@features/game-guides/source/models/source-model';
+import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 
 @Component({
@@ -13,20 +13,21 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 })
 export class SourcesFormComponent {
   readonly isLoading = input<boolean>(false);
-  readonly gameId = input.required<number>();
+  readonly sourcePayload = input<SourceModel | null>();
   protected readonly errorMessage = output<string | null>();
   protected readonly onSubmit = output<SaveSourceModel>();
+  protected readonly  onClear = output<void>();
 
-  private clearTrigger = signal<number>(0);
+  protected clearTrigger = signal<number>(0);
   protected readonly formData = linkedSignal<SaveSourceModel>(() => {
     this.clearTrigger();
-    const id = this.gameId();
+    const item = this.sourcePayload()
     
     return {
-      game_id: id,
-      name: '',
-      url: '',
-      sort_order: undefined,
+      game_id: item?.game_id ?? 0,
+      name: item?.name ?? '',
+      url: item?.url ?? '',
+      sort_order: item?.sort_order ?? undefined,
     }
   });
 
@@ -41,6 +42,11 @@ export class SourcesFormComponent {
   protected updateSort(value: string): void {
     const num = value ? parseInt(value, 10) : 0;
     this.formData.update(d => ({ ...d, sort_order: num }));
+  }
+
+  protected clear(): void {
+    this.clearTrigger.update(e => e + 1);
+    this.onClear.emit();
   }
 
   protected submit(): void {
@@ -71,6 +77,5 @@ export class SourcesFormComponent {
     }
 
     this.onSubmit.emit(data);
-    this.clearTrigger.update(e => e + 1);
   }
 }
