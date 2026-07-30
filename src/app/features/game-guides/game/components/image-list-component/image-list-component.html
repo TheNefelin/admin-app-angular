@@ -1,6 +1,6 @@
 <div class="grid md:grid-cols-2 gap-4 pt-4">
   @for (item of imageList(); track item.id) {
-    <div class="relative rounded-xl overflow-hidden shadow-xl border border-white/5">
+    <div class="relative rounded-xl shadow-xl border border-white/5">
       <img
         [ngSrc]="item.image_url ?? '/images/placeholder.webp'"
         [alt]="item.alt_text"

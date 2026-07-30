@@ -1,0 +1,42 @@
+<section class="grid gap-2">
+  @if (labelText()) {
+    <label class="label">{{ labelText() }}</label>
+  }
+
+  <div 
+    class="relative overflow-hidden rounded-md shadow-lg"
+    [class.aspect-square]="aspectRatio() === 'aspect-square'"
+    [class.aspect-video]="aspectRatio() === 'aspect-video'" >
+    
+    @if (isLoading()) {
+      <div class="flex justify-center items-center h-full">
+        <app-loading-component/>
+      </div>
+    } @else {
+      <img
+        class="w-full h-full object-cover"
+        [src]="image() ?? '/images/placeholder.webp'"
+        [alt]="labelText() ?? 'Imagen'" />
+    }
+  
+    @if (image()) {
+      <div class="absolute top-2 right-2">
+        <app-button-component
+          [icon]="'delete'"
+          [textBtn]="'Eliminar'"
+          (onClick)="deleteFile()" />
+      </div>
+    }
+  </div>
+  
+  <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
+    <span class="text-sm">{{ previewImg()?.file?.name ?? 'Elegir Imagen' }}</span>
+    <input
+      #fileInput
+      type="file"
+      class="hidden"
+      accept="image/*"
+      (click)="fileInput.value = ''"
+      (change)="selectedFile(fileInput.files?.[0] ?? null)" />
+  </label>
+</section>

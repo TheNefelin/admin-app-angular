@@ -1,41 +1,11 @@
 <form (submit)="submit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
   <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <fieldset class="fieldset">
-      <label class="label">Imagen de Portada</label>
-      <div class="relative overflow-hidden rounded-md shadow-lg aspect-square">
-        @if ((isLoading() && !displayImg()) || isSaving()) {
-          <div class="flex justify-center items-center h-full">
-            <app-loading-component/>
-          </div>
-        } @else {
-          <img
-            class="w-full h-full object-cover"
-            [ngSrc]="displayImg() ?? '/images/placeholder.webp'"
-            [alt]="formData().name"
-            fill priority/>
-        }
-
-        @if (displayImg()) {
-          <div class="absolute top-2 right-2">
-            <app-button-component
-              [icon]="'delete'"
-              [textBtn]="'Eliminar'"
-              (onClick)="onDeleteFile()" />
-          </div>
-        }
-      </div>
-
-      <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
-        <span class="text-sm">{{ previewImg()?.file?.name ?? 'Elegir Imagen' }}</span>
-        <input
-          #fileInput
-          type="file"
-          class="hidden"
-          accept="image/*"
-          (click)="fileInput.value = ''"
-          (change)="onSelectedFile(fileInput.files?.[0] ?? null)" />
-      </label>
-    </fieldset>
+    <app-image-picker-component
+      [isLoading]="isLoading() || isSaving()"
+      [displayImg]="computedGame()?.cover_url ?? null"
+      [labelText]="'Imagen de Portada'"
+      (onSelectedFile)="onSelectedFile($event)"
+      (onDeleteFile)="onDeleteImage.emit()" />
 
     <div>
       <fieldset class="fieldset">

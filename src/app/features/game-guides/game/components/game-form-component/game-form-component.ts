@@ -1,21 +1,21 @@
-import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, input, linkedSignal, output, signal } from '@angular/core';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
 import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
-import { NgOptimizedImage } from '@angular/common';
+import { ImagePickerComponent } from "@shared/components/image-picker-component/image-picker-component";
 import { GameModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
 
 @Component({
   selector: 'app-game-form-component',
   imports: [
-    NgOptimizedImage,
     LoadingComponent,
     ButtonComponent,
     SelectListComponent,
-    SelectSearchComponent
-  ],
+    SelectSearchComponent,
+    ImagePickerComponent
+],
   templateUrl: './game-form-component.html',
 })
 export class GameFormComponent {
@@ -30,10 +30,7 @@ export class GameFormComponent {
   protected readonly onSubmit = output<{ data: SaveGameModel; file: File | null }>();
 
   protected readonly clearSelectTrigger = signal<number>(0);
-  protected readonly previewImg = signal<{ file: File; dataUrl: string } | null>(null);
-  protected readonly displayImg = computed<string | null>(() =>
-    this.previewImg()?.dataUrl ?? this.computedGame()?.cover_url ?? null
-  );
+  protected selectedFile: File | null = null;
 
   protected formData = linkedSignal<SaveGameModel>(() => {
     const data = this.computedGame();
@@ -145,19 +142,7 @@ export class GameFormComponent {
   }
 
   protected onSelectedFile(file: File | null): void {
-    if (!file) { this.previewImg.set(null); return; }
-
-    const reader = new FileReader();
-    reader.onload = () => this.previewImg.set({ file, dataUrl: reader.result as string });
-    reader.readAsDataURL(file);
-  }
-
-  protected onDeleteFile(): void {
-    if (this.previewImg()) {
-      this.previewImg.set(null);
-    } else {
-      this.onDeleteImage.emit();
-    }
+    this.selectedFile = file;
   }
 
   protected submit(): void {
@@ -175,10 +160,10 @@ export class GameFormComponent {
 
     this.onSubmit.emit({ 
       data: this.formData(), 
-      file: this.previewImg()?.file ?? null 
+      file: this.selectedFile 
     });
     
-    this.previewImg.set(null);
+    this.selectedFile = null;
     this.errorMessage.emit(null);
   }
 }

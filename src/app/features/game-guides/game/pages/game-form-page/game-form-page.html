@@ -44,7 +44,7 @@
       Fuentes
     </span>
 
-    <section class="bg-base-200 border-base-300 p-4 rounded-box border">
+    <section class="bg-base-200 border-base-300 p-4 rounded-box border overflow-hidden">
       <app-source-form-component
         [isLoading]="isSavingSource()"  
         [sourcePayload]="saveSourcePayload()"
@@ -86,7 +86,7 @@
 
         <label class="tab">
           <input type="radio" name="my_tabs_3" />
-          Maps
+          Maps / Equipos
         </label>
 
         <div class="tab-content bg-base-100 border-base-300 p-4">
@@ -102,6 +102,15 @@
         </div>
       </div>  
     </div>  
+  }
+
+  @if (isEditMode()) {
+    <span class="font-bold text-2xl px-2">
+      Personajes
+    </span>
+
+    <div class="bg-base-200 border-base-300 p-4 rounded-box border">
+    </div>
   }
 </section>
 

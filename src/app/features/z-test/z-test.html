@@ -1,3 +1,15 @@
-<p>z-test works!</p>
 
-<pre>{{ computedData() | json}}</pre>
+<div>TEST</div>
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+  <app-image-picker-component
+    [isLoading]="true"
+    [labelText]="'Iamgen de Portada'" 
+    [displayImg]="'/images/btn.jpg'" />
+
+  <app-image-picker-component
+    [isLoading]="false"
+    [aspectRatio]="'aspect-video'"
+    [labelText]="'Iamgen de Portada'" 
+    [displayImg]="null" />
+</section>
