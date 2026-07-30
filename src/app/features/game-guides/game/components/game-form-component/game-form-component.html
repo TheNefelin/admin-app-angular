@@ -3,13 +3,19 @@
     <fieldset class="fieldset">
       <label class="label">Imagen de Portada</label>
       <div class="relative overflow-hidden rounded-md shadow-lg aspect-square">
-        <img
-          class="w-full h-full object-cover"
-          [ngSrc]="displayUrl() ?? '/images/placeholder.webp'"
-          [alt]="formData().name"
-          fill priority/>
+        @if ((isLoading() && !displayImg()) || isSaving()) {
+          <div class="flex justify-center items-center h-full">
+            <app-loading-component/>
+          </div>
+        } @else {
+          <img
+            class="w-full h-full object-cover"
+            [ngSrc]="displayImg() ?? '/images/placeholder.webp'"
+            [alt]="formData().name"
+            fill priority/>
+        }
 
-        @if (displayUrl()) {
+        @if (displayImg()) {
           <div class="absolute top-2 right-2">
             <app-button-component
               [icon]="'delete'"
@@ -20,7 +26,7 @@
       </div>
 
       <label class="cursor-pointer flex items-center gap-2 border rounded px-4 py-3 hover:bg-base-300 transition-colors">
-        <span class="text-sm">{{ selectedFile() ? selectedFile()?.name : 'Elegir Imagen' }}</span>
+        <span class="text-sm">{{ previewImg()?.file?.name ?? 'Elegir Imagen' }}</span>
         <input
           #fileInput
           type="file"

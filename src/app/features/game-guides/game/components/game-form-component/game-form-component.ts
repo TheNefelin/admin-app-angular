@@ -30,10 +30,9 @@ export class GameFormComponent {
   protected readonly onSubmit = output<{ data: SaveGameModel; file: File | null }>();
 
   protected readonly clearSelectTrigger = signal<number>(0);
-  protected readonly selectedFile = signal<File | null>(null);
-  protected readonly previewUrl = signal<string | null>(null);
-  protected readonly displayUrl = computed<string | null>(() =>
-    this.previewUrl() ?? this.computedGame()?.cover_url ?? null
+  protected readonly previewImg = signal<{ file: File; dataUrl: string } | null>(null);
+  protected readonly displayImg = computed<string | null>(() =>
+    this.previewImg()?.dataUrl ?? this.computedGame()?.cover_url ?? null
   );
 
   protected formData = linkedSignal<SaveGameModel>(() => {
@@ -146,18 +145,16 @@ export class GameFormComponent {
   }
 
   protected onSelectedFile(file: File | null): void {
-    if (!file) return;
+    if (!file) { this.previewImg.set(null); return; }
 
     const reader = new FileReader();
-    reader.onload = () => this.previewUrl.set(reader.result as string);
+    reader.onload = () => this.previewImg.set({ file, dataUrl: reader.result as string });
     reader.readAsDataURL(file);
-    this.selectedFile.set(file);
   }
 
   protected onDeleteFile(): void {
-    if (this.selectedFile()) {
-      this.previewUrl.set(null);
-      this.selectedFile.set(null);
+    if (this.previewImg()) {
+      this.previewImg.set(null);
     } else {
       this.onDeleteImage.emit();
     }
@@ -178,11 +175,10 @@ export class GameFormComponent {
 
     this.onSubmit.emit({ 
       data: this.formData(), 
-      file: this.selectedFile() 
+      file: this.previewImg()?.file ?? null 
     });
     
-    this.previewUrl.set(null);
-    this.selectedFile.set(null);
+    this.previewImg.set(null);
     this.errorMessage.emit(null);
   }
 }
