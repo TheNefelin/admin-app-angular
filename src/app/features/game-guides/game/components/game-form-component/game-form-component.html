@@ -116,7 +116,7 @@
     <fieldset class="fieldset">
       <label class="label">Seleccionar Plataformas</label>
       <app-select-search-component
-        [items]="formPlatformList()"
+        [items]="computedPlatformList()"
         [isLoading]="isLoading()"
         [clearTrigger]="clearSelectTrigger()"
         (selectionChange)="onUpdatePlatform($event)"/>
@@ -129,7 +129,7 @@
     <fieldset class="fieldset">
       <label class="label">Seleccionar Generos</label>
       <app-select-search-component
-        [items]="formGenreList()"
+        [items]="computedGenreList()"
         [isLoading]="isLoading()"
         [clearTrigger]="clearSelectTrigger()"
         (selectionChange)="onUpdateGenre($event)"/>
