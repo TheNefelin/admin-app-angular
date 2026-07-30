@@ -1,10 +1,10 @@
 <button 
   (click)="btnClick($event)"  
   class="btn"
-  class="btn"
   [class.btn-primary]="icon() === 'create' || icon() === 'save'"
   [class.btn-warning]="icon() === 'edit'"
-  [class.btn-error]="icon() === 'delete'"
+  [class.bg-red-500]="icon() === 'delete'"
+  [class.hover:bg-red-600]="icon() === 'delete'"
   [class.btn-secondary]="icon() === 'clear' || icon() === 'refresh' || icon() === 'search' || icon() === 'goto'"
   [class.text-white]="icon() === 'edit' || icon() === 'delete'">
 

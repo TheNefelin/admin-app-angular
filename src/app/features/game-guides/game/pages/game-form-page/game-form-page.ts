@@ -12,7 +12,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { ImageUploadComponent } from '@features/game-guides/game/components/image-upload-component/image-upload-component';
 import { ImageListComponent } from '@features/game-guides/game/components/image-list-component/image-list-component';
 import { ScreenshotService } from '@features/game-guides/screenshot/services/screenshot-service';
 import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
@@ -24,6 +23,7 @@ import { ModalErrorComponent } from "@shared/components/modal-error-component/mo
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from "@features/game-guides/source/components/source-list-component/sources-list-component";
+import { ImageFormComponent } from "../../components/image-form-component/image-form-component";
 
 @Component({
   selector: 'app-game-form-page',
@@ -32,13 +32,13 @@ import { SourcesListComponent } from "@features/game-guides/source/components/so
     ButtonComponent,
     MessageErrorComponent,
     MessageSuccessComponent,
-    ImageUploadComponent,
+    ImageFormComponent,
     ImageListComponent,
     GameFormComponent,
     SourcesFormComponent,
     ModalErrorComponent,
-    SourcesListComponent
-],
+    SourcesListComponent,
+  ],
   templateUrl: './game-form-page.html',
 })
 export class GameFormPage {
@@ -212,8 +212,13 @@ export class GameFormPage {
   }
 
   protected onUploadScreenshot(item: SaveScreenshotModel): void {
+    const data: SaveScreenshotModel = {
+      ...item,
+      game_id: this.computedGame()!.id
+    }
+
     this.handleImageAction(
-      this.serviceScreenshot.create(item),
+      this.serviceScreenshot.create(data),
       'Screenshot guardado',
       'Error al guardar screenshot'
     );
@@ -228,8 +233,13 @@ export class GameFormPage {
   }
 
   protected onUploadMap(item: SaveMapModel): void {
+    const data: SaveMapModel = {
+      ...item,
+      game_id: this.computedGame()!.id
+    }
+
     this.handleImageAction(
-      this.serviceMap.create(item),
+      this.serviceMap.create(data),
       'Map guardado',
       'Error al guardar Map'
     );

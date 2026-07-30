@@ -131,7 +131,7 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ```sh
 # Component
 ng generate component features/z-test --style=none
-ng generate component features/game-guides/sources/components/sources-list-component --style=none
+ng generate component features/game-guides/game/components/image-form-component --style=none
 # Model
 ng generate interface features/game-guides/sources/models/sources-model
 # Service

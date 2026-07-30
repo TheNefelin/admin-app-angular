@@ -16,7 +16,7 @@ export class SourcesFormComponent {
   readonly sourcePayload = input<SourceModel | null>();
   protected readonly errorMessage = output<string | null>();
   protected readonly onSubmit = output<SaveSourceModel>();
-  protected readonly  onClear = output<void>();
+  protected readonly onClear = output<void>();
 
   protected clearTrigger = signal<number>(0);
   protected readonly formData = linkedSignal<SaveSourceModel>(() => {
