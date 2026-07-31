@@ -56,43 +56,46 @@ export class GameFormPage {
     { initialValue: 0 }
   );
 
-  readonly isLoading = computed<boolean>(() =>
+  protected readonly isLoading = computed<boolean>(() =>
     [
-      this.getGameByIdRX,
-      this.getAllPlatformRX,
-      this.getAllGenreRX,
+      this.gameRX,
+      this.platformListRX,
+      this.genreListRX,
     ].some(e => e.isLoading())
   );
 
+  protected readonly isSavingGame = signal<boolean>(false);
+  protected readonly isSavingImage = signal<boolean>(false);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
 
-  private readonly serviceGame = inject(GameService);
-  private readonly getGameByIdPayload = computed(() => this.routeId());
-  protected readonly computedGame = computed<GameModel | null>(() => this.getGameByIdRX.value() ?? null);
-
-  private readonly servicePlatform = inject(PlatformService);
-  protected readonly computedPlatformList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllPlatformRX.value() ?? []
-    return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
-  });
-
-  private readonly serviceGenre = inject(GenreService);
-  protected readonly computedGenreList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllGenreRX.value() ?? []
-    return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
-  });
+  // SERVICES -------------------------------------------------------
+  // ----------------------------------------------------------------
 
   // GAME -------------------------------------------------------------
-  protected readonly isSaving = signal<boolean>(false);
+  private readonly gameService = inject(GameService);
+  private readonly gameIdPayload = computed(() => this.routeId());
+  protected readonly gameComputed = computed<GameModel | null>(() => this.gameRX.value() ?? null);
 
-  // IMAGES (screenshots + maps) ---------------------------------------
-  protected readonly isSavingImage = signal<boolean>(false);
+  // PLATFORM ---------------------------------------------------------
+  private readonly platformService = inject(PlatformService);
+  protected readonly platformListComputed = computed<SelectItemModel[]>(() => {
+    const items = this.platformListRX.value() ?? []
+    return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
+  });
+
+  // GENRE ------------------------------------------------------------
+  private readonly genreService = inject(GenreService);
+  protected readonly genreListComputed = computed<SelectItemModel[]>(() => {
+    const items = this.genreListRX.value() ?? []
+    return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
+  });
 
   // SOURCES -----------------------------------------------------------
-  private readonly serviceSource = inject(SourceService)
+  private readonly sourceService = inject(SourceService)
   protected readonly source = {
     savePayload: signal<SourceModel | null>(null),
+    resetTrigger: signal<number>(0),
     isSaving: signal<boolean>(false),
   };
 
@@ -104,15 +107,19 @@ export class GameFormPage {
     isSaving: signal<boolean>(false),
   };
 
-  private readonly serviceScreenshot = inject(ScreenshotService);
-  private readonly serviceMap = inject(MapService);
+  // SCREENCHOTS AND MAPS ----------------------------------------------
+  private readonly screenshotService = inject(ScreenshotService);
+  private readonly mapService = inject(MapService);
 
-  protected readonly getGameByIdRX = rxResource({
-    params: () => this.getGameByIdPayload(),
+  // GETS -----------------------------------------------------------
+  // ----------------------------------------------------------------
+
+  protected readonly gameRX = rxResource({
+    params: () => this.gameIdPayload(),
     stream: ({ params: id }) => {
       if (!id) return of(null);
 
-      return this.serviceGame.getById(id).pipe(
+      return this.gameService.getById(id).pipe(
         catchError(err => {
           console.error('[GameService::GameFormPage] getById:', err);
           this.errorService.show('Error al cargar el juego');
@@ -122,9 +129,9 @@ export class GameFormPage {
     },
   });
 
-  protected readonly getAllPlatformRX = rxResource({
+  protected readonly platformListRX = rxResource({
     stream: () => {
-      return this.servicePlatform.getAllPagination({ page: 1, limit: 999 }).pipe(
+      return this.platformService.getAllPagination({ page: 1, limit: 999 }).pipe(
         map(res => res.items),
         catchError(err => {
           console.error('[PlatformService::GameFormPage] getAll:', err);
@@ -135,9 +142,9 @@ export class GameFormPage {
     },
   });
 
-  protected readonly getAllGenreRX = rxResource({
+  protected readonly genreListRX = rxResource({
     stream: () => {
-      return this.serviceGenre.getAllPagination({ page: 1, limit: 999 }).pipe(
+      return this.genreService.getAllPagination({ page: 1, limit: 999 }).pipe(
         map(res => res.items),
         catchError(err => {
           console.error('[GenreService::GameFormPage] getAll:', err);
@@ -154,25 +161,25 @@ export class GameFormPage {
   protected onSubmit(payload: { data: SaveGameModel; file: File | null }): void {
     this.successMessage.set(null);
 
-    this.isSaving.set(true);
+    this.isSavingGame.set(true);
     const data = { ...payload.data, name: payload.data.name.trim(), slug: payload.data.slug.trim() };
     const file = payload.file;
-    const id = this.getGameByIdPayload();
+    const id = this.gameIdPayload();
 
     const request$ = id
-      ? this.serviceGame.update(id, data)
-      : this.serviceGame.create(data);
+      ? this.gameService.update(id, data)
+      : this.gameService.create(data);
 
     request$.pipe(
       switchMap(result => {
         if (file)
-          return this.serviceGame.uploadImage(result.id, file);
+          return this.gameService.uploadImage(result.id, file);
 
         return of(result);
       }),
       finalize(() => {
-        this.getGameByIdRX.reload();
-        this.isSaving.set(false)
+        this.gameRX.reload();
+        this.isSavingGame.set(false)
       })
     ).subscribe({
       next: (result) => {
@@ -189,16 +196,16 @@ export class GameFormPage {
   }
 
   protected onDeleteImage(): void {
-    const id = this.getGameByIdPayload();
+    const id = this.gameIdPayload();
     if (!id) return;
 
-    this.isSaving.set(true);
+    this.isSavingGame.set(true);
 
-    this.serviceGame.deleteImage(id).pipe(
-      finalize(() => this.isSaving.set(false))
+    this.gameService.deleteImage(id).pipe(
+      finalize(() => this.isSavingGame.set(false))
     ).subscribe({
       next: () => {
-        this.getGameByIdRX.reload();
+        this.gameRX.reload();
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onDeleteImage:', err);
@@ -219,7 +226,7 @@ export class GameFormPage {
     action.pipe(
       finalize(() => {
         this.isSavingImage.set(false);
-        this.getGameByIdRX.reload();
+        this.gameRX.reload();
       })
     ).subscribe({
       next: () => this.successMessage.set(successMsg),
@@ -253,7 +260,7 @@ export class GameFormPage {
     ).subscribe({
       next: () => {
         if (options.successMsg) this.successMessage.set(options.successMsg);
-        if (options.reloadOnSuccess) this.getGameByIdRX.reload();
+        if (options.reloadOnSuccess) this.gameRX.reload();
         options.onSuccess?.();
       },
       error: (err) => {
@@ -266,11 +273,11 @@ export class GameFormPage {
   protected onUploadScreenshot(item: SaveScreenshotModel): void {
     const data: SaveScreenshotModel = {
       ...item,
-      game_id: this.computedGame()!.id
+      game_id: this.gameComputed()!.id
     }
 
     this.handleImageAction(
-      this.serviceScreenshot.create(data),
+      this.screenshotService.create(data),
       'Screenshot guardado',
       'Error al guardar screenshot'
     );
@@ -278,7 +285,7 @@ export class GameFormPage {
 
   protected onDeleteScreenshot(id: number): void {
     this.handleImageAction(
-      this.serviceScreenshot.delete(id),
+      this.screenshotService.delete(id),
       'Screenshot eliminado',
       'Error al eliminar screenshot'
     );
@@ -287,11 +294,11 @@ export class GameFormPage {
   protected onUploadMap(item: SaveMapModel): void {
     const data: SaveMapModel = {
       ...item,
-      game_id: this.computedGame()!.id
+      game_id: this.gameComputed()!.id
     }
 
     this.handleImageAction(
-      this.serviceMap.create(data),
+      this.mapService.create(data),
       'Map guardado',
       'Error al guardar Map'
     );
@@ -299,7 +306,7 @@ export class GameFormPage {
 
   protected onDeleteMap(id: number): void {
     this.handleImageAction(
-      this.serviceMap.delete(id),
+      this.mapService.delete(id),
       'Map eliminado',
       'Error al eliminar Map'
     );
@@ -310,6 +317,7 @@ export class GameFormPage {
 
   protected onClearSource(): void {
     this.source.savePayload.set(null);
+    this.source.resetTrigger.update(v => v + 1);
   }
 
   protected onEditSource(item: SourceModel): void {
@@ -321,7 +329,7 @@ export class GameFormPage {
     if (!id) return;
 
     this.handleCrudAction(
-      this.serviceSource.delete(id),
+      this.sourceService.delete(id),
       { loading: this.source.isSaving, errorMsg: 'Error al eliminar la fuente', reloadOnSuccess: true }
     );
   }
@@ -331,12 +339,12 @@ export class GameFormPage {
 
     const data: SaveSourceModel = {
       ...item,
-      game_id: this.computedGame()!.id,
+      game_id: this.gameComputed()!.id,
     };
 
     const request$ = sourceId
-    ? this.serviceSource.update(sourceId, data)
-    : this.serviceSource.create(data);
+    ? this.sourceService.update(sourceId, data)
+    : this.sourceService.create(data);
 
     this.handleCrudAction(
       request$,
@@ -386,7 +394,7 @@ export class GameFormPage {
 
     const saveData: SaveCharacterModel = {
       ...data,
-      game_id: this.computedGame()!.id,
+      game_id: this.gameComputed()!.id,
     };
 
     const request$ = id

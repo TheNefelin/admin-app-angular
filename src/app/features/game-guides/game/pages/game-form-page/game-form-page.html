@@ -25,11 +25,11 @@
 
   <app-game-form-component
     [isLoading]="isLoading()"
-    [isSaving]="isSaving()"
+    [isSaving]="isSavingGame()"
     [isEditMode]="isEditMode()"
-    [computedGame]="computedGame()"
-    [computedPlatformList]="computedPlatformList()"
-    [computedGenreList]="computedGenreList()"
+    [computedGame]="gameComputed()"
+    [computedPlatformList]="platformListComputed()"
+    [computedGenreList]="genreListComputed()"
     (errorMessage)="errorService.show($event)"
     (onDeleteImage)="onDeleteImage()"
     (onSubmit)="onSubmit($event)"
@@ -44,13 +44,14 @@
       <app-source-form-component
         [isLoading]="source.isSaving()"  
         [sourcePayload]="source.savePayload()"
+        [clearTrigger]="source.resetTrigger()"
         (errorMessage)="errorService.show($event)"  
         (onClear)="onClearSource()"      
         (onSubmit)="onSubmitSource($event)"/>
 
       <app-sources-list-component
         [isLoading]="source.isSaving()"
-        [sourceList]="computedGame()?.sources ?? []" 
+        [sourceList]="gameComputed()?.sources ?? []" 
         (onEdit)="onEditSource($event)"
         (onDelete)="onDeleteSource($event)"/>
     </section>
@@ -77,7 +78,7 @@
             (onSubmit)="onUploadScreenshot($event)" />
 
           <app-image-list-component 
-            [imageList]="computedGame()?.screenshots"
+            [imageList]="gameComputed()?.screenshots"
             (onDeleteImage)="onDeleteScreenshot($event)" />
         </div>
 
@@ -94,7 +95,7 @@
             (onSubmit)="onUploadMap($event)"/>
 
           <app-image-list-component 
-            [imageList]="computedGame()?.maps"
+            [imageList]="gameComputed()?.maps"
             (onDeleteImage)="onDeleteMap($event)" />
         </div>
       </div>  
@@ -121,7 +122,7 @@
       <div class="overflow-hidden">
         <app-character-list-component
           [isLoading]="character.isSaving()"
-          [characterList]="computedGame()?.characters ?? []"
+          [characterList]="gameComputed()?.characters ?? []"
           (onEdit)="onEditCharacter($event)"
           (onDelete)="onDeleteCharacter($event)" />
       </div>

@@ -1,4 +1,4 @@
-import { Component, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, input, linkedSignal, output } from '@angular/core';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
@@ -14,13 +14,13 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 export class SourcesFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly sourcePayload = input<SourceModel | null>();
+  readonly clearTrigger = input<number>(0);
   protected readonly errorMessage = output<string | null>();
   protected readonly onSubmit = output<SaveSourceModel>();
   protected readonly onClear = output<void>();
 
-  protected clearTrigger = signal<number>(0);
   protected readonly formData = linkedSignal<SaveSourceModel>(() => {
-    this.clearTrigger();
+    void this.clearTrigger();
     const item = this.sourcePayload()
     
     return {
@@ -45,7 +45,7 @@ export class SourcesFormComponent {
   }
 
   protected clear(): void {
-    this.clearTrigger.update(e => e + 1);
+    this.errorMessage.emit(null);
     this.onClear.emit();
   }
 
