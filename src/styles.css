@@ -18,3 +18,12 @@ body {
 html {
   scrollbar-width: none !important; 
 }
+
+.btn-error {
+  background-color: rgb(220 38 38); /* red-600 */
+  color: rgb(255 255 255);
+}
+
+.btn-error:hover {
+  background-color: rgb(239 68 68); /* red-500 */
+}

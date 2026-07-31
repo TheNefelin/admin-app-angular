@@ -130,12 +130,12 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ### Commands
 ```sh
 # Component
-ng generate component shared/components/image-picker-component --style=none
-ng generate component features/game-guides/game/components/image-form-component --style=none
+ng generate component features/game-guides/character/components/character-form-component --style=none
+ng generate component features/game-guides/character/components/character-list-component --style=none
 # Model
-ng generate interface features/game-guides/sources/models/sources-model
+ng generate interface features/game-guides/character/models/character-model
 # Service
-ng generate service features/game-guides/sources/services/sources-service
+ng generate service features/game-guides/character/services/character-service
 # Interceptor
 ng generate interceptor core/interceptors/error
 # Module
