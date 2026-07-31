@@ -19,10 +19,6 @@
     <app-message-success-component [message]="successMessage()"/>
   }
 
-  @if (errorMessage()) {
-    <app-message-error-component [message]="errorMessage()"/>
-  }
-
   <span class="font-bold text-2xl px-2">
     Formulario
   </span>
@@ -34,7 +30,7 @@
     [computedGame]="computedGame()"
     [computedPlatformList]="computedPlatformList()"
     [computedGenreList]="computedGenreList()"
-    (errorMessage)="errorMessage.set($event)"
+    (errorMessage)="errorService.show($event)"
     (onDeleteImage)="onDeleteImage()"
     (onSubmit)="onSubmit($event)"
   />
@@ -46,14 +42,14 @@
 
     <section class="bg-base-200 border-base-300 p-4 rounded-box border overflow-hidden">
       <app-source-form-component
-        [isLoading]="isSavingSource()"  
-        [sourcePayload]="saveSourcePayload()"
-        (errorMessage)="errorMessage.set($event)"  
+        [isLoading]="source.isSaving()"  
+        [sourcePayload]="source.savePayload()"
+        (errorMessage)="errorService.show($event)"  
         (onClear)="onClearSource()"      
         (onSubmit)="onSubmitSource($event)"/>
 
       <app-sources-list-component
-        [isLoading]="isSavingSource()"
+        [isLoading]="source.isSaving()"
         [sourceList]="computedGame()?.sources ?? []" 
         (onEdit)="onEditSource($event)"
         (onDelete)="onDeleteSource($event)"/>
@@ -77,6 +73,7 @@
             ngSkipHydration
             [label]="'Screenshot'"
             [isLoading]="isSavingImage()"
+
             (onSubmit)="onUploadScreenshot($event)" />
 
           <app-image-list-component 
@@ -109,12 +106,13 @@
       Personajes
     </span>
 
-    <div class="bg-base-200 border-base-300 p-4 rounded-box border grid gap-2">
+    <div class="bg-base-200 border-base-300 p-4 rounded-box border grid">
       <app-character-form-component
-        [isLoading]="isSaving()"
-        [isEditMode]="isEditMode()"
-        [computedCharacter]="null"
-        (errorMessage)="errorMessage.set($event)"
+        [isLoading]="character.isSaving()"
+        [saveCharacter]="character.savePayload()"
+        [clearTrigger]="character.resetTrigger()"
+        (onClear)="onClearCharacter()"
+        (errorMessage)="errorService.show($event)"
         (onDeleteImage)="onDeleteCharacterImage($event)"
         (onSubmit)="onSubmitCharacter($event)" />
 
@@ -122,15 +120,11 @@
 
       <div class="overflow-hidden">
         <app-character-list-component
-          [characterList]="computedGame()?.characters ?? []" />
+          [isLoading]="character.isSaving()"
+          [characterList]="computedGame()?.characters ?? []"
+          (onEdit)="onEditCharacter($event)"
+          (onDelete)="onDeleteCharacter($event)" />
       </div>
     </div>
   }
 </section>
-
-@if (errorMessage()) {
-  <app-modal-error-component
-    [message]="errorMessage()"
-    (close)="clearError()"
-  />
-}

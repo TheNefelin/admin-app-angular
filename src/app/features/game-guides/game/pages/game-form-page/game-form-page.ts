@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { GameModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
 import { GameService } from '@features/game-guides/game/services/game-service';
@@ -10,7 +10,6 @@ import { ButtonComponent } from "@shared/components/button-component/button-comp
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { ImageListComponent } from '@features/game-guides/game/components/image-list-component/image-list-component';
 import { ScreenshotService } from '@features/game-guides/screenshot/services/screenshot-service';
@@ -19,7 +18,6 @@ import { SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { MapService } from '@features/game-guides/map/services/map-service';
 import { GameFormComponent } from "@features/game-guides/game/components/game-form-component/game-form-component";
 import { SourcesFormComponent } from "@features/game-guides/source/components/source-form-component/source-form-component";
-import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from "@features/game-guides/source/components/source-list-component/sources-list-component";
@@ -28,19 +26,18 @@ import { CharacterFormComponent } from '@features/game-guides/character/componen
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
 import { CharacterService } from '@features/game-guides/character/services/character-service';
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
+import { ErrorService } from '@core/services/error-service';
 
 @Component({
   selector: 'app-game-form-page',
   imports: [
     LoadingComponent,
     ButtonComponent,
-    MessageErrorComponent,
     MessageSuccessComponent,
     ImageFormComponent,
     ImageListComponent,
     GameFormComponent,
     SourcesFormComponent,
-    ModalErrorComponent,
     SourcesListComponent,
     CharacterFormComponent,
     CharacterListComponent,
@@ -50,6 +47,7 @@ import { CharacterModel, SaveCharacterModel } from '@features/game-guides/charac
 export class GameFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
+  protected readonly errorService = inject(ErrorService);
 
   readonly routeId = toSignal(
     this.activatedRoute.paramMap.pipe(
@@ -67,10 +65,6 @@ export class GameFormPage {
   );
 
   protected readonly successMessage = signal<string | null>(null);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isSaving = signal<boolean>(false);
-  protected readonly isSavingImage = signal<boolean>(false);
-  protected readonly isSavingSource = signal<boolean>(false);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
 
   private readonly serviceGame = inject(GameService);
@@ -89,12 +83,29 @@ export class GameFormPage {
     return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
   });
 
+  // GAME -------------------------------------------------------------
+  protected readonly isSaving = signal<boolean>(false);
+
+  // IMAGES (screenshots + maps) ---------------------------------------
+  protected readonly isSavingImage = signal<boolean>(false);
+
+  // SOURCES -----------------------------------------------------------
+  private readonly serviceSource = inject(SourceService)
+  protected readonly source = {
+    savePayload: signal<SourceModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
+
+  // CHARACTERS --------------------------------------------------------
+  private readonly characterService = inject(CharacterService);
+  protected readonly character = {
+    savePayload: signal<CharacterModel | null>(null),
+    resetTrigger: signal<number>(0),
+    isSaving: signal<boolean>(false),
+  };
+
   private readonly serviceScreenshot = inject(ScreenshotService);
   private readonly serviceMap = inject(MapService);
-  private readonly serviceSource = inject(SourceService)
-  protected readonly saveSourcePayload = signal<SourceModel | null>(null);
-  private readonly serviceCharacter = inject(CharacterService);
-  protected readonly saveCharacterPayload = signal<CharacterModel | null>(null);
 
   protected readonly getGameByIdRX = rxResource({
     params: () => this.getGameByIdPayload(),
@@ -104,7 +115,7 @@ export class GameFormPage {
       return this.serviceGame.getById(id).pipe(
         catchError(err => {
           console.error('[GameService::GameFormPage] getById:', err);
-          this.errorMessage.set('Error al cargar el juego');
+          this.errorService.show('Error al cargar el juego');
           return of(null);
         })
       );
@@ -117,7 +128,7 @@ export class GameFormPage {
         map(res => res.items),
         catchError(err => {
           console.error('[PlatformService::GameFormPage] getAll:', err);
-          this.errorMessage.set('Error al cargar plataformas');
+          this.errorService.show('Error al cargar plataformas');
           return of([]);
         })
       );
@@ -130,7 +141,7 @@ export class GameFormPage {
         map(res => res.items),
         catchError(err => {
           console.error('[GenreService::GameFormPage] getAll:', err);
-          this.errorMessage.set('Error al cargar géneros');
+          this.errorService.show('Error al cargar géneros');
           return of([]);
         })
       );
@@ -172,7 +183,7 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onSubmitForm:', err);
-        this.errorMessage.set('Error al guardar el juego');
+        this.errorService.show('Error al guardar el juego');
       }
     });
   }
@@ -191,7 +202,7 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onDeleteImage:', err);
-        this.errorMessage.set('Error al eliminar la imagen');
+        this.errorService.show('Error al eliminar la imagen');
       }
     });
   }
@@ -214,7 +225,40 @@ export class GameFormPage {
       next: () => this.successMessage.set(successMsg),
       error: (err) => {
         console.error(`[GameFormPage] ${errorMsg}:`, err);
-        this.errorMessage.set(errorMsg);
+        this.errorService.show(errorMsg);
+      }
+    });
+  }
+
+  // SOURCES / CHARACTERS ------------------------------------------
+  // ----------------------------------------------------------------
+
+  private handleCrudAction<T>(
+    action: Observable<T>,
+    options: {
+      loading: WritableSignal<boolean>;
+      successMsg?: string;
+      errorMsg: string;
+      reloadOnSuccess?: boolean;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
+    },
+  ): void {
+    options.loading.set(true);
+    action.pipe(
+      finalize(() => {
+        options.loading.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        if (options.successMsg) this.successMessage.set(options.successMsg);
+        if (options.reloadOnSuccess) this.getGameByIdRX.reload();
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[GameFormPage] ${options.errorMsg}:`, err);
+        this.errorService.show(options.errorMsg);
       }
     });
   }
@@ -265,38 +309,25 @@ export class GameFormPage {
   // ----------------------------------------------------------------
 
   protected onClearSource(): void {
-    this.saveSourcePayload.set(null);
+    this.source.savePayload.set(null);
   }
 
   protected onEditSource(item: SourceModel): void {
-    this.saveSourcePayload.set(item);
+    this.source.savePayload.set(item);
   }
 
   protected onDeleteSource(item: SourceModel): void {
     const id = item.id;
     if (!id) return;
 
-    this.isSavingSource.set(true);
-
-    this.serviceSource.delete(id)
-    .pipe(
-      finalize(() => this.isSavingSource.set(false))
-    )
-    .subscribe({
-      next: () => {
-        this.getGameByIdRX.reload();
-      },
-      error: (err) => {
-        console.error('[SourceService::GameFormPage] onDeleteSource:', err);
-        this.errorMessage.set('Error al eliminar la fuente');
-      }
-    });
+    this.handleCrudAction(
+      this.serviceSource.delete(id),
+      { loading: this.source.isSaving, errorMsg: 'Error al eliminar la fuente', reloadOnSuccess: true }
+    );
   }
 
   protected onSubmitSource(item: SaveSourceModel): void {
-    this.isSavingSource.set(true);
-
-    const sourceId = this.saveSourcePayload()?.id;
+    const sourceId = this.source.savePayload()?.id;
 
     const data: SaveSourceModel = {
       ...item,
@@ -307,42 +338,50 @@ export class GameFormPage {
     ? this.serviceSource.update(sourceId, data)
     : this.serviceSource.create(data);
 
-    request$
-    .pipe(
-      finalize(() => {
-        this.isSavingSource.set(false)
-        this.onClearSource();
-      })
-    )
-    .subscribe({
-      next: (result) => {
-        this.successMessage.set(
-          sourceId ? 'Fuente modificada correctamente' : 'Fuente creada correctamente'
-        );
-        this.getGameByIdRX.reload();
-      },
-      error: (err) => {
-        console.error('[SourceService::SourceFormPage] onSubmitSource:', err);
-        this.errorMessage.set(
-          sourceId ? 'Error al modificar la Fuente' : 'Error al crear la Fuente'
-        );
+    this.handleCrudAction(
+      request$,
+      {
+        loading: this.source.isSaving,
+        successMsg: sourceId ? 'Fuente modificada correctamente' : 'Fuente creada correctamente',
+        errorMsg: sourceId ? 'Error al modificar la Fuente' : 'Error al crear la Fuente',
+        reloadOnSuccess: true,
+        onFinalize: () => this.onClearSource(),
       }
-    });
+    );
   }
 
   // CHARACTER ------------------------------------------------------
   // ----------------------------------------------------------------
 
+  protected onClearCharacter(): void {
+    this.character.savePayload.set(null);
+    this.character.resetTrigger.update(v => v + 1);
+  }
+  
   protected onDeleteCharacterImage(characterId: number): void {
-    
+    if (!characterId) return;
+
+    this.handleImageAction(
+      this.characterService.deleteImage(characterId),
+      'Imagen eliminada correctamente',
+      'Error al eliminar la imagen'
+    );
   }
 
-  protected onDeleteCharacter(characterId: number): void {
+  protected onEditCharacter(item: CharacterModel): void {
+    this.character.savePayload.set(item);
+  }  
 
+  protected onDeleteCharacter(item: CharacterModel): void {
+    const id = item.id;
+
+    this.handleCrudAction(
+      this.characterService.delete(id),
+      { loading: this.character.isSaving, successMsg: 'Personaje eliminado correctamente', errorMsg: 'Error al eliminar el Personaje', reloadOnSuccess: true }
+    );
   }
 
   protected onSubmitCharacter(payload: { id: number, data: SaveCharacterModel, file: File | null }): void {
-    this.isSaving.set(true);
     const { id, data, file } = payload;
 
     const saveData: SaveCharacterModel = {
@@ -351,30 +390,25 @@ export class GameFormPage {
     };
 
     const request$ = id
-    ? this.serviceCharacter.update(id, saveData)
-    : this.serviceCharacter.create(saveData);
+    ? this.characterService.update(id, saveData)
+    : this.characterService.create(saveData);
 
-    request$.pipe(
-      switchMap(result => {
-        if (file)
-          return this.serviceCharacter.uploadImage(result.id, file);
-        return of(result);
-      }),
-      finalize(() => {
-        this.getGameByIdRX.reload();
-        this.isSaving.set(false)
-      })
-    ).subscribe({
-      next: (result) => {
-        this.successMessage.set(
-          id ? 'Personaje modificado correctamente' : 'Personaje creado correctamente'
-        );
-      },
-      error: (err) => {
-        console.error('[GameService::GameFormPage] onSubmitCharacter:', err);
-        this.errorMessage.set('Error al guardar el personaje');
+    const action$ = request$.pipe(
+      switchMap(result => file
+        ? this.characterService.uploadImage(result.id, file)
+        : of(result))
+    );
+
+    this.handleCrudAction(
+      action$,
+      {
+        loading: this.character.isSaving,
+        successMsg: id ? 'Personaje modificado correctamente' : 'Personaje creado correctamente',
+        errorMsg: 'Error al guardar el personaje',
+        reloadOnSuccess: true,
+        onSuccess: () => this.onClearCharacter(),
       }
-    });
+    );
   }
 
   // ACTIONS --------------------------------------------------------
@@ -382,9 +416,5 @@ export class GameFormPage {
 
   protected goToGame(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
-  }
-
-  protected clearError(): void {
-    this.errorMessage.set(null)
   }
 }

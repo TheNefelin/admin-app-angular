@@ -11,6 +11,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
+    path: `${ ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM }/:id`,
+    renderMode: RenderMode.Client
+  },
+  {
+    path: ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM,
+    renderMode: RenderMode.Client
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender
   }

@@ -4,8 +4,10 @@ import { Service, signal } from '@angular/core';
 export class ErrorService {
   readonly error = signal<string | null>(null);
 
-  show(message: string): void {
-    this.error.set(message);
+  show(message: string | null): void {
+    if (message) {
+      this.error.set(message);
+    }
   }
 
   clear(): void {

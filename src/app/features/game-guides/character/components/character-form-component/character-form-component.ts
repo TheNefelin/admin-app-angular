@@ -1,4 +1,4 @@
-import { Component, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, effect, input, linkedSignal, output, signal } from '@angular/core';
 import { ImagePickerComponent } from "@shared/components/image-picker-component/image-picker-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
@@ -15,17 +15,17 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 })
 export class CharacterFormComponent {
   readonly isLoading = input<boolean>(false);
-  readonly isEditMode = input<boolean>(false);
-  readonly computedCharacter = input<CharacterModel | null>(null);
+  readonly saveCharacter = input<CharacterModel | null>(null);
+  readonly clearTrigger = input<number>(0);
+  protected readonly onClear = output<void>();
   protected readonly errorMessage = output<string | null>();
   protected readonly onDeleteImage = output<number>();
   protected readonly onSubmit = output<{ id: number, data: SaveCharacterModel; file: File | null }>();
 
-  protected clearTrigger = signal<number>(0);
   protected selectedFile = signal<File | null>(null);
   protected formData = linkedSignal<SaveCharacterModel>(() => {
-    this.clearTrigger();
-    const data = this.computedCharacter();
+    void this.clearTrigger();
+    const data = this.saveCharacter();
  
     return {
       game_id: data?.game_id ?? 0,
@@ -36,6 +36,11 @@ export class CharacterFormComponent {
       is_playable: data?.is_playable ?? true,
       sort_order: data?.sort_order ?? 0,
     }
+  });
+
+  private effectReset = effect(() => {
+    void this.clearTrigger();
+    this.selectedFile.set(null);
   });
 
   private generateSlug(value: string): string {
@@ -73,14 +78,14 @@ export class CharacterFormComponent {
 
   protected onDeleteFile(): void {
     if (this.formData().image_url) {
-      const id = this.computedCharacter()?.id ?? 0
+      const id = this.saveCharacter()?.id ?? 0
       this.onDeleteImage.emit(id);
     }
     this.selectedFile.set(null);
   }
 
   protected submit() {
-    const id = this.computedCharacter()?.id ?? 0
+    const id = this.saveCharacter()?.id ?? 0
     const data = this.formData();
     const file = this.selectedFile();
   
@@ -107,8 +112,7 @@ export class CharacterFormComponent {
   }
 
   protected clear() {
-    this.selectedFile.set(null);
-    this.clearTrigger.update(e => e + 1);
     this.errorMessage.emit(null);
+    this.onClear.emit();
   }
 }

@@ -1,4 +1,4 @@
-import { Component, computed, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { LoadingComponent } from "../loading-component/loading-component";
 import { ButtonComponent } from "../button-component/button-component";
 
@@ -15,6 +15,7 @@ export class ImagePickerComponent {
   readonly aspectRatio = input<'aspect-square' | 'aspect-video'>('aspect-square');
   readonly labelText = input<string | null>(null)
   readonly displayImg = input<string | null>(null)
+  readonly clearTrigger = input<number>(0);
   protected readonly onSelectedFile = output<File | null>();
   protected readonly onDeleteFile = output<void>();
 
@@ -22,6 +23,10 @@ export class ImagePickerComponent {
   protected readonly image = computed<string | null>(() =>
     this.previewImg()?.dataUrl ?? this.displayImg() ?? null
   );
+  private effectClear = effect(() => {
+    this.clearTrigger();
+    this.clear();
+  });
   
   protected selectedFile(file: File | null): void {
     if (!file) { this.previewImg.set(null); return; }
@@ -35,10 +40,14 @@ export class ImagePickerComponent {
 
   protected deleteFile(): void {
     if (this.previewImg()) {
-      this.previewImg.set(null);
-      this.onSelectedFile.emit(null); 
+      this.clear();
     } else {
       this.onDeleteFile.emit();
     }
+  }
+
+  private clear(): void {
+    this.previewImg.set(null);
+    this.onSelectedFile.emit(null); 
   }
 }
