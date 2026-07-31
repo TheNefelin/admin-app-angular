@@ -110,11 +110,20 @@
     </span>
 
     <div class="bg-base-200 border-base-300 p-4 rounded-box border grid gap-2">
-      <app-character-form-component/>
+      <app-character-form-component
+        [isLoading]="isSaving()"
+        [isEditMode]="isEditMode()"
+        [computedCharacter]="null"
+        (errorMessage)="errorMessage.set($event)"
+        (onDeleteImage)="onDeleteCharacterImage($event)"
+        (onSubmit)="onSubmitCharacter($event)" />
 
       <span class="divider"></span>
 
-      <app-character-list-component/>
+      <div class="overflow-hidden">
+        <app-character-list-component
+          [characterList]="computedGame()?.characters ?? []" />
+      </div>
     </div>
   }
 </section>

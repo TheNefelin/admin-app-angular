@@ -1,1 +1,92 @@
-<p>character-list-component works!</p>
+<div class="overflow-x-auto bg-base-300">
+  <table class="table">
+    <!-- head -->
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Personaje / Slug</th>
+        <th>Descripción</th>
+        <th>Creación / Modificación</th>
+        <th>PJ Jugable / Sort</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (item of characterList(); track item.id) {
+        <tr>
+          <td>
+            {{ item.id }}
+          </td>
+          <td>
+            <div class="flex items-center gap-3">
+              <div class="avatar">
+                <div class="mask mask-squircle h-12 w-12">
+                  <img
+                    [ngSrc]="item.image_url ?? '/images/placeholder.webp'"
+                    [alt]="item.name" 
+                    height="100" width="100" />
+                </div>
+              </div>
+              <div>
+                <div class="font-bold">{{ item.name }}</div>
+                <div class="text-sm opacity-50">{{ item.slug }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            {{ item.description }}
+          </td>
+          <td>
+            <span class="badge badge-ghost badge-sm">{{ item.created_at | date:'yyyy-MM-dd' }}</span>
+            <br />
+            <span class="badge badge-ghost badge-sm">{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
+          </td>
+          <td>
+            <label class="flex gap-4 items-center">
+              @if (item.is_playable) {
+                <div class="text-success m-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
+                    <path d="M0 0h1024v1024H0z" fill="none" />
+                    <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896m-55.8 536.4l-99.5-99.6a38.4 38.4 0 1 0-54.4 54.3L429.1 682a38.3 38.3 0 0 0 54.3 0l262.4-262.5a38.4 38.4 0 1 0-54.3-54.3z" />
+                  </svg>
+                </div>
+              } @else {
+                <div class="text-error m-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                    <path d="M0 0h32v32H0z" fill="none" />
+                    <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
+                  </svg>
+                </div>
+              }
+              <div class="font-bold opacity-50">{{ item.sort_order }}</div>
+            </label>
+          </td>
+          <td>
+            <div class="flex gap-2 items-center">
+              @if (isLoading()) {
+                <app-loading-component/>
+              } @else {
+                <app-button-component 
+                  [icon]="'edit'" 
+                  (onClick)="onEdit.emit(item)"/>
+                <app-button-component 
+                  [icon]="'delete'" 
+                  (onClick)="onDelete.emit(item)"/>
+              }
+            </div>
+          </td>
+        </tr>
+      }
+    </tbody>
+    <!-- foot -->
+    <tfoot>
+      <tr>
+        <th>Id</th>
+        <th>Personaje / Slug / Sort</th>
+        <th>Descripción</th>
+        <th>Creación / Modificación</th>
+        <th>PJ Jugable</th>
+        <th>Acciones</th>
+    </tfoot>
+  </table>
+</div>

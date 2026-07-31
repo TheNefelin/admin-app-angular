@@ -1,3 +1,4 @@
+import { CharacterModel } from "@features/game-guides/character/models/character-model";
 import { GenreModel } from "@features/game-guides/genre/models/genre-model";
 import { MapModel } from "@features/game-guides/map/models/map-model";
 import { PlatformModel } from "@features/game-guides/platform/models/platform-model";
@@ -21,7 +22,7 @@ export interface GameModel {
   screenshots: ScreenshotModel[];
   maps: MapModel[];
   sources: SourceModel[];
-  characters: [];
+  characters: CharacterModel[];
 }
 
 export interface SaveGameModel {

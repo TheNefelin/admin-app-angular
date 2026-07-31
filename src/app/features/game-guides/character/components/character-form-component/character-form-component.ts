@@ -19,7 +19,7 @@ export class CharacterFormComponent {
   readonly computedCharacter = input<CharacterModel | null>(null);
   protected readonly errorMessage = output<string | null>();
   protected readonly onDeleteImage = output<number>();
-  protected readonly onSubmit = output<{ data: SaveCharacterModel; file: File | null }>();
+  protected readonly onSubmit = output<{ id: number, data: SaveCharacterModel; file: File | null }>();
 
   protected clearTrigger = signal<number>(0);
   protected selectedFile = signal<File | null>(null);
@@ -80,6 +80,7 @@ export class CharacterFormComponent {
   }
 
   protected submit() {
+    const id = this.computedCharacter()?.id ?? 0
     const data = this.formData();
     const file = this.selectedFile();
   
@@ -99,6 +100,7 @@ export class CharacterFormComponent {
     }
 
     this.onSubmit.emit({ 
+      id: id,
       data: data, 
       file: file,
     });

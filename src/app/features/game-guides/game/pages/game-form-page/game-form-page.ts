@@ -26,6 +26,8 @@ import { SourcesListComponent } from "@features/game-guides/source/components/so
 import { ImageFormComponent } from "../../components/image-form-component/image-form-component";
 import { CharacterFormComponent } from '@features/game-guides/character/components/character-form-component/character-form-component';
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
+import { CharacterService } from '@features/game-guides/character/services/character-service';
+import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
 
 @Component({
   selector: 'app-game-form-page',
@@ -91,7 +93,8 @@ export class GameFormPage {
   private readonly serviceMap = inject(MapService);
   private readonly serviceSource = inject(SourceService)
   protected readonly saveSourcePayload = signal<SourceModel | null>(null);
-
+  private readonly serviceCharacter = inject(CharacterService);
+  protected readonly saveCharacterPayload = signal<CharacterModel | null>(null);
 
   protected readonly getGameByIdRX = rxResource({
     params: () => this.getGameByIdPayload(),
@@ -323,6 +326,53 @@ export class GameFormPage {
         this.errorMessage.set(
           sourceId ? 'Error al modificar la Fuente' : 'Error al crear la Fuente'
         );
+      }
+    });
+  }
+
+  // CHARACTER ------------------------------------------------------
+  // ----------------------------------------------------------------
+
+  protected onDeleteCharacterImage(characterId: number): void {
+    
+  }
+
+  protected onDeleteCharacter(characterId: number): void {
+
+  }
+
+  protected onSubmitCharacter(payload: { id: number, data: SaveCharacterModel, file: File | null }): void {
+    this.isSaving.set(true);
+    const { id, data, file } = payload;
+
+    const saveData: SaveCharacterModel = {
+      ...data,
+      game_id: this.computedGame()!.id,
+    };
+
+    const request$ = id
+    ? this.serviceCharacter.update(id, saveData)
+    : this.serviceCharacter.create(saveData);
+
+    request$.pipe(
+      switchMap(result => {
+        if (file)
+          return this.serviceCharacter.uploadImage(result.id, file);
+        return of(result);
+      }),
+      finalize(() => {
+        this.getGameByIdRX.reload();
+        this.isSaving.set(false)
+      })
+    ).subscribe({
+      next: (result) => {
+        this.successMessage.set(
+          id ? 'Personaje modificado correctamente' : 'Personaje creado correctamente'
+        );
+      },
+      error: (err) => {
+        console.error('[GameService::GameFormPage] onSubmitCharacter:', err);
+        this.errorMessage.set('Error al guardar el personaje');
       }
     });
   }
