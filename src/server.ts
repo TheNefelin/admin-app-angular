@@ -136,6 +136,11 @@ app.post(
   },
 );
 
+// ─── Config expuesta al navegador (sin secretos) ─────────────────────
+app.get('/ssr-api/config', (_req, res) => {
+  res.json({ googleClientId: process.env['PUBLIC_GOOGLE_CLIENT_ID'] ?? '' });
+});
+
 // ─── Proxy genérico para todo /ssr-api/ ──────────────────────────────
 app.use('/ssr-api', async (req, res) => {
   try {
@@ -160,6 +165,9 @@ app.use('/ssr-api', async (req, res) => {
       headers: {
         'X-API-Key': origin.key,
         'Content-Type': 'application/json',
+        ...(req.headers['authorization']
+          ? { Authorization: req.headers['authorization'] as string }
+          : {}),
       },
     };
 

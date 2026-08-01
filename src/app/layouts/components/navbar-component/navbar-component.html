@@ -8,8 +8,13 @@
 
     <app-theme-toggle-component/>
   </div>
-
-  <ul class="menu menu-horizontal px-1">
-    <li><a href="https://www.francisco-dev.cl" target="_blank">francisco-dev</a></li>
-  </ul>
+  
+  <div class="flex items-center gap-2 px-4">
+    @if (authConfig(); as auth) {
+      <app-google-auth-component [namespace]="auth.namespace" [label]="auth.label" />
+    }
+    <a href="https://www.francisco-dev.cl" target="_blank">
+      <span class="text-sm">francisco-dev</span>
+    </a>
+  </div>
 </nav>
