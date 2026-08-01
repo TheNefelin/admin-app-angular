@@ -17,6 +17,6 @@ export class MapService {
   }
 
   delete(id: number): Observable<void> {
-    return this.apiService.delete<void>(this.namespace, this.endpoint, id);
+    return this.apiService.deleteResource<void>(this.namespace, this.endpoint, id);
   }
 }
