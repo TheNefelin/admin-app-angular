@@ -1,7 +1,7 @@
 import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { Observable } from 'rxjs';
-import { SaveGameModel, GameModel } from '../models/game-model';
+import { SaveGameModel, GameModel, GameDetailModel } from '../models/game-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
@@ -25,6 +25,12 @@ export class GameService {
 
   getById(id: number): Observable<GameModel | null> {
     return this.apiService.getById<GameModel | null>(
+      this.namespace, this.endpoint, id
+    );
+  }
+
+  getDetailById(id: number): Observable<GameDetailModel | null> {
+    return this.apiService.getDetailById<GameDetailModel | null>(
       this.namespace, this.endpoint, id
     );
   }

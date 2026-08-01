@@ -13,6 +13,10 @@ export class ApiService {
     return this.http.get<T>(`/ssr-api/${namespace}/${resource}/${id}`);
   }
 
+  getDetailById<T>(namespace: string, resource: string, id: number) {
+    return this.http.get<T>(`/ssr-api/${namespace}/${resource}/${id}/detail`);
+  }
+
   create<T, TBody>(namespace: string, resource: string, body: TBody) {
     return this.http.post<T>(`/ssr-api/${namespace}/${resource}`, body);
   }

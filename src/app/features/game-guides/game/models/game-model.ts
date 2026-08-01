@@ -19,6 +19,9 @@ export interface GameModel {
   updated_at: string;
   platforms: PlatformModel[];
   genres: GenreModel[];
+}
+
+export interface GameDetailModel extends GameModel {
   screenshots: ScreenshotModel[];
   maps: MapModel[];
   sources: SourceModel[];

@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { GameModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
+import { GameDetailModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { GenreService } from '@features/game-guides/genre/services/genre-service';
 import { PlatformService } from '@features/game-guides/platform/services/platform-service';
@@ -75,7 +75,7 @@ export class GameFormPage {
   // GAME -------------------------------------------------------------
   private readonly gameService = inject(GameService);
   private readonly gameIdPayload = computed(() => this.routeId());
-  protected readonly gameComputed = computed<GameModel | null>(() => this.gameRX.value() ?? null);
+  protected readonly gameComputed = computed<GameDetailModel | null>(() => this.gameRX.value() ?? null);
 
   // PLATFORM ---------------------------------------------------------
   private readonly platformService = inject(PlatformService);
@@ -119,9 +119,9 @@ export class GameFormPage {
     stream: ({ params: id }) => {
       if (!id) return of(null);
 
-      return this.gameService.getById(id).pipe(
+      return this.gameService.getDetailById(id).pipe(
         catchError(err => {
-          console.error('[GameService::GameFormPage] getById:', err);
+          console.error('[GameService::GameFormPage] getDetailById:', err);
           this.errorService.show('Error al cargar el juego');
           return of(null);
         })
