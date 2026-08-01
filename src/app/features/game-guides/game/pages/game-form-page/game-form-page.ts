@@ -190,7 +190,7 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onSubmitForm:', err);
-        this.errorService.show('Error al guardar el juego');
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al guardar el juego');
       }
     });
   }
@@ -209,7 +209,7 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onDeleteImage:', err);
-        this.errorService.show('Error al eliminar la imagen');
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar la imagen');
       }
     });
   }
@@ -232,7 +232,7 @@ export class GameFormPage {
       next: () => this.successMessage.set(successMsg),
       error: (err) => {
         console.error(`[GameFormPage] ${errorMsg}:`, err);
-        this.errorService.show(errorMsg);
+        this.errorService.show(err?.error?.detail || err?.message || errorMsg);
       }
     });
   }
@@ -265,7 +265,7 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error(`[GameFormPage] ${options.errorMsg}:`, err);
-        this.errorService.show(options.errorMsg);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

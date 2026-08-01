@@ -85,6 +85,9 @@ app.post(
         headers: {
           'X-API-Key': origin.key,
           'Content-Type': req.headers['content-type'] as string,
+          ...(req.headers['authorization']
+            ? { Authorization: req.headers['authorization'] as string }
+            : {}),
         },
         body: new Uint8Array(req.body as Buffer),
       });
@@ -123,6 +126,9 @@ app.post(
         headers: {
           'X-API-Key': origin.key,
           'Content-Type': req.headers['content-type'] as string,
+          ...(req.headers['authorization']
+            ? { Authorization: req.headers['authorization'] as string }
+            : {}),
         },
         body: new Uint8Array(req.body as Buffer),
       });
