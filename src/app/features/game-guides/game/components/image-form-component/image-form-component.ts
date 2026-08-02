@@ -25,6 +25,7 @@ export class ImageFormComponent {
     return {
       game_id: 0,
       alt_text: "",
+      sort_order: undefined,
       file: undefined,
     }
   });
@@ -32,7 +33,12 @@ export class ImageFormComponent {
   protected updateAlt(value: string): void {
     this.formData.update(d => ({ ...d, alt_text: value }));
   }
- 
+
+  protected updateSortOrder(value: string): void {
+    const num = parseInt(value, 10) || 0;
+    this.formData.update(d => ({ ...d, sort_order: num }));
+  }
+  
   protected onSelectedFile(file: File | null): void {
     if (!file) return;
     this.formData.update(e => ({ ...e, file: file }))
