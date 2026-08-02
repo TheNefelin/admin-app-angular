@@ -16,6 +16,11 @@
           [textBtn]="'Eliminar'"
           (onClick)="onDeleteImageClick(item.id)" />
       </div>
+
+      <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-4">
+        <p>({{ item.id }})</p>
+        <p>{{ item.alt_text }}</p>
+      </footer>
     </div>
   }
 </div>
