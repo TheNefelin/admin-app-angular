@@ -1,0 +1,28 @@
+<section class="grid gap-2">
+  @if (isLoading()) {
+    <app-loading-component class="flex justify-center p-4"/>
+  } @else {
+    @for (item of computedGuideList(); track item.id) {
+      <details class="collapse bg-base-300 border border-base-300" name="my-accordion-det-1">
+        <summary class="collapse-title font-semibold">
+          {{ item.sort_order }} - {{ item.title }}
+        </summary>
+        <div class="collapse-content text-sm bg-base-200 pt-2 grid gap-4">
+          <p>{{ item.summary }}</p>
+          
+          <div class="flex gap-2 ml-auto">
+            <app-button-component 
+              [icon]="'edit'" 
+              [textBtn]="'Modificar'"
+              (onClick)="onEdit.emit(item)" /> 
+
+            <app-button-component 
+              [icon]="'delete'" 
+              [textBtn]="'Eliminar'"
+              (onClick)="onDelete.emit(item)" />
+            </div>          
+        </div>
+      </details>
+    }
+  }
+</section>

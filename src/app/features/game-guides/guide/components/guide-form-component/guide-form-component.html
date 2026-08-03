@@ -1,0 +1,78 @@
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <div class="modal-box overflow-visible">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Sección - Guía
+      </h3>
+  
+      <div class="bg-base-300 py-2 px-4 my-2 text-xs">
+        <p>Id Juego: [{{ selectedGuide()?.game_id ?? 0 }}] - Id Guía: [{{ selectedGuide()?.id ?? 0 }}]</p>
+        <p>{{ selectedGuide()?.created_at | date:'yyyy-MM-dd' }} - Crado</p>
+        <p>{{ selectedGuide()?.created_at | date:'yyyy-MM-dd' }} - Modificado</p>
+      </div>
+
+      <fieldset class="fieldset">
+        <label class="label">Title</label>
+        <input
+          #title
+          type="text" class="input w-full" placeholder="Title"
+          [value]="formData().title"
+          (input)="updateTitle(title.value)"
+          maxlength="50"
+        />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Descripción</label>
+        <textarea
+          #summary
+          class="textarea w-full" placeholder="Descripción"
+          [value]="formData().summary"
+          (input)="updateSummary(summary.value)"
+          rows="5"
+        ></textarea>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Sort Order</label>
+        <input
+          #sortOrder
+          type="number" class="input w-full" placeholder="0"
+          [value]="formData().sort_order"
+          (input)="updateSortOrder(sortOrder.value)"
+          min="0"
+        />
+      </fieldset>
+
+      <fieldset class="fieldset pt-2">
+        <label class="label cursor-pointer">
+          <input
+            #isEnabled
+            type="checkbox" class="checkbox checkbox-primary"
+            [checked]="formData().is_enabled"
+            (change)="updateIsEnabled(isEnabled.checked)"
+          />
+          Activo
+        </label>
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <app-button-component 
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component 
+          [icon]="'delete'" 
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>
+    }
+
+
+    <pre>{{ isEditMode() | json }}</pre>
+    <pre>{{ formData() | json }}</pre>
+  </div>
+</dialog>

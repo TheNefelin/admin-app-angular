@@ -1,0 +1,68 @@
+<section class="grid gap-2">
+  <span class="font-bold text-2xl italic px-2">GUIDES</span>
+
+  <div class="flex flex-wrap gap-4 bg-base-200 p-4 rounded-2xl border border-base-300 ">
+    <app-select-search-component 
+      [placeholder]="'Filtrar Juego'" 
+      [items]="computedGameList()"
+      [isLoading]="getAllGamesRX.isLoading()" 
+      [clearTrigger]="clearTrigger()"
+      (selectionChange)="onGameSelected($event)"
+      (cleared)="onGameClear()"/>
+
+    <div class="ml-auto flex gap-2">
+      @if (selectedGame()) {
+        <app-button-component 
+          [icon]="'create'" 
+          [textBtn]="'Guía - Crear Sección'"
+          (onClick)="showGuideFormModal.set(true)" />
+      }
+      <app-button-component 
+        [icon]="'clear'" 
+        [textBtn]="'Limpiar'"
+        (onClick)="onClear()" />  
+    </div>
+  </div>
+
+  <header class="flex gap-4 bg-base-200 p-4 rounded-2xl border border-base-300">
+    <div class="relative overflow-hidden rounded-md shadow-lg aspect-square max-h-20" >
+      <img
+        class="w-full h-full object-cover"
+        [ngSrc]="selectedGame()?.img_url  ?? '/images/placeholder.webp'"
+        [alt]="selectedGame()?.name ?? 'Imagen'" 
+        priority
+        height="100" width="100" />
+    </div>
+
+    <div class="my-auto font-bold text-2xl">
+      <h1>{{ selectedGame()?.id }} - {{ selectedGame()?.name }}</h1>
+    </div>
+  </header>
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+
+  <app-guide-list-component
+    [isLoading]="getAllGuideByGameRX.isLoading()"
+    [computedGuideList]="getAllGuideByGameRX.value() ?? []" 
+    (onEdit)="onEditGuide($event)" />
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
+</section>
+
+@if (showGuideFormModal()) {
+  <app-guide-form-component 
+    [isLoading]="isSavingGuide()"
+    [selectedGuide]="saveGuidePayload()"
+    (onClose)="onCloseGuideModal()"
+    (onSubmit)="onSubmitGuide($event)" />
+}
+
+<pre>{{ computedGuideList() | json }}</pre>
