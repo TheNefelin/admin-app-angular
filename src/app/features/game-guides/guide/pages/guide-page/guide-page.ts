@@ -41,7 +41,7 @@ export class GuidePage {
   private readonly gameService = inject(GameService);
   private readonly getAllGamePayload = computed<PaginationRequestModel>(() => ({
     page: 1,
-    limit: 1000,
+    limit: 100,
     search: "",
   }));
   protected readonly computedGameList = computed<SelectItemModel[]>(() => {

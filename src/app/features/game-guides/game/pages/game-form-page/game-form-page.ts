@@ -131,7 +131,7 @@ export class GameFormPage {
 
   protected readonly platformListRX = rxResource({
     stream: () => {
-      return this.platformService.getAllPagination({ page: 1, limit: 999 }).pipe(
+      return this.platformService.getAllPagination({ page: 1, limit: 100 }).pipe(
         map(res => res.items),
         catchError(err => {
           console.error('[PlatformService::GameFormPage] getAll:', err);
@@ -144,7 +144,7 @@ export class GameFormPage {
 
   protected readonly genreListRX = rxResource({
     stream: () => {
-      return this.genreService.getAllPagination({ page: 1, limit: 999 }).pipe(
+      return this.genreService.getAllPagination({ page: 1, limit: 100 }).pipe(
         map(res => res.items),
         catchError(err => {
           console.error('[GenreService::GameFormPage] getAll:', err);
