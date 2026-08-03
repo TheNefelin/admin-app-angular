@@ -2,12 +2,11 @@ import { Component, computed, input, linkedSignal, output, signal } from '@angul
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { GuideModel, SaveGuideModel } from '../../models/guide-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { DatePipe, JsonPipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-guide-form-component',
   imports: [
-    JsonPipe,
     DatePipe,
     LoadingComponent, 
     ButtonComponent

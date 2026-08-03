@@ -7,9 +7,7 @@
         <summary class="collapse-title font-semibold">
           {{ item.sort_order }} - {{ item.title }}
         </summary>
-        <div class="collapse-content text-sm bg-base-200 pt-2 grid gap-4">
-          <p>{{ item.summary }}</p>
-          
+        <div class="collapse-content text-sm bg-base-200 pt-2 grid gap-4">          
           <div class="flex gap-2 ml-auto">
             <app-button-component 
               [icon]="'edit'" 
@@ -20,7 +18,9 @@
               [icon]="'delete'" 
               [textBtn]="'Eliminar'"
               (onClick)="onDelete.emit(item)" />
-            </div>          
+          </div>
+
+          <p class="whitespace-pre-wrap">{{ item.summary }}</p>
         </div>
       </details>
     }

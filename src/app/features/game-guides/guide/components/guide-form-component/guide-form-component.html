@@ -31,7 +31,7 @@
           class="textarea w-full" placeholder="Descripción"
           [value]="formData().summary"
           (input)="updateSummary(summary.value)"
-          rows="5"
+          rows="6"
         ></textarea>
       </fieldset>
 
@@ -70,9 +70,5 @@
           (onClick)="onClose.emit()" />
       </div>
     }
-
-
-    <pre>{{ isEditMode() | json }}</pre>
-    <pre>{{ formData() | json }}</pre>
   </div>
 </dialog>

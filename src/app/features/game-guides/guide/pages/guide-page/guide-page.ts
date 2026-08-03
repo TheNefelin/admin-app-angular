@@ -1,4 +1,4 @@
-import { JsonPipe, NgOptimizedImage } from '@angular/common';
+import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { GameService } from '@features/game-guides/game/services/game-service';
@@ -17,7 +17,6 @@ import { GuideListComponent } from "../../components/guide-list-component/guide-
 @Component({
   selector: 'app-guide-page',
   imports: [
-    JsonPipe,
     NgOptimizedImage,
     ButtonComponent,
     SelectSearchComponent,
