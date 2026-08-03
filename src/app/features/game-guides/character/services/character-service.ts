@@ -54,7 +54,7 @@ export class CharacterService {
   }
 
   uploadImage(id: number, file: File): Observable<CharacterModel> {
-    const fields: Record<string, string> = { game_id: id.toString() };
+    const fields: Record<string, string> = { id: id.toString() };
     return this.apiService.postWithFile<CharacterModel>(this.namespace, `${this.endpoint}/upload-image`, file!, fields);
   }
 
