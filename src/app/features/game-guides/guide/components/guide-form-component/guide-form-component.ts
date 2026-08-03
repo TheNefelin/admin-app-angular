@@ -27,7 +27,7 @@ export class GuideFormComponent {
     return {
       game_id: payload?.game_id ?? 0,
       title:  payload?.title ?? "",
-      summary: payload?.summary ?? "",
+      summary: payload?.summary ?? null,
       sort_order: payload?.sort_order ?? undefined,
       is_enabled: payload?.is_enabled ?? true,
     }
@@ -58,10 +58,10 @@ export class GuideFormComponent {
       this.errorMessage.set('El titulo debe tener entre 1 y 100 caracteres');
       return;
     }
-
-    const summary = this.formData().summary.trim();
-    if (!summary || summary.length > 256) {
-      this.errorMessage.set('La descripción debe tener entre 1 y 256 caracteres');
+    
+    const summary = this.formData().summary?.trim() ?? null;
+    if (summary && summary.length > 256) {
+      this.errorMessage.set('La descripción no puede superar 256 caracteres');
       return;
     }
 
