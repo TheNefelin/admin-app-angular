@@ -2,7 +2,7 @@ import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
 import { Observable } from 'rxjs';
-import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
+import { GuideDetailModel, GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 
@@ -23,6 +23,20 @@ export class GuideService {
 
     return this.apiService.getAll<PaginationResponseModel<GuideModel>>(
       this.namespace, `${this.endpoint}/${path}`
+    );
+  }
+
+  getAllDetailByGamePagination(params: PaginationRequestModel<number>): Observable<PaginationResponseModel<GuideDetailModel>> {
+    let path = `?page=${params.page}&limit=${params.limit}`
+
+    if (params.search && params.search.trim() != '')
+      path = `${path}&search=${params.search}`
+
+    if (params.filter && params.filter > 0)
+      path = `${path}&game_id=${params.filter}`
+
+    return this.apiService.getAll<PaginationResponseModel<GuideDetailModel>>(
+      this.namespace, `${this.endpoint}/${path}/detail`
     );
   }
 

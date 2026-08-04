@@ -49,7 +49,8 @@
     [isLoading]="getAllGuideByGameRX.isLoading()"
     [computedGuideList]="getAllGuideByGameRX.value() ?? []" 
     (onEdit)="onEditGuide($event)"
-    (onDelete)="onDeleteGuide($event)" />
+    (onDelete)="onDeleteGuide($event)"
+    (onCreateAdventure)="onCreateAdventure($event)" />
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -65,3 +66,13 @@
     (onClose)="onCloseGuideModal()"
     (onSubmit)="onSubmitGuide($event)" />
 }
+
+@if (showAdventureFormModal()) {
+  <app-adventure-form-component
+    [isLoading]="isSavingAdventure()"
+    [selecteAdventure]="null"
+    (onSubmit)="onSubmitAdventure($event)"
+    (onClose)="onCloseAdventureModal()" />
+}
+
+<pre>{{ computedGuideList() | json }}</pre>

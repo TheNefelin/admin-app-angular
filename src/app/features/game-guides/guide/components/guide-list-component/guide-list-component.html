@@ -21,6 +21,13 @@
           </div>
 
           <p class="whitespace-pre-wrap">{{ item.summary }}</p>
+
+          <app-button-component 
+            [icon]="'create'"
+            [textBtn]="'Aventura - Crear Sección'"
+            (onClick)="onCreateAdventure.emit(item)" />
+
+          <app-adventure-list-component />
         </div>
       </details>
     }

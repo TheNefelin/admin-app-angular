@@ -2,12 +2,14 @@ import { Component, input, output, signal } from '@angular/core';
 import { GuideModel } from '@features/game-guides/guide/models/guide-model';
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { AdventureListComponent } from "@features/game-guides/adventure/components/adventure-list-component/adventure-list-component";
 
 @Component({
   selector: 'app-guide-list-component',
   imports: [
-    LoadingComponent, 
-    ButtonComponent
+    LoadingComponent,
+    ButtonComponent,
+    AdventureListComponent
   ],
   templateUrl: './guide-list-component.html',
 })
@@ -16,4 +18,5 @@ export class GuideListComponent {
   readonly computedGuideList = input<GuideModel[]>([]);
   protected readonly onEdit = output<GuideModel>();
   protected readonly onDelete = output<GuideModel>();
+  protected readonly onCreateAdventure = output<GuideModel>();
 }

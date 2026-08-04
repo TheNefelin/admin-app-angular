@@ -1,0 +1,79 @@
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <div class="modal-box overflow-visible">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Sección - Aventura
+      </h3>
+  
+      <div class="bg-base-300 py-2 px-4 my-2 text-xs">
+        <p>Id Guía: [{{ selecteAdventure()?.guide_id ?? 0 }}]</p>
+        <p>{{ selecteAdventure()?.created_at | date:'yyyy-MM-dd' }} - Creado</p>
+        <p>{{ selecteAdventure()?.updated_at | date:'yyyy-MM-dd' }} - Modificado</p>
+      </div>
+
+      @if (errorMessage()) {
+        <app-message-error-component [message]="errorMessage()"/>
+      }
+
+      <fieldset class="fieldset">
+        <label class="label">Descripción</label>
+        <textarea
+          #description
+          class="textarea w-full" placeholder="Descripción"
+          [value]="formData().description"
+          (input)="updateDescription(description.value)"
+          rows="6"
+        ></textarea>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Sort Order</label>
+        <input
+          #sortOrder
+          type="number" class="input w-full" placeholder="0"
+          [value]="formData().sort_order"
+          (input)="updateSortOrder(sortOrder.value)"
+          min="0"
+        />
+      </fieldset>
+
+      <fieldset class="fieldset pt-2">
+        <label class="label cursor-pointer">
+          <input
+            #isImportant
+            type="checkbox" class="checkbox checkbox-primary"
+            [checked]="formData().is_important"
+            (change)="updateIsImportant(isImportant.checked)"
+          />
+          Es Importante
+        </label>
+      </fieldset>
+
+      <fieldset class="fieldset pt-2">
+        <label class="label cursor-pointer">
+          <input
+            #isOptional
+            type="checkbox" class="checkbox checkbox-primary"
+            [checked]="formData().is_optional"
+            (change)="updateIsOptional(isOptional.checked)"
+          />
+          Es Opcional
+        </label>
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <app-button-component 
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
+          (onClick)="submit()" />
+  
+        <app-button-component 
+          [icon]="'delete'" 
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>      
+    }
+  </div>
+</dialog>
