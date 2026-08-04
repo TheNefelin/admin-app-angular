@@ -57,3 +57,9 @@
     [message]="msg" 
     (close)="errorService.clear()" />
 }
+
+@if (successService.toasts().length) {
+  <app-toast-success-component
+    [toasts]="successService.toasts()"
+    (close)="successService.clear($event)" />
+}

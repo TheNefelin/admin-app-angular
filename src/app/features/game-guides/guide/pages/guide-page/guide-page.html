@@ -48,7 +48,8 @@
   <app-guide-list-component
     [isLoading]="getAllGuideByGameRX.isLoading()"
     [computedGuideList]="getAllGuideByGameRX.value() ?? []" 
-    (onEdit)="onEditGuide($event)" />
+    (onEdit)="onEditGuide($event)"
+    (onDelete)="onDeleteGuide($event)" />
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"

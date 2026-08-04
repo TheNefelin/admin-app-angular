@@ -3,13 +3,15 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 import { GuideModel, SaveGuideModel } from '../../models/guide-model';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { DatePipe } from '@angular/common';
+import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 @Component({
   selector: 'app-guide-form-component',
   imports: [
     DatePipe,
-    LoadingComponent, 
-    ButtonComponent
+    LoadingComponent,
+    ButtonComponent,
+    MessageErrorComponent
   ],
   templateUrl: './guide-form-component.html',
 })
@@ -54,8 +56,8 @@ export class GuideFormComponent {
 
   protected submit(): void {
     const title = this.formData().title.trim();
-    if (!title || title.length > 100) {
-      this.errorMessage.set('El titulo debe tener entre 1 y 100 caracteres');
+    if (!title || title.length > 200) {
+      this.errorMessage.set('El titulo debe tener entre 1 y 200 caracteres');
       return;
     }
     

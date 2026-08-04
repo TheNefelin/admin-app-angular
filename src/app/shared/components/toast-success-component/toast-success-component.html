@@ -1,0 +1,9 @@
+@if (toasts().length) {
+  <div class="toast toast-end">
+    @for (toast of toasts(); track toast.id) {
+      <div class="alert alert-success text-white cursor-pointer" (click)="close.emit(toast.id)">
+        <span>{{ toast.message }}</span>
+      </div>
+    }
+  </div>
+}

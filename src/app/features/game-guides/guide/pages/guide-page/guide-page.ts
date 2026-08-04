@@ -13,6 +13,7 @@ import { GuideService } from '../../services/guide-service';
 import { ErrorService } from '@core/services/error-service';
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { GuideListComponent } from "../../components/guide-list-component/guide-list-component";
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-guide-page',
@@ -32,18 +33,14 @@ export class GuidePage {
   protected readonly showGuideFormModal = signal <boolean>(false);
   protected readonly clearTrigger = signal<number>(0);
   
-  // ERROR SERVICE ----------------------------------------------------------
+  // SERVICES ---------------------------------------------------------------
   // ------------------------------------------------------------------------
   private readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
 
   // GAME SERVICE -----------------------------------------------------------
   // ------------------------------------------------------------------------
   private readonly gameService = inject(GameService);
-  private readonly getAllGamePayload = computed<PaginationRequestModel>(() => ({
-    page: 1,
-    limit: 100,
-    search: "",
-  }));
   protected readonly computedGameList = computed<SelectItemModel[]>(() => {
     const items = this.getAllGamesRX.value() ?? []
     return items.map(e => ({ id: e.id, name: e.name, img_url: e.cover_url}));
@@ -71,9 +68,12 @@ export class GuidePage {
   // GET RX -----------------------------------------------------------------
   // ------------------------------------------------------------------------
   protected readonly getAllGamesRX = rxResource({
-    params: () => this.getAllGamePayload(),
-    stream: ({ params }) => {
-      if (!params) return of(null);
+    stream: () => {
+      const params: PaginationRequestModel = {
+        page: 1,
+        limit: 100,
+        search: "",
+      }
 
       return this.gameService.getAllPagination(params).pipe(
         map(response => {
@@ -95,6 +95,7 @@ export class GuidePage {
 
       return this.guideService.getAllPagination(params).pipe(
         map(response => {
+          this.totalPages.set(Math.ceil(response.total / this.limit()));
           return response.items;
         }),
         catchError(err => {
@@ -118,25 +119,52 @@ export class GuidePage {
 
   // GUIDE EVENTS -----------------------------------------------------------
   // ------------------------------------------------------------------------
-  protected onEditGuide(item: GuideModel): void {
-    this.saveGuidePayload.set(item);
-    this.showGuideFormModal.set(true);
-  }
-
   protected onCloseGuideModal(): void {
     this.showGuideFormModal.set(false)
     this.saveGuidePayload.set(null);
   }
 
-  protected onSubmitGuide(item: SaveGuideModel): void {
+  protected onEditGuide(item: GuideModel): void {
+    this.saveGuidePayload.set(item);
+    this.showGuideFormModal.set(true);
+  }
+
+  protected onDeleteGuide(item: GuideModel): void {
+    const id = item.id
+    if (!item || !id) return;
+
     this.isSavingGuide.set(true);
 
+    const error = `Error al Eliminar la Guía`;
+    const success = 'Guia Eliminada Correctamente';
+
+    this.guideService.delete(id)
+    .pipe(
+      finalize(() => {
+        this.isSavingGuide.set(false);
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(success);
+        this.getAllGuideByGameRX.reload();
+      },
+      error: (err) => {
+        console.error(`[GuidePage] - OnSubmitGuide: ${ error }`, err);
+        this.errorService.show(err?.error?.detail || err?.message || error);
+      }
+    });
+  }
+
+  protected onSubmitGuide(item: SaveGuideModel): void {
     const id = this.saveGuidePayload()?.id
     const gameId = this.selectedGame()?.id
     if (!gameId || !item) return;
 
+    this.isSavingGuide.set(true);
+
     const payload: SaveGuideModel = { ...item, game_id: gameId };
     const error = `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`;
+    const success = `Guia ${ id ? 'Modificada' : 'Guardada' } Correctamente`;
 
     const request$ = id
     ? this.guideService.update(id, payload)
@@ -147,10 +175,11 @@ export class GuidePage {
       finalize(() => {
         this.isSavingGuide.set(false);
         this.showGuideFormModal.set(false);
+        this.saveGuidePayload.set(null);
       })
     ).subscribe({
       next: () => {
-        console.log(`Guia ${ id ? 'Modificada' : 'Guardada' } Correctamente`);
+        this.successService.show(success);
         this.getAllGuideByGameRX.reload();
       },
       error: (err) => {
