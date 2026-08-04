@@ -10,7 +10,6 @@ import { ButtonComponent } from "@shared/components/button-component/button-comp
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { ImageListComponent } from '@features/game-guides/game/components/image-list-component/image-list-component';
 import { ScreenshotService } from '@features/game-guides/screenshot/services/screenshot-service';
 import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
@@ -27,13 +26,13 @@ import { CharacterListComponent } from '@features/game-guides/character/componen
 import { CharacterService } from '@features/game-guides/character/services/character-service';
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
 import { ErrorService } from '@core/services/error-service';
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-game-form-page',
   imports: [
     LoadingComponent,
     ButtonComponent,
-    MessageSuccessComponent,
     ImageFormComponent,
     ImageListComponent,
     GameFormComponent,
@@ -48,6 +47,7 @@ export class GameFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
   protected readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
 
   readonly routeId = toSignal(
     this.activatedRoute.paramMap.pipe(
@@ -66,7 +66,6 @@ export class GameFormPage {
 
   protected readonly isSavingGame = signal<boolean>(false);
   protected readonly isSavingImage = signal<boolean>(false);
-  protected readonly successMessage = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
 
   // SERVICES -------------------------------------------------------
@@ -159,8 +158,6 @@ export class GameFormPage {
   // ----------------------------------------------------------------
   
   protected onSubmit(payload: { data: SaveGameModel; file: File | null }): void {
-    this.successMessage.set(null);
-
     this.isSavingGame.set(true);
     const data = { ...payload.data, name: payload.data.name.trim(), slug: payload.data.slug.trim() };
     const file = payload.file;
@@ -183,7 +180,7 @@ export class GameFormPage {
       })
     ).subscribe({
       next: (result) => {
-        this.successMessage.set('Guardado correctamente');
+        this.successService.show('Guardado correctamente');
         if (!id && result) {
           this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM, result.id]);
         }
@@ -229,7 +226,7 @@ export class GameFormPage {
         this.gameRX.reload();
       })
     ).subscribe({
-      next: () => this.successMessage.set(successMsg),
+      next: () => this.successService.show(successMsg),
       error: (err) => {
         console.error(`[GameFormPage] ${errorMsg}:`, err);
         this.errorService.show(err?.error?.detail || err?.message || errorMsg);
@@ -259,7 +256,7 @@ export class GameFormPage {
       })
     ).subscribe({
       next: () => {
-        if (options.successMsg) this.successMessage.set(options.successMsg);
+        if (options.successMsg) this.successService.show(options.successMsg);
         if (options.reloadOnSuccess) this.gameRX.reload();
         options.onSuccess?.();
       },

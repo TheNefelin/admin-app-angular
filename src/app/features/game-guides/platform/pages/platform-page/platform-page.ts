@@ -6,18 +6,17 @@ import { PlatformService } from '@features/game-guides/platform/services/platfor
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { PlatformFormComponent } from '@features/game-guides/platform/components/platform-form-component/platform-form-component';
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-platform-page',
   imports: [
     PaginationFilterComponent,
     ButtonComponent,
-    MessageSuccessComponent,
     LoadingComponent,
     PaginationNavComponent,
     ModalActionComponent,
@@ -26,7 +25,7 @@ import { PlatformFormComponent } from '@features/game-guides/platform/components
   templateUrl: './platform-page.html',
 })
 export class PlatformPage {
-  protected readonly successMessage = signal<string | null>(null);
+  private readonly successService = inject(SuccessService);
   protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
@@ -67,7 +66,6 @@ export class PlatformPage {
 
   protected onRefreshClick(): void {
     this.getAllRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -104,7 +102,6 @@ export class PlatformPage {
 
   protected onSubmitForm(data: SavePlatformModel): void {
     this.isSaving.set(true);
-    this.successMessage.set(null);
 
     const id = this.editItem()?.id;
     const request$ = id
@@ -115,7 +112,7 @@ export class PlatformPage {
       finalize(() => this.isSaving.set(false))
     ).subscribe({
       next: () => {
-        this.successMessage.set(id ? 'Modificado correctamente' : 'Creado correctamente');
+        this.successService.show(id ? 'Modificado correctamente' : 'Creado correctamente');
         this.showFormModal.set(false);
         this.getAllRX.reload();
       },
@@ -141,7 +138,7 @@ export class PlatformPage {
       finalize(() => this.isDeleting.set(false))
     ).subscribe({
       next: () => {
-        this.successMessage.set('Eliminado correctamente');
+        this.successService.show('Eliminado correctamente');
         this.showDeleteModal.set(false);
         this.getAllRX.reload();
       },

@@ -7,10 +7,6 @@
 
   <app-button-component [icon]="'create'" [textBtn]="'Crear Game'" (onClick)="onCreate()"/>
 
-  @if (successMessage()) {
-    <app-message-success-component [message]="successMessage()"/>
-  }
-
   <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"

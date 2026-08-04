@@ -6,20 +6,19 @@ import { GenreService } from '@features/game-guides/genre/services/genre-service
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { GenreFormComponent } from '@features/game-guides/genre/components/genre-form-component/genre-form-component';
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-genre-page',
   imports: [
     PaginationFilterComponent,
     ButtonComponent,
-    MessageSuccessComponent,
     LoadingComponent,
     PaginationNavComponent,
     ModalActionComponent,
@@ -29,7 +28,7 @@ import { GenreFormComponent } from '@features/game-guides/genre/components/genre
 })
 export class GenrePage {
   private readonly router = inject(Router);
-  protected readonly successMessage = signal<string | null>(null);
+  private readonly successService = inject(SuccessService);
   protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly showFormModal = signal<boolean>(false);
@@ -70,7 +69,6 @@ export class GenrePage {
 
   protected onRefreshClick(): void {
     this.getAllRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -107,7 +105,6 @@ export class GenrePage {
 
   protected onSubmitForm(data: SaveGenreModel): void {
     this.isSaving.set(true);
-    this.successMessage.set(null);
 
     const id = this.editItem()?.id;
     const request$ = id
@@ -118,7 +115,7 @@ export class GenrePage {
       finalize(() => this.isSaving.set(false))
     ).subscribe({
       next: () => {
-        this.successMessage.set(id ? 'Modificado correctamente' : 'Creado correctamente');
+        this.successService.show(id ? 'Modificado correctamente' : 'Creado correctamente');
         this.showFormModal.set(false);
         this.getAllRX.reload();
       },
@@ -144,7 +141,7 @@ export class GenrePage {
       finalize(() => this.isDeleting.set(false))
     ).subscribe({
       next: () => {
-        this.successMessage.set('Eliminado correctamente');
+        this.successService.show('Eliminado correctamente');
         this.showDeleteModal.set(false);
         this.getAllRX.reload();
       },

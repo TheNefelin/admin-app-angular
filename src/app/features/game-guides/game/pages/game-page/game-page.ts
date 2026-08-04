@@ -6,13 +6,13 @@ import { GameService } from '@features/game-guides/game/services/game-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-game-page',
@@ -21,7 +21,6 @@ import { DatePipe, NgOptimizedImage } from '@angular/common';
     NgOptimizedImage,
     PaginationFilterComponent,
     ButtonComponent,
-    MessageSuccessComponent,
     LoadingComponent,
     PaginationNavComponent,
     ModalActionComponent,
@@ -30,7 +29,7 @@ import { DatePipe, NgOptimizedImage } from '@angular/common';
 })
 export class GamePage {
   private readonly router = inject(Router);
-  protected readonly successMessage = signal<string | null>(null);
+  private readonly successService = inject(SuccessService);
   protected readonly deleteMessage = signal<string>('');
   protected readonly showDeleteModal = signal<boolean>(false);
   protected readonly isDeleting = signal<boolean>(false);
@@ -69,7 +68,6 @@ export class GamePage {
 
   protected onRefreshClick(): void {
     this.getAllRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -114,7 +112,7 @@ export class GamePage {
       finalize(() => this.isDeleting.set(false))
     ).subscribe({
       next: () => {
-        this.successMessage.set('Eliminado correctamente');
+        this.successService.show('Eliminado correctamente');
         this.showDeleteModal.set(false);
         this.getAllRX.reload();
       },
