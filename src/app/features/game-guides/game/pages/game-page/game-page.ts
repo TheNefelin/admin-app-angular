@@ -8,11 +8,11 @@ import { PaginationFilterComponent } from "@shared/components/pagination-filter-
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-game-page',
@@ -23,16 +23,13 @@ import { SuccessService } from '@core/services/success-service';
     ButtonComponent,
     LoadingComponent,
     PaginationNavComponent,
-    ModalActionComponent,
   ],
   templateUrl: './game-page.html',
 })
 export class GamePage {
   private readonly router = inject(Router);
   private readonly successService = inject(SuccessService);
-  protected readonly deleteMessage = signal<string>('');
-  protected readonly showDeleteModal = signal<boolean>(false);
-  protected readonly isDeleting = signal<boolean>(false);
+  private readonly confirmService = inject(ConfirmService);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
@@ -45,7 +42,6 @@ export class GamePage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedList = computed<GameModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
@@ -96,24 +92,16 @@ export class GamePage {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.FORM, item.id]);
   }
 
-  protected onDelete(item: GameModel): void {
-    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
-    this.deleteItemId.set(item.id);
-    this.showDeleteModal.set(true);
-  }
+  protected async onDelete(item: GameModel): Promise<void> {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Game',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
+    });
+    if (!confirmed) return;
 
-  protected onDeleteModalConfirm(): void {
-    this.isDeleting.set(true);
-
-    const id = this.deleteItemId();
-    if (!id) return;
-
-    this.service.delete(id).pipe(
-      finalize(() => this.isDeleting.set(false))
-    ).subscribe({
+    this.service.delete(item.id).subscribe({
       next: () => {
         this.successService.show('Eliminado correctamente');
-        this.showDeleteModal.set(false);
         this.getAllRX.reload();
       },
       error: (err) => {

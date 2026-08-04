@@ -8,9 +8,9 @@ import { PaginationFilterComponent } from "@shared/components/pagination-filter-
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { LoadingComponent } from "@shared/components/loading-component/loading-component";
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
 import { PlatformFormComponent } from '@features/game-guides/platform/components/platform-form-component/platform-form-component';
 import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-platform-page',
@@ -19,17 +19,14 @@ import { SuccessService } from '@core/services/success-service';
     ButtonComponent,
     LoadingComponent,
     PaginationNavComponent,
-    ModalActionComponent,
     PlatformFormComponent,
   ],
   templateUrl: './platform-page.html',
 })
 export class PlatformPage {
   private readonly successService = inject(SuccessService);
-  protected readonly deleteMessage = signal<string>('');
-  protected readonly showDeleteModal = signal<boolean>(false);
+  private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isDeleting = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
@@ -43,7 +40,6 @@ export class PlatformPage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedList = computed<PlatformModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
@@ -122,24 +118,16 @@ export class PlatformPage {
     });
   }
 
-  protected onDelete(item: PlatformModel): void {
-    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
-    this.deleteItemId.set(item.id);
-    this.showDeleteModal.set(true);
-  }
+  protected async onDelete(item: PlatformModel): Promise<void> {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Platform',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
+    });
+    if (!confirmed) return;
 
-  protected onDeleteModalConfirm(): void {
-    this.isDeleting.set(true);
-
-    const id = this.deleteItemId();
-    if (!id) return;
-
-    this.service.delete(id).pipe(
-      finalize(() => this.isDeleting.set(false))
-    ).subscribe({
+    this.service.delete(item.id).subscribe({
       next: () => {
         this.successService.show('Eliminado correctamente');
-        this.showDeleteModal.set(false);
         this.getAllRX.reload();
       },
       error: (err) => {

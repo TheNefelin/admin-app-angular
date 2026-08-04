@@ -27,6 +27,7 @@ import { CharacterService } from '@features/game-guides/character/services/chara
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
 import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-game-form-page',
@@ -48,6 +49,7 @@ export class GameFormPage {
   private readonly activatedRoute = inject(ActivatedRoute);
   protected readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly routeId = toSignal(
     this.activatedRoute.paramMap.pipe(
@@ -321,13 +323,19 @@ export class GameFormPage {
     this.source.savePayload.set(item);
   }
 
-  protected onDeleteSource(item: SourceModel): void {
+  protected async onDeleteSource(item: SourceModel): Promise<void> {
     const id = item.id;
     if (!id) return;
 
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Fuente',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
+    });
+    if (!confirmed) return;
+
     this.handleCrudAction(
       this.sourceService.delete(id),
-      { loading: this.source.isSaving, errorMsg: 'Error al eliminar la fuente', reloadOnSuccess: true }
+      { loading: this.source.isSaving, successMsg: 'Fuente eliminada correctamente', errorMsg: 'Error al eliminar la fuente', reloadOnSuccess: true }
     );
   }
 
@@ -377,8 +385,15 @@ export class GameFormPage {
     this.character.savePayload.set(item);
   }  
 
-  protected onDeleteCharacter(item: CharacterModel): void {
+  protected async onDeleteCharacter(item: CharacterModel): Promise<void> {
     const id = item.id;
+    if (!id) return;
+
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Personaje',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
+    });
+    if (!confirmed) return;
 
     this.handleCrudAction(
       this.characterService.delete(id),

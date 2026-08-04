@@ -61,16 +61,6 @@
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Platform'"
-    [message]="deleteMessage()"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}
-
 @if (showFormModal()) {
   <app-platform-form-component
     [isLoading]="isSaving()"

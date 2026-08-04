@@ -63,3 +63,11 @@
     [toasts]="successService.toasts()"
     (close)="successService.clear($event)" />
 }
+
+@if (confirmService.dialog(); as dialog) {
+  <app-modal-confirm-component
+    [title]="dialog.title"
+    [message]="dialog.message"
+    (onConfirm)="confirmService.accept()"
+    (onClose)="confirmService.reject()" />
+}

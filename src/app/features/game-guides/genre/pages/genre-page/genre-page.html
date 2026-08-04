@@ -61,16 +61,6 @@
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Genre'"
-    [message]="deleteMessage()"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}
-
 @if (showFormModal()) {
   <app-genre-form-component
     [isLoading]="isSaving()"

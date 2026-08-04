@@ -119,13 +119,3 @@
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 </section>
-
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Game'"
-    [message]="deleteMessage()"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}

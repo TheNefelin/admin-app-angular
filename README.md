@@ -133,7 +133,7 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ng generate component features/game-guides/guide/pages/guide-page --style=none
 ng generate component features/game-guides/guide/components/guide-list-component --style=none
 ng generate component features/game-guides/guide/components/guide-form-component --style=none
-ng generate component shared/components/toast-success-component --style=none
+ng generate component shared/components/modal-confirm-component --style=none
 # Model
 ng generate interface features/game-guides/guide/models/guide-model
 # Service

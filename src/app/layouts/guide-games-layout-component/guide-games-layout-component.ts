@@ -4,8 +4,10 @@ import { NavbarComponent } from "@layouts/components/navbar-component/navbar-com
 import { Router, RouterOutlet } from "@angular/router";
 import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ToastSuccessComponent } from "@shared/components/toast-success-component/toast-success-component";
+import { ModalConfirmComponent } from "@shared/components/modal-confirm-component/modal-confirm-component";
 
 @Component({
   selector: 'app-guide-games-layout-component',
@@ -13,7 +15,8 @@ import { ToastSuccessComponent } from "@shared/components/toast-success-componen
     RouterOutlet,
     ModalErrorComponent,
     NavbarComponent,
-    ToastSuccessComponent
+    ToastSuccessComponent,
+    ModalConfirmComponent
   ],
   templateUrl: './guide-games-layout-component.html',
 })
@@ -22,6 +25,7 @@ export class GuideGamesLayoutComponent {
   
   protected readonly errorService = inject(ErrorService);
   protected readonly successService = inject(SuccessService)
+  protected readonly confirmService = inject(ConfirmService);
 
   protected goToMain(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.ROOT]);

@@ -14,6 +14,7 @@ import { ErrorService } from '@core/services/error-service';
 import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
 import { GuideListComponent } from "../../components/guide-list-component/guide-list-component";
 import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-guide-page',
@@ -37,6 +38,7 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
+  private readonly confirmService = inject(ConfirmService);
 
   // GAME SERVICE -----------------------------------------------------------
   // ------------------------------------------------------------------------
@@ -129,9 +131,15 @@ export class GuidePage {
     this.showGuideFormModal.set(true);
   }
 
-  protected onDeleteGuide(item: GuideModel): void {
+  protected async onDeleteGuide(item: GuideModel): Promise<void> {
     const id = item.id
     if (!item || !id) return;
+
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Guía',
+      message: `¿Estás seguro de que deseas eliminar la guía "${item.title}"?`,
+    });
+    if (!confirmed) return;
 
     this.isSavingGuide.set(true);
 
