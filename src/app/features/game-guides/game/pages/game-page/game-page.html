@@ -1,11 +1,11 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">GAMES</span>
 
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Game'" (onClick)="onCreate()"/>
+  
   <app-pagination-filter-component
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
-
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Game'" (onClick)="onCreate()"/>
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"

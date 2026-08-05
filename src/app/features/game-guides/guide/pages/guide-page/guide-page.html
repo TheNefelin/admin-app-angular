@@ -1,9 +1,13 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">GUIDES</span>
 
+  <app-pagination-filter-component
+    (onRefreshClick)="onRefreshClick()"
+    (onFilterChange)="onFilterChange($event)"/>
+
   <div class="flex flex-wrap gap-4 bg-base-200 p-4 rounded-2xl border border-base-300 ">
     <app-select-search-component 
-      [placeholder]="'Filtrar Juego'" 
+      [placeholder]="'Filtrar por Juego'" 
       [items]="computedGameList()"
       [isLoading]="getAllGamesRX.isLoading()" 
       [clearTrigger]="clearTrigger()"
@@ -46,7 +50,7 @@
     (nextPage)="nextPage()"/>
 
   <app-guide-list-component
-    [isLoading]="getAllDetailByGamePagination.isLoading() || isSavingAdventureImage() || isSavingAdventure()"
+    [isLoading]="getAllDetailByGamePagination.isLoading() && !getAllDetailByGamePagination.hasValue()"
     [guideDetailList]="getAllDetailByGamePagination.value() ?? []" 
     (onEditGuideModal)="onEditGuideModal($event)"
     (onDeleteGuide)="onDeleteGuide($event)"
@@ -74,7 +78,7 @@
 @if (showAdventureFormModal()) {
   <app-adventure-form-component
     [isLoading]="isSavingAdventure()"
-    [selecteAdventure]="saveAdventurePayload()?.data ?? null"
+    [selectedAdventure]="saveAdventurePayload()?.data ?? null"
     (onSubmit)="onSubmitAdventure($event)"
     (onClose)="onCloseAdventureModal()" />
 }

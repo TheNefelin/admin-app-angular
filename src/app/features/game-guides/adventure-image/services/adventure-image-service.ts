@@ -20,8 +20,8 @@ export class AdventureImageService {
     );
   }
 
-  deleteImage(id: number): Observable<AdventureImageModel> {
-    return this.apiService.deleteResource<AdventureImageModel>(
+  deleteImage(id: number): Observable<void> {
+    return this.apiService.deleteResource<void>(
       this.namespace, this.endpoint, id
     );
   }

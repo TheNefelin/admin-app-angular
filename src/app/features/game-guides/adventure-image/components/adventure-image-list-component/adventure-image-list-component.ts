@@ -10,7 +10,6 @@ import { ImageViewerComponent } from "@shared/components/image-viewer-component/
   templateUrl: './adventure-image-list-component.html',
 })
 export class AdventureImageListComponent {
-  readonly isLoading = input<boolean>(false);
   readonly adventureImageList = input<AdventureImageModel[]>([]);
   protected readonly onDeleteAdventureImage = output<{ id: number; alt: string }>();
 }

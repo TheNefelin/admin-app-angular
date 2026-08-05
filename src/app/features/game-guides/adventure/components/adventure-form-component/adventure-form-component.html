@@ -8,9 +8,9 @@
       </h3>
   
       <div class="bg-base-300 py-2 px-4 my-2 text-xs">
-        <p>Id Guía: [{{ selecteAdventure()?.guide_id ?? 0 }}]</p>
-        <p>{{ selecteAdventure()?.created_at | date:'yyyy-MM-dd' }} - Creado</p>
-        <p>{{ selecteAdventure()?.updated_at | date:'yyyy-MM-dd' }} - Modificado</p>
+        <p>Id Guía: [{{ selectedAdventure()?.guide_id ?? 0 }}]</p>
+        <p>{{ selectedAdventure()?.created_at | date:'yyyy-MM-dd' }} - Creado</p>
+        <p>{{ selectedAdventure()?.updated_at | date:'yyyy-MM-dd' }} - Modificado</p>
       </div>
 
       @if (errorMessage()) {

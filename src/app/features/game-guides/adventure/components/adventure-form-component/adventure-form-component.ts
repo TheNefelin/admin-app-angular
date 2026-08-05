@@ -17,14 +17,14 @@ import { DatePipe } from '@angular/common';
 })
 export class AdventureFormComponent {
   readonly isLoading = input<boolean>(false);
-  readonly selecteAdventure = input<AdventureModel | null>(null);
+  readonly selectedAdventure = input<AdventureModel | null>(null);
   protected readonly onClose = output<void>();
   protected readonly onSubmit = output<SaveAdventureModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isEditMode = computed<boolean>(() => !!this.selecteAdventure()?.id);
+  protected readonly isEditMode = computed<boolean>(() => !!this.selectedAdventure()?.id);
   protected readonly formData = linkedSignal<SaveAdventureModel>(() => {
-    const payload = this.selecteAdventure();
+    const payload = this.selectedAdventure();
 
     return {
       guide_id: payload?.guide_id ?? 0,

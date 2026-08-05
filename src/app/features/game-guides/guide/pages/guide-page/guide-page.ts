@@ -16,11 +16,12 @@ import { GuideListComponent } from "@features/game-guides/guide/components/guide
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 import { AdventureService } from '@features/game-guides/adventure/services/adventure-service';
-import { AdventureDetailModel, AdventureModel, SaveAdventureModel } from '@features/game-guides/adventure/models/adventure-model';
+import { AdventureModel, SaveAdventureModel } from '@features/game-guides/adventure/models/adventure-model';
 import { AdventureFormComponent } from "@features/game-guides/adventure/components/adventure-form-component/adventure-form-component";
 import { AdventureImageFormComponent } from "@features/game-guides/adventure-image/components/adventure-image-form-component/adventure-image-form-component";
 import { SaveAdventureImageModel } from '@features/game-guides/adventure-image/models/adventure-image-model';
 import { AdventureImageService } from '@features/game-guides/adventure-image/services/adventure-image-service';
+import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
 
 @Component({
   selector: 'app-guide-page',
@@ -32,7 +33,8 @@ import { AdventureImageService } from '@features/game-guides/adventure-image/ser
     PaginationNavComponent,
     GuideListComponent,
     AdventureFormComponent,
-    AdventureImageFormComponent
+    AdventureImageFormComponent,
+    PaginationFilterComponent
   ],
   templateUrl: './guide-page.html',
 })
@@ -136,10 +138,12 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   protected onGameSelected(item: SelectItemModel): void {
     this.selectedGame.set(item);
+    this.currentPage.set(1);
   }
 
   protected onGameClear(): void {
     this.selectedGame.set(null);
+    this.currentPage.set(1);
   }
 
   // GUIDE EVENTS -----------------------------------------------------------
@@ -160,8 +164,8 @@ export class GuidePage {
   }
 
   protected async onDeleteGuide(item: GuideModel): Promise<void> {
-    const id = item.id
-    if (!item || !id) return;
+    const id = item?.id;
+    if (!id) return;
 
     const confirmed = await this.confirmService.confirm({
       title: 'Eliminar Guía',
@@ -185,7 +189,7 @@ export class GuidePage {
         this.getAllDetailByGamePagination.reload();
       },
       error: (err) => {
-        console.error(`[GuidePage] - OnSubmitGuide: ${ error }`, err);
+        console.error(`[GuidePage] - onDeleteGuide: ${ error }`, err);
         this.errorService.show(err?.error?.detail || err?.message || error);
       }
     });
@@ -200,7 +204,7 @@ export class GuidePage {
 
     const payload: SaveGuideModel = { ...item, game_id: gameId };
     const error = `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`;
-    const success = `Guia ${ id ? 'Modificada' : 'Guardada' } Correctamente`;
+    const success = `Guia ${ id ? 'Modificada' : 'Creada' } Correctamente`;
 
     const request$ = id
     ? this.guideService.update(id, payload)
@@ -239,7 +243,6 @@ export class GuidePage {
   }
 
   protected onEditAdventureModal(item: AdventureModel): void {
-    console.log("EDIT ADVENTURE")
     this.saveAdventurePayload.set({ guide_id: item.guide_id, data: item });
     this.showAdventureFormModal.set(true);
   }
@@ -260,7 +263,7 @@ export class GuidePage {
     this.adventureService.delete(data.id)
     .pipe(
       finalize(() => {
-        this.onCloseAdventureModal();
+        this.isSavingAdventure.set(false);
       })
     ).subscribe({
       next: () => {
@@ -283,7 +286,7 @@ export class GuidePage {
 
     const payload: SaveAdventureModel = { ...item, guide_id: guideId };
     const error = `Error al ${ adventureId ? 'Modificar' : 'Crear' } la Aventura`;
-    const success = `Aventura ${ adventureId ? 'Modificada' : 'Guardada' } Correctamente`;
+    const success = `Aventura ${ adventureId ? 'Modificada' : 'Creada' } Correctamente`;
 
     const request$ = adventureId
     ? this.adventureService.update(adventureId, payload)
@@ -335,7 +338,7 @@ export class GuidePage {
     this.adventureImageService.deleteImage(data.id)
     .pipe(
       finalize(() => {
-        this.onCloseAdventureImageModal();
+        this.isSavingAdventureImage.set(false);
       })
     ).subscribe({
       next: () => {
@@ -357,7 +360,7 @@ export class GuidePage {
 
     const payload: SaveAdventureImageModel = { ...item, adventure_id: adventure_id };
     const error = `Error al cargar la imagen de la Aventura`;
-    const success = `Imagen de la aventura Guardada Correctamente`;
+    const success = `Imagen de la Aventura Subida Correctamente`;
 
     this.adventureImageService.uploadImage(payload)
     .pipe(
@@ -393,5 +396,15 @@ export class GuidePage {
     if (this.currentPage() < this.totalPages()){
       this.currentPage.update(e => e + 1);
     }
+  }
+
+  protected onRefreshClick(): void {
+    this.getAllDetailByGamePagination.reload();
+  }
+
+  protected onFilterChange(filter: { search: string; limit: number }): void {
+    this.search.set(filter.search);
+    this.limit.set(filter.limit);
+    this.currentPage.set(1);
   }
 }
