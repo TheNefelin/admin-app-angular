@@ -3,6 +3,8 @@
 ### Dependencies
 ```sh
 npm install -g pnpm
+pnpm add -g pnpm
+pnpm self-update
 ```
 - [DaisuUI](https://daisyui.com/docs/install/)
 
@@ -130,14 +132,13 @@ app.use(express.json());        // ← necesario para POST/PUT con body
 ### Commands
 ```sh
 # Component
-ng generate component features/game-guides/adventure/components/adventure-form-component --style=none
-ng generate component features/game-guides/adventure/components/adventure-list-component --style=none
-ng generate component features/game-guides/guide/components/guide-form-component --style=none
-ng generate component shared/components/modal-confirm-component --style=none
+ng generate component features/game-guides/adventure-image/components/adventure-image-form-component --style=none
+ng generate component features/game-guides/adventure-image/components/adventure-image-list-component --style=none
+ng generate component shared/components/image-viewer-component --style=none
 # Model
-ng generate interface features/game-guides/adventure/models/adventure-model
+ng generate interface features/game-guides/adventure-image/models/adventure-image-model
 # Service
-ng generate service features/game-guides/adventure/services/adventure-service
+ng generate service features/game-guides/adventure-image/services/adventure-image-service
 # Interceptor
 ng generate interceptor core/interceptors/error
 # Module

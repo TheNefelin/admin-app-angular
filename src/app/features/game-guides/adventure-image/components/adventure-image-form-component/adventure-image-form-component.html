@@ -1,0 +1,60 @@
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <div class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Sección - Imagen para la Aventura
+      </h3>
+  
+      <div class="bg-base-300 py-2 px-4 my-2 text-xs rounded-md">
+        <p>Id Aventura: [{{ selectedAdventureImage()?.adventure_id ?? 0 }}]</p>
+        <p>Id Imagen: [{{ selectedAdventureImage()?.id ?? 0 }}]</p>
+      </div>
+
+      @if (errorMessage()) {
+        <app-message-error-component 
+          [message]="errorMessage()" />
+      }
+
+      <app-image-picker-component 
+        [labelText]="'Cargar Imagen'"
+        [aspectRatio]="'aspect-video'" 
+        (onSelectedFile)="onSelectedFile($event)" />
+
+      <fieldset class="fieldset">
+        <label class="label">Alt</label>
+        <input
+          #alt
+          type="text" class="input w-full" placeholder="Slug"
+          [disabled]="isLoading()"
+          [value]="formData().alt_text"
+          (input)="updateAlt(alt.value)"
+          maxlength="100"/>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Sort Order</label>
+        <input
+          #sort
+          type="number" class="input w-full" placeholder="Sort Order"
+          [disabled]="isLoading()"
+          [value]="formData().sort_order"
+          (input)="updateSort(sort.value)"
+          maxlength="100"/>
+      </fieldset>        
+
+      <div class="modal-action flex gap-2">
+        <app-button-component 
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component 
+          [icon]="'cancel'" 
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>
+    }
+  </div>
+</dialog>

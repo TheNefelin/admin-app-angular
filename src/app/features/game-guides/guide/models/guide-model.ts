@@ -1,4 +1,4 @@
-import { AdventureModel } from "@features/game-guides/adventure/models/adventure-model";
+import { AdventureDetailModel } from "@features/game-guides/adventure/models/adventure-model";
 
 export interface SaveGuideModel {
   game_id: number;
@@ -14,6 +14,6 @@ export interface GuideModel extends SaveGuideModel {
   updated_at: string;
 }
 
-export interface GuideDetailModel extends SaveGuideModel {
-  adventures: AdventureModel[];
+export interface GuideDetailModel extends GuideModel {
+  adventures: AdventureDetailModel[];
 }

@@ -1,3 +1,5 @@
+import { AdventureImageModel } from "@features/game-guides/adventure-image/models/adventure-image-model";
+
 export interface SaveAdventureModel {
   guide_id: number;
   description: string;
@@ -10,4 +12,8 @@ export interface AdventureModel extends SaveAdventureModel {
   id: number;
   created_at: string;
   updated_at: string;
+}
+
+export interface AdventureDetailModel extends AdventureModel {
+  images: AdventureImageModel[];
 }

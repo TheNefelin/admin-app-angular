@@ -1,0 +1,11 @@
+
+<section class="grid grid-cols-1 md:grid-cols-2 gap-2">
+  @for (item of adventureImageList(); track item.id) {
+    <app-image-viewer-component
+      [aspectRatio]="'aspect-video'"
+      [id]="item.id"
+      [imageUrl]="item.image_url"
+      [altText]="item.alt_text"
+      (onDelete)="onDeleteAdventureImage.emit($event)" />
+  }
+</section>

@@ -36,7 +36,7 @@ export class GuideService {
       path = `${path}&game_id=${params.filter}`
 
     return this.apiService.getAll<PaginationResponseModel<GuideDetailModel>>(
-      this.namespace, `${this.endpoint}/${path}/detail`
+      this.namespace, `${this.endpoint}/detail/${path}`
     );
   }
 

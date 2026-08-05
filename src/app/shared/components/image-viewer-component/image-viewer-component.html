@@ -1,0 +1,25 @@
+<div
+  class="relative shadow-lg grid"
+  [class.aspect-square]="aspectRatio() === 'aspect-square'"
+  [class.aspect-video]="aspectRatio() === 'aspect-video'" >
+  
+  <img
+    [ngSrc]="imageUrl() ?? '/images/placeholder.webp'"
+    [alt]="altText() ?? 'Imagen'"
+    width="100"
+    height="100"
+    class="w-full h-auto object-cover"
+    priority
+  />
+
+  <div class="absolute top-2 right-2">
+    <app-button-component
+      [icon]="'delete'"
+      [textBtn]="'Eliminar'"
+      (onClick)="onDelete.emit({ id: id(), alt: altText() })" />
+  </div>
+
+  <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-4">
+    <p>({{ id() }}) {{ altText() }}</p> 
+  </footer>
+</div>
