@@ -40,6 +40,11 @@
             (onDeleteAdventure)="onDeleteAdventure.emit($event)"
             (onOpenAdventureImageModal)="onOpenAdventureImageModal.emit($event)"
             (onDeleteAdventureImage)="onDeleteAdventureImage.emit($event)" />
+
+          <app-button-component 
+            [icon]="'create'"
+            [textBtn]="'Aventura - Crear Sección'"
+            (onClick)="onCreateAdventureModal.emit(item.id)" />            
         </div>
       </details>
     }

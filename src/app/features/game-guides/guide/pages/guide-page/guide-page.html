@@ -1,11 +1,7 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">GUIDES</span>
 
-  <app-pagination-filter-component
-    (onRefreshClick)="onRefreshClick()"
-    (onFilterChange)="onFilterChange($event)"/>
-
-  <div class="flex flex-wrap gap-4 bg-base-200 p-4 rounded-2xl border border-base-300 ">
+  <div class="flex justify-between gap-4 bg-base-200 p-4 rounded-2xl border border-base-300 ">
     <app-select-search-component 
       [placeholder]="'Filtrar por Juego'" 
       [items]="computedGameList()"
@@ -14,18 +10,10 @@
       (selectionChange)="onGameSelected($event)"
       (cleared)="onGameClear()"/>
 
-    <div class="ml-auto flex gap-2">
-      @if (selectedGame()) {
-        <app-button-component 
-          [icon]="'create'" 
-          [textBtn]="'Guía - Crear Sección'"
-          (onClick)="onCreateGuideModal()" />
-      }
-      <app-button-component 
-        [icon]="'clear'" 
-        [textBtn]="'Limpiar'"
-        (onClick)="onClear()" />  
-    </div>
+    <app-button-component 
+      [icon]="'clear'" 
+      [textBtn]="'Limpiar'"
+      (onClick)="onClear()" />  
   </div>
 
   <header class="flex gap-4 bg-base-200 p-4 rounded-2xl border border-base-300">
@@ -43,6 +31,18 @@
     </div>
   </header>
 
+  <app-pagination-filter-component
+    (onRefreshClick)="onRefreshClick()"
+    (onFilterChange)="onFilterChange($event)"/>    
+
+  @if (selectedGame()) {
+    <app-button-component 
+      class="ml-auto"
+      [icon]="'create'" 
+      [textBtn]="'Guía - Crear Sección'"
+      (onClick)="onCreateGuideModal()" />
+  }
+
   <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
@@ -59,6 +59,14 @@
     (onDeleteAdventure)="onDeleteAdventure($event)"
     (onOpenAdventureImageModal)="onOpenAdventureImageModal($event)"
     (onDeleteAdventureImage)="onDeleteAdventureImage($event)" />
+
+  @if (selectedGame()) {
+    <app-button-component 
+      class="ml-auto"
+      [icon]="'create'" 
+      [textBtn]="'Guía - Crear Sección'"
+      (onClick)="onCreateGuideModal()" />
+  }
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
