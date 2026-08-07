@@ -1,14 +1,12 @@
 import { Component, input, output } from '@angular/core';
-import { NgOptimizedImage } from "@angular/common";
 import { ScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { ImageViewerComponent } from "@shared/components/image-viewer-component/image-viewer-component";
 
 @Component({
   selector: 'app-image-list-component',
   imports: [
-    NgOptimizedImage,
-    ButtonComponent
-],
+    ImageViewerComponent
+  ],
   templateUrl: './image-list-component.html',
 })
 export class ImageListComponent {

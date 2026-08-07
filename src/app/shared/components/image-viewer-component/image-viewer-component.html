@@ -19,7 +19,11 @@
       (onClick)="onDelete.emit({ id: id(), alt: altText() })" />
   </div>
 
-  <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-4">
-    <p>({{ id() }}) {{ altText() }}</p> 
+  <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-1">
+    <p>({{ id() }})</p> 
+    @if (sort()) {
+      <p>[{{ sort() }}]</p>
+    } 
+    <p>{{ altText() }}</p> 
   </footer>
 </div>

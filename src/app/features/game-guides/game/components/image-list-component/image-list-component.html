@@ -1,26 +1,11 @@
 <div class="grid md:grid-cols-2 gap-4 pt-4">
   @for (item of imageList(); track item.id) {
-    <div class="relative rounded-xl shadow-xl border border-white/5">
-      <img
-        [ngSrc]="item.image_url ?? '/images/placeholder.webp'"
-        [alt]="item.alt_text"
-        width="100"
-        height="100"
-        class="w-full h-auto object-cover"
-        priority
-      />
-
-      <div class="absolute top-2 right-2">
-        <app-button-component
-          [icon]="'delete'"
-          [textBtn]="'Eliminar'"
-          (onClick)="onDeleteImageClick(item.id)" />
-      </div>
-
-      <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-4">
-        <p>({{ item.id }})</p>
-        <p>{{ item.alt_text }}</p>
-      </footer>
-    </div>
+    <app-image-viewer-component
+      [aspectRatio]="'aspect-video'"
+      [id]="item.id"
+      [sort]="item.sort_order"
+      [imageUrl]="item.image_url"
+      [altText]="item.alt_text"
+      (onDelete)="onDeleteImageClick($event.id)" />
   }
 </div>
