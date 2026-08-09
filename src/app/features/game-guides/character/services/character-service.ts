@@ -23,12 +23,6 @@ export class CharacterService {
     );
   }
 
-  getByGame(game_id: number): Observable<CharacterModel[]> {
-    return this.apiService.getById<CharacterModel[]>(
-      this.namespace, `${this.endpoint}/by-game`, game_id
-    );
-  }
-
   getById(id: number): Observable<CharacterModel | null> {
     return this.apiService.getById<CharacterModel | null>(
       this.namespace, this.endpoint, id

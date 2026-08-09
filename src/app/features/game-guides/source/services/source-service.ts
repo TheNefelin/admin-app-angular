@@ -23,12 +23,6 @@ export class SourceService {
     );
   }
 
-  getByGame(game_id: number): Observable<SourceModel[]> {
-    return this.apiService.getById<SourceModel[]>(
-      this.namespace, `${this.endpoint}/by-game`, game_id
-    );
-  }
-
   getById(id: number): Observable<SourceModel | null> {
     return this.apiService.getById<SourceModel | null>(
       this.namespace, this.endpoint, id
