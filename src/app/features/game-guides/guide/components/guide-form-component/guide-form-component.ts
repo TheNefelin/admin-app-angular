@@ -56,14 +56,14 @@ export class GuideFormComponent {
 
   protected submit(): void {
     const title = this.formData().title.trim();
-    if (!title || title.length > 200) {
-      this.errorMessage.set('El titulo debe tener entre 1 y 200 caracteres');
+    if (!title || title.length > 256) {
+      this.errorMessage.set('El titulo debe tener entre 1 y 256 caracteres');
       return;
     }
     
     const summary = this.formData().summary?.trim() ?? null;
-    if (summary && summary.length > 256) {
-      this.errorMessage.set('La descripción no puede superar 256 caracteres');
+    if (summary && summary.length > 1024) {
+      this.errorMessage.set('La descripción no puede superar 1024 caracteres');
       return;
     }
 

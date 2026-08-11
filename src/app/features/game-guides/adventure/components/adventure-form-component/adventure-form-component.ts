@@ -55,8 +55,8 @@ export class AdventureFormComponent {
 
   protected submit(): void {
     const description = this.formData().description.trim();
-    if (description && description.length > 512) {
-      this.errorMessage.set('La descripción no puede superar 512 caracteres');
+    if (description && description.length > 1024) {
+      this.errorMessage.set('La descripción no puede superar 1024 caracteres');
       return;
     }
 
