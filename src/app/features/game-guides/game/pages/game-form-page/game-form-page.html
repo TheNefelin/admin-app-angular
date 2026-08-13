@@ -41,7 +41,6 @@
         [isLoading]="source.isSaving()"  
         [sourcePayload]="source.savePayload()"
         [clearTrigger]="source.resetTrigger()"
-        (errorMessage)="errorService.show($event)"  
         (onClear)="onClearSource()"      
         (onSubmit)="onSubmitSource($event)"/>
 
@@ -109,7 +108,6 @@
         [saveCharacter]="character.savePayload()"
         [clearTrigger]="character.resetTrigger()"
         (onClear)="onClearCharacter()"
-        (errorMessage)="errorService.show($event)"
         (onDeleteImage)="onDeleteCharacterImage($event)"
         (onSubmit)="onSubmitCharacter($event)" />
 

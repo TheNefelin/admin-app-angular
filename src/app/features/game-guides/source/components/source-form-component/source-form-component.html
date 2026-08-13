@@ -1,8 +1,14 @@
 <form (submit)="submit()" class="grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+  @if (errorMessage()) {
+    <div class="col-span-2 md:col-span-4">
+      <app-message-error-component [message]="errorMessage()"/>
+    </div>
+  }
+
   <fieldset class="fieldset">
     <input
       #name
-      type="text" class="input w-full" placeholder="Nombre Fuente" maxlength="100"
+      type="text" class="input w-full" placeholder="Nombre Fuente" maxlength="200"
       [disabled]="isLoading()"
       [value]="formData().name"
       (input)="updateName(name.value)"
@@ -12,7 +18,7 @@
   <fieldset class="fieldset">
     <input
       #url
-      type="text" class="input w-full" placeholder="Url Fuente" maxlength="256"
+      type="text" class="input w-full" placeholder="Url Fuente" maxlength="1000"
       [disabled]="isLoading()"
       [value]="formData().url"
       (input)="updateUrl(url.value)"

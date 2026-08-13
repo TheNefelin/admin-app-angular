@@ -1,12 +1,12 @@
 import { Component, input, output } from '@angular/core';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { SourceModel } from '../../models/source-model';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { SourceModel } from '@features/game-guides/source/models/source-model';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 
 @Component({
   selector: 'app-sources-list-component',
   imports: [
-    ButtonComponent, 
+    ButtonComponent,
     LoadingComponent
   ],
   templateUrl: './sources-list-component.html',
@@ -14,6 +14,6 @@ import { LoadingComponent } from "@shared/components/loading-component/loading-c
 export class SourcesListComponent {
   readonly isLoading = input<boolean>(false);
   readonly sourceList = input<SourceModel[]>([]);
-  readonly onEdit = output<SourceModel>();
-  readonly onDelete = output<SourceModel>();
+  protected readonly onEdit = output<SourceModel>();
+  protected readonly onDelete = output<SourceModel>();
 }

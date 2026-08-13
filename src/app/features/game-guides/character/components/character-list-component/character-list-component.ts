@@ -1,8 +1,8 @@
 import { Component, input, output } from '@angular/core';
 import { CharacterModel } from '@features/game-guides/character/models/character-model';
-import { DatePipe, NgOptimizedImage } from "@angular/common";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
+import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 
 @Component({
   selector: 'app-character-list-component',

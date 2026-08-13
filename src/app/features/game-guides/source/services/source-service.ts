@@ -8,24 +8,18 @@ import { SaveSourceModel, SourceModel } from '@features/game-guides/source/model
 
 @Service()
 export class SourceService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'sources';
 
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<SourceModel>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
+    let path = `?page=${params.page}&limit=${params.limit}`;
 
     if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`
+      path = `${path}&search=${params.search}`;
 
     return this.apiService.getAll<PaginationResponseModel<SourceModel>>(
       this.namespace, `${this.endpoint}/${path}`
-    );
-  }
-
-  getById(id: number): Observable<SourceModel | null> {
-    return this.apiService.getById<SourceModel | null>(
-      this.namespace, this.endpoint, id
     );
   }
 
