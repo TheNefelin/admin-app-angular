@@ -2,26 +2,26 @@ import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { GameService } from '@features/game-guides/game/services/game-service';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { catchError, finalize, map, of, type Observable } from 'rxjs';
-import { GuideFormComponent } from "@features/game-guides/guide/components/guide-form-component/guide-form-component";
+import { GuideFormComponent } from '@features/game-guides/guide/components/guide-form-component/guide-form-component';
 import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { GuideService } from '@features/game-guides/guide/services/guide-service';
 import { ErrorService } from '@core/services/error-service';
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { GuideListComponent } from "@features/game-guides/guide/components/guide-list-component/guide-list-component";
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
+import { GuideListComponent } from '@features/game-guides/guide/components/guide-list-component/guide-list-component';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 import { AdventureService } from '@features/game-guides/adventure/services/adventure-service';
 import { AdventureModel, SaveAdventureModel } from '@features/game-guides/adventure/models/adventure-model';
-import { AdventureFormComponent } from "@features/game-guides/adventure/components/adventure-form-component/adventure-form-component";
-import { AdventureImageFormComponent } from "@features/game-guides/adventure-image/components/adventure-image-form-component/adventure-image-form-component";
+import { AdventureFormComponent } from '@features/game-guides/adventure/components/adventure-form-component/adventure-form-component';
+import { AdventureImageFormComponent } from '@features/game-guides/adventure-image/components/adventure-image-form-component/adventure-image-form-component';
 import { SaveAdventureImageModel } from '@features/game-guides/adventure-image/models/adventure-image-model';
 import { AdventureImageService } from '@features/game-guides/adventure-image/services/adventure-image-service';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
 
 @Component({
   selector: 'app-guide-page',
@@ -56,7 +56,7 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   private readonly gameService = inject(GameService);
   protected readonly computedGameList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllGamesRX.value() ?? []
+    const items = this.getAllGamesRX.value() ?? [];
     return items.map(e => ({ id: e.id, name: e.name, img_url: e.cover_url}));
   });
   protected readonly selectedGame = signal<SelectItemModel | null>(null);
@@ -106,7 +106,7 @@ export class GuidePage {
         page: 1,
         limit: 100,
         search: "",
-      }
+      };
 
       return this.gameService.getAllPagination(params).pipe(
         map(response => {
