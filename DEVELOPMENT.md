@@ -75,7 +75,7 @@ admin-app-angular/
 │           │   ├── models/     → AdventureImageModel, SaveAdventureImageModel (file)
 │           │   ├── services/   → AdventureImageService (uploadImage multipart, deleteImage)
 │           │   └── components/
-│           │       ├── adventure-image-form-component/ → ImagePickerComponent + alt/sort, linkedSignal + clearTrigger
+│           │       ├── adventure-image-form-component/ → modal solo creación (ImagePicker + alt/sort, valida archivo obligatorio, alt max 200, linkedSignal + clearTrigger)
 │           │       └── adventure-image-list-component/ → grid con image-viewer + delete
 │           ├── guide/
 │           │   ├── models/     → GuideModel + GuideDetailModel (agrega adventures[]) extends SaveGuideModel (game_id, title, summary, sort_order, is_enabled + id/fechas)
@@ -156,6 +156,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 41. ✅ **ConfirmService con modal de confirmación (Angular)**: `ConfirmService` (core) promise-based + `modal-confirm-component` (shared, renderizado en layouts); migrados los deletes de genre, platform, game, guide y game-form-page (source, character); eliminado el patrón viejo `showDeleteModal`/`ModalActionComponent` en game-guides
 42. ✅ **CRUD Adventures + AdventureImages en admin (Angular)**: features `adventure` (form modal con description/sort/is_important/is_optional + list con badges) y `adventure-image` (upload multipart con ImagePicker, grid con image-viewer, delete); anidadas bajo cada guía en guide-list (accordion)
 43. ✅ **UX accordion persistente + auto-logout en 401 (Angular)**: guide-list nunca se desmonta en refetch (`isLoading() && !hasValue()`); `AuthService.sessionSignal(ns)` reactivo + `authInterceptor` fuerza `logout(ns)` si el refresh falla
+44. ✅ **Consistencia feature guide (Angular)**: longitudes validadas contra `postgre_schema.sql` (title 256, alt_text 200); `adventure-image-form` valida archivo obligatorio y es modal solo creación (sin `isEditMode`/`selectedAdventureImage`); header sin `undefined - undefined`; fallback de errores en GETs + etiqueta de log corregida; confirm de aventura con `Id`/`Sort`; eliminado input muerto `isLoading` en adventure-list; `updateSortOrder` resetea `errorMessage`
 45. ⏳ **Pendiente (al final del proyecto)**: portfolio — migrar al `SuccessService`/`ConfirmService` y reemplazar `image-field-component` por `image-picker-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
 

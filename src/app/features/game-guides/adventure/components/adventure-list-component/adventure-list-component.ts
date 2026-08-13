@@ -12,7 +12,6 @@ import { AdventureImageListComponent } from "@features/game-guides/adventure-ima
   templateUrl: './adventure-list-component.html',
 })
 export class AdventureListComponent {
-  readonly isLoading = input<boolean>(false);
   readonly adventureDetailList = input<AdventureDetailModel[]>([]);
   protected readonly onEditAdventureModal = output<AdventureModel>();
   protected readonly onDeleteAdventure = output<AdventureModel>();

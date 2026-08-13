@@ -27,13 +27,25 @@
     </div>
 
     <div class="my-auto font-bold text-2xl">
-      <h1>{{ selectedGame()?.id }} - {{ selectedGame()?.name }}</h1>
+      <h1>
+        @if (selectedGame(); as game) {
+          {{ game.id }} - {{ game.name }}
+        } @else {
+          Selecciona un juego
+        }
+      </h1>
     </div>
   </header>
 
   <app-pagination-filter-component
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>    
+
+  <app-pagination-nav-component
+    [currentPage]="currentPage()"
+    [totalPages]="totalPages()"
+    (prevPage)="prevPage()"
+    (nextPage)="nextPage()"/>
 
   @if (selectedGame()) {
     <app-button-component 
@@ -42,12 +54,6 @@
       [textBtn]="'Guía - Crear Sección'"
       (onClick)="onCreateGuideModal()" />
   }
-
-  <app-pagination-nav-component
-    [currentPage]="currentPage()"
-    [totalPages]="totalPages()"
-    (prevPage)="prevPage()"
-    (nextPage)="nextPage()"/>
 
   <app-guide-list-component
     [isLoading]="getAllDetailByGamePagination.isLoading() && !getAllDetailByGamePagination.hasValue()"

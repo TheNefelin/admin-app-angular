@@ -107,8 +107,8 @@ export class GuidePage {
           return response.items;
         }),
         catchError(err => {
-          console.error('[GameService::GamePage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message);
+          console.error('[GameService::GuidePage] getAllPagination:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los juegos');
           return of([]);
         })
       );
@@ -127,7 +127,7 @@ export class GuidePage {
         }),
         catchError(err => {
           console.error('[GuideService::GuidePage] getAllDetailByGamePagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las guías');
           return of([]);
         })
       );
@@ -252,7 +252,7 @@ export class GuidePage {
 
     const confirmed = await this.confirmService.confirm({
       title: 'Eliminar Aventura',
-      message: `¿Estás seguro de que deseas eliminar la Aventura "${data.id}"?`,
+      message: `¿Estás seguro de que deseas eliminar la Aventura "Id ${data.id} - Sort ${data.sort_order}"?`,
     });
     if (!confirmed) return;
 

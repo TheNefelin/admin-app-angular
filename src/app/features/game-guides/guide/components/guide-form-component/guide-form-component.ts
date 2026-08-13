@@ -48,6 +48,7 @@ export class GuideFormComponent {
   protected updateSortOrder(value: string): void {
     const num = parseInt(value, 10) || 0;
     this.formData.update(e => ({ ...e, sort_order: num }));
+    this.errorMessage.set(null);
   }
 
   protected updateIsEnabled(checked: boolean): void {
@@ -57,7 +58,7 @@ export class GuideFormComponent {
   protected submit(): void {
     const title = this.formData().title.trim();
     if (!title || title.length > 256) {
-      this.errorMessage.set('El titulo debe tener entre 1 y 256 caracteres');
+      this.errorMessage.set('El título debe tener entre 1 y 256 caracteres');
       return;
     }
     

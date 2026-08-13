@@ -43,6 +43,7 @@ export class AdventureFormComponent {
   protected updateSortOrder(value: string): void {
     const num = parseInt(value, 10) || 0;
     this.formData.update(e => ({ ...e, sort_order: num }));
+    this.errorMessage.set(null);
   }
 
   protected updateIsImportant(checked: boolean): void {

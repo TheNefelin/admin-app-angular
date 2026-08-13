@@ -34,7 +34,6 @@
             (onClick)="onCreateAdventureModal.emit(item.id)" />
 
           <app-adventure-list-component
-            [isLoading]="isLoading()"
             [adventureDetailList]="item.adventures"
             (onEditAdventureModal)="onEditAdventureModal.emit($event)"
             (onDeleteAdventure)="onDeleteAdventure.emit($event)"

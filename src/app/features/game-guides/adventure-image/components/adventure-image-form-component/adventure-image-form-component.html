@@ -4,13 +4,8 @@
       <app-loading-component class="flex justify-center"/>
     } @else {
       <h3 class="text-lg font-bold text-neutral-content text-center">
-        {{ isEditMode() ? 'Modificar' : 'Crear' }} Sección - Imagen para la Aventura
+        Crear Sección - Imagen para la Aventura
       </h3>
-  
-      <div class="bg-base-300 py-2 px-4 my-2 text-xs rounded-md">
-        <p>Id Aventura: [{{ selectedAdventureImage()?.adventure_id ?? 0 }}]</p>
-        <p>Id Imagen: [{{ selectedAdventureImage()?.id ?? 0 }}]</p>
-      </div>
 
       @if (errorMessage()) {
         <app-message-error-component 
@@ -30,7 +25,7 @@
           [disabled]="isLoading()"
           [value]="formData().alt_text"
           (input)="updateAlt(alt.value)"
-          maxlength="100"/>
+          maxlength="200"/>
       </fieldset>
 
       <fieldset class="fieldset">
@@ -47,7 +42,7 @@
       <div class="modal-action flex gap-2">
         <app-button-component 
           [icon]="'create'"
-          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
+          [textBtn]="'Crear'"
           (onClick)="submit()" />
 
         <app-button-component 
