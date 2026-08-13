@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { AdventureImageModel } from '@features/game-guides/adventure-image/models/adventure-image-model';
-import { ImageViewerComponent } from "@shared/components/image-viewer-component/image-viewer-component";
+import { ImageViewerComponent } from '@shared/components/image-viewer-component/image-viewer-component';
 
 @Component({
   selector: 'app-adventure-image-list-component',

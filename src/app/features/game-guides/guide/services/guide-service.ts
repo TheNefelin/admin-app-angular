@@ -8,7 +8,7 @@ import { PaginationResponseModel } from '@shared/models/pagination-response-mode
 
 @Service()
 export class GuideService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'guides';
 

@@ -80,7 +80,7 @@ admin-app-angular/
 │           ├── guide/
 │           │   ├── models/     → GuideModel + GuideDetailModel (agrega adventures[]) extends SaveGuideModel (game_id, title, summary, sort_order, is_enabled + id/fechas)
 │           │   ├── services/   → GuideService (getAllDetailByGamePagination → GET /guides/detail, CRUD)
-│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage`)
+│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage` + helper local `handleMutation`)
 │           │   └── components/
 │           │       ├── guide-form-component/ → dialog modal, validación con MessageErrorComponent, linkedSignal + clearTrigger
 │           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs onEdit/onDelete
@@ -134,6 +134,8 @@ admin-app-angular/
 - CRUD imágenes: padre inyecta servicio, componente hijo emite modelo via `output`
 - `handleCrudAction<T>` abstrae el patrón CRUD de entidades (sources, characters); `handleImageAction<T>` el de operaciones de imagen (screenshots, maps, delete de imagen) — ver sección Game Form Page
 - Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page** y **guide-page**
+- **`handleMutation<T>(action, state, options)`** (guide-page): helper LOCAL simple para mutaciones. `options`: `successMsg`, `errorMsg`, `onSuccess`, `onFinalize`. Centraliza `isSaving` (set true → `finalize` reset) y `subscribe` (éxito → toast + `onSuccess`; error → `console.error` + `errorService` con fallback). **Es el patrón de referencia para mutaciones**: más simple que `handleCrudAction`/`handleImageAction` (game-form-page) — **no consolidar** ni migrar game-form-page; usar `handleMutation` en features futuras
+- **Estilo de código**: comillas simples en imports y strings, semicolons siempre — uniforme en todo el proyecto
 - **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio`, `labelText`, `displayImg`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
 - **Botón delete**: usa `bg-red-500 hover:bg-red-600 text-white` en lugar de `btn-error` de DaisyUI
 - **Componentes compartidos**: `select-list-component`, `image-picker-component`, `image-field-component` en shared usan `app-button-component` para botones de acción (evita inline SVGs duplicados)

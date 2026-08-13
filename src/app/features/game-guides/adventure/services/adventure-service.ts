@@ -6,7 +6,7 @@ import { AdventureModel, SaveAdventureModel } from '@features/game-guides/advent
 
 @Service()
 export class AdventureService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'adventures';
 

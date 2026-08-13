@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { AdventureDetailModel, AdventureModel } from '@features/game-guides/adventure/models/adventure-model';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { AdventureImageListComponent } from "@features/game-guides/adventure-image/components/adventure-image-list-component/adventure-image-list-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { AdventureImageListComponent } from '@features/game-guides/adventure-image/components/adventure-image-list-component/adventure-image-list-component';
 
 @Component({
   selector: 'app-adventure-list-component',

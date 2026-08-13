@@ -6,7 +6,7 @@ import { AdventureImageModel, SaveAdventureImageModel } from '@features/game-gui
 
 @Service()
 export class AdventureImageService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'adventure-images';
 

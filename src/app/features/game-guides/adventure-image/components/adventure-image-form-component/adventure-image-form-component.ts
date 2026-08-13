@@ -1,9 +1,9 @@
 import { Component, input, linkedSignal, output, signal } from '@angular/core';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { SaveAdventureImageModel } from '../../models/adventure-image-model';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { ImagePickerComponent } from "@shared/components/image-picker-component/image-picker-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { SaveAdventureImageModel } from '@features/game-guides/adventure-image/models/adventure-image-model';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
 
 @Component({
   selector: 'app-adventure-image-form-component',
@@ -23,7 +23,7 @@ export class AdventureImageFormComponent {
 
   protected readonly errorMessage = signal<string | null>(null);
 
-  protected formData = linkedSignal<SaveAdventureImageModel>(() => {
+  protected readonly formData = linkedSignal<SaveAdventureImageModel>(() => {
     void this.clearTrigger();
 
     return {
@@ -31,7 +31,7 @@ export class AdventureImageFormComponent {
       alt_text: "",
       sort_order: 0,
       file: null,
-    }
+    };
   });
 
   protected updateAlt(value: string): void {
@@ -71,7 +71,7 @@ export class AdventureImageFormComponent {
       ...this.formData(),
       alt_text: alt,
       sort_order: sort,
-    }
+    };
 
     this.onSubmit.emit(data);
     this.errorMessage.set(null);

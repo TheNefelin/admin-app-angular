@@ -1,9 +1,9 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { GuideModel, SaveGuideModel } from '../../models/guide-model';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { DatePipe } from '@angular/common';
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
 
 @Component({
   selector: 'app-guide-form-component',
@@ -32,7 +32,7 @@ export class GuideFormComponent {
       summary: payload?.summary ?? null,
       sort_order: payload?.sort_order ?? undefined,
       is_enabled: payload?.is_enabled ?? true,
-    }
+    };
   });
 
   protected updateTitle(value: string): void {
@@ -72,7 +72,7 @@ export class GuideFormComponent {
       ...this.formData(),
       title: title,
       summary: summary,
-    }
+    };
 
     this.onSubmit.emit(data);
     this.errorMessage.set(null);

@@ -1,8 +1,8 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { AdventureModel, SaveAdventureModel } from '@features/game-guides/adventure/models/adventure-model';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
 import { DatePipe } from '@angular/common';
 
 @Component({
@@ -32,7 +32,7 @@ export class AdventureFormComponent {
       sort_order: payload?.sort_order ?? undefined,
       is_important: payload?.is_important ?? false,
       is_optional: payload?.is_optional ?? false,
-    }
+    };
   });
 
   protected updateDescription(value: string): void {
@@ -64,7 +64,7 @@ export class AdventureFormComponent {
     const data: SaveAdventureModel = {
       ...this.formData(),
       description: description,
-    }
+    };
 
     this.onSubmit.emit(data);
     this.errorMessage.set(null);
