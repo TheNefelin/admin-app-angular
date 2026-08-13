@@ -1,12 +1,12 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { ButtonComponent } from "@shared/components/button-component/button-component";
 import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, type Observable } from 'rxjs';
 import { GuideFormComponent } from "@features/game-guides/guide/components/guide-form-component/guide-form-component";
 import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { GuideService } from '@features/game-guides/guide/services/guide-service';
@@ -152,6 +152,35 @@ export class GuidePage {
     this.currentPage.set(1);
   }
 
+  // MUTATION HELPER --------------------------------------------------------
+  private handleMutation<T>(
+    action: Observable<T>,
+    state: { isSaving: WritableSignal<boolean> },
+    options: {
+      successMsg: string;
+      errorMsg: string;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
+    },
+  ): void {
+    state.isSaving.set(true);
+    action.pipe(
+      finalize(() => {
+        state.isSaving.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(options.successMsg);
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[GuidePage] ${options.errorMsg}:`, err);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
+      }
+    });
+  }
+
   // GUIDE EVENTS -----------------------------------------------------------
   // ------------------------------------------------------------------------
   protected onCloseGuideModal(): void {
@@ -179,26 +208,15 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.guide.isSaving.set(true);
-
-    const error = `Error al Eliminar la Guía`;
-    const success = 'Guia Eliminada Correctamente';
-
-    this.guideService.delete(id)
-    .pipe(
-      finalize(() => {
-        this.guide.isSaving.set(false);
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - onDeleteGuide: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      this.guideService.delete(id),
+      this.guide,
+      {
+        successMsg: 'Guia Eliminada Correctamente',
+        errorMsg: 'Error al Eliminar la Guía',
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
-    });
+    );
   }
 
   protected onSubmitGuide(item: SaveGuideModel): void {
@@ -206,33 +224,23 @@ export class GuidePage {
     const gameId = this.selectedGame()?.id
     if (!gameId || !item) return;
 
-    this.guide.isSaving.set(true);
-
     const payload: SaveGuideModel = { ...item, game_id: gameId };
-    const error = `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`;
-    const success = `Guia ${ id ? 'Modificada' : 'Creada' } Correctamente`;
 
-    const request$ = id
-    ? this.guideService.update(id, payload)
-    : this.guideService.create(payload);
-
-    request$
-    .pipe(
-      finalize(() => {
-        this.guide.isSaving.set(false);
-        this.showGuideFormModal.set(false);
-        this.guide.savePayload.set(null);
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - OnSubmitGuide: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      id
+        ? this.guideService.update(id, payload)
+        : this.guideService.create(payload),
+      this.guide,
+      {
+        successMsg: `Guia ${ id ? 'Modificada' : 'Creada' } Correctamente`,
+        errorMsg: `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`,
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
+        onFinalize: () => {
+          this.showGuideFormModal.set(false);
+          this.guide.savePayload.set(null);
+        },
       }
-    });
+    );
   }
 
   // ADVENTURE EVENTS -------------------------------------------------------
@@ -262,25 +270,15 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.adventure.isSaving.set(true);
-    const error = `Error al Eliminar la Aventura`;
-    const success = `Aventura Eliminada Correctamente`;
-
-    this.adventureService.delete(data.id)
-    .pipe(
-      finalize(() => {
-        this.adventure.isSaving.set(false);
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - onDeleteAdventure: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      this.adventureService.delete(data.id),
+      this.adventure,
+      {
+        successMsg: 'Aventura Eliminada Correctamente',
+        errorMsg: 'Error al Eliminar la Aventura',
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
-    });
+    );
   }
 
   protected onSubmitAdventure(item: SaveAdventureModel): void {
@@ -288,31 +286,20 @@ export class GuidePage {
     const guideId = this.adventure.savePayload()?.guide_id
     if (!guideId || !item) return;
 
-    this.adventure.isSaving.set(true);
-
     const payload: SaveAdventureModel = { ...item, guide_id: guideId };
-    const error = `Error al ${ adventureId ? 'Modificar' : 'Crear' } la Aventura`;
-    const success = `Aventura ${ adventureId ? 'Modificada' : 'Creada' } Correctamente`;
 
-    const request$ = adventureId
-    ? this.adventureService.update(adventureId, payload)
-    : this.adventureService.create(payload);
-
-    request$
-    .pipe(
-      finalize(() => {
-        this.onCloseAdventureModal();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - onSubmitAdventure: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      adventureId
+        ? this.adventureService.update(adventureId, payload)
+        : this.adventureService.create(payload),
+      this.adventure,
+      {
+        successMsg: `Aventura ${ adventureId ? 'Modificada' : 'Creada' } Correctamente`,
+        errorMsg: `Error al ${ adventureId ? 'Modificar' : 'Crear' } la Aventura`,
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
+        onFinalize: () => this.onCloseAdventureModal(),
       }
-    });
+    );
   }
 
   // ADVENTURE IMAGE EVENTS -------------------------------------------------
@@ -337,52 +324,33 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.adventureImage.isSaving.set(true);
-    const error = `Error al Eliminar la Imagen de la Aventura`;
-    const success = `Imagen de la aventura Eliminada Correctamente`;
-
-    this.adventureImageService.deleteImage(data.id)
-    .pipe(
-      finalize(() => {
-        this.adventureImage.isSaving.set(false);
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - onDeleteAdventureImage: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      this.adventureImageService.deleteImage(data.id),
+      this.adventureImage,
+      {
+        successMsg: 'Imagen de la aventura Eliminada Correctamente',
+        errorMsg: 'Error al Eliminar la Imagen de la Aventura',
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
-    });
+    );
   }
   
   protected onSubmitAdventureImage(item: SaveAdventureImageModel): void {
     const adventure_id = this.adventureImage.savePayload();
     if (!adventure_id || !item) return;
 
-    this.adventureImage.isSaving.set(true);
-
     const payload: SaveAdventureImageModel = { ...item, adventure_id: adventure_id };
-    const error = `Error al cargar la imagen de la Aventura`;
-    const success = `Imagen de la Aventura Subida Correctamente`;
 
-    this.adventureImageService.uploadImage(payload)
-    .pipe(
-      finalize(() => {
-        this.onCloseAdventureImageModal();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(success);
-        this.getAllDetailByGamePagination.reload();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] - onSubmitAdventureImage: ${ error }`, err);
-        this.errorService.show(err?.error?.detail || err?.message || error);
+    this.handleMutation(
+      this.adventureImageService.uploadImage(payload),
+      this.adventureImage,
+      {
+        successMsg: 'Imagen de la Aventura Subida Correctamente',
+        errorMsg: 'Error al cargar la imagen de la Aventura',
+        onSuccess: () => this.getAllDetailByGamePagination.reload(),
+        onFinalize: () => this.onCloseAdventureImageModal(),
       }
-    });
+    );
   }
 
   // EVENTS -----------------------------------------------------------------
