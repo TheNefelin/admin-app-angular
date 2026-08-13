@@ -53,6 +53,18 @@ admin-app-angular/
 │           │       ├── game-form-component/    → Form state, cover image (ImagePickerComponent), linkedSignal
 │           │       ├── image-form-component/   → input file + alt + submit (linkedSignal, clearTrigger, validation, ngSkipHydration)
 │           │       └── image-list-component/   → grid imágenes + delete (output id, placeholder fallback)
+│           ├── genre/
+│           │   ├── models/     → GenreModel, SaveGenreModel
+│           │   ├── services/   → GenreService (CRUD + getAllPagination)
+│           │   ├── pages/      → genre-page/ (lista paginada, rxResource, estado agrupado `genre` = { savePayload, isSaving } + helper local `handleMutation`)
+│           │   └── components/
+│           │       └── genre-form-component/ → dialog modal, validación local con MessageErrorComponent (name 1-50), app-button-component
+│           ├── platform/
+│           │   ├── models/     → PlatformModel, SavePlatformModel
+│           │   ├── services/   → PlatformService (CRUD + getAllPagination)
+│           │   ├── pages/      → platform-page/ (lista paginada, rxResource, estado agrupado `platform` = { savePayload, isSaving } + helper local `handleMutation`)
+│           │   └── components/
+│           │       └── platform-form-component/ → dialog modal, validación local con MessageErrorComponent (name 1-50), app-button-component
 │           ├── screenshot/
 │           │   ├── models/     → ScreenshotModel, SaveScreenshotModel
 │           │   └── services/   → ScreenshotService (create con SaveScreenshotModel + file, delete via deleteResource)
@@ -63,7 +75,7 @@ admin-app-angular/
 │           │   ├── models/     → CharacterModel, SaveCharacterModel
 │           │   ├── services/   → CharacterService (CRUD + uploadImage + deleteImage)
 │           │   └── components/
-│           │       ├── character-form-component/ → Form con ImagePicker, name/slug/description/sort/isPlayable; linkedSignal + clearTrigger; grid 1→3 col (sm+); validación, loading states y limpieza tras save exitoso
+│           │       ├── character-form-component/ → Form con ImagePicker, name/slug/description/sort/isPlayable; linkedSignal + clearTrigger; grid 1→3 col (sm+); validación local con MessageErrorComponent, loading states y limpieza tras save exitoso
 │           │       └── character-list-component/ → Tabla con avatar, descripción, fechas, PJ jugable/sort; outputs onEdit/onDelete
 │           ├── adventure/
 │           │   ├── models/     → AdventureModel + AdventureDetailModel (agrega images[]) extends SaveAdventureModel
@@ -86,9 +98,9 @@ admin-app-angular/
 │           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs onEdit/onDelete
 │           └── source/
 │               ├── models/     → SourceModel, SaveSourceModel
-│               ├── services/   → SourceService (CRUD + getByGame)
+│               ├── services/   → SourceService (CRUD + getAllPagination)
 │               └── components/
-│                   ├── source-form-component/ → Form con name, url, sort; linkedSignal + clearTrigger
+│                   ├── source-form-component/ → Form inline (name, url, sort); linkedSignal + clearTrigger; validación local con MessageErrorComponent (name max 200, url max 1000)
 │                   └── source-list-component/ → Tabla con lista de fuentes
 ```
 
@@ -133,7 +145,7 @@ admin-app-angular/
 - Delete image genérico: `deleteResource<T>()` a `DELETE /{resource}/{id}/image` (games cover, characters, maps, screenshots)
 - CRUD imágenes: padre inyecta servicio, componente hijo emite modelo via `output`
 - `handleCrudAction<T>` abstrae el patrón CRUD de entidades (sources, characters); `handleImageAction<T>` el de operaciones de imagen (screenshots, maps, delete de imagen) — ver sección Game Form Page
-- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page** y **guide-page**
+- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page**, **guide-page**, **genre-page** y **platform-page**
 - **`handleMutation<T>(action, state, options)`** (guide-page): helper LOCAL simple para mutaciones. `options`: `successMsg`, `errorMsg`, `onSuccess`, `onFinalize`. Centraliza `isSaving` (set true → `finalize` reset) y `subscribe` (éxito → toast + `onSuccess`; error → `console.error` + `errorService` con fallback). **Es el patrón de referencia para mutaciones**: más simple que `handleCrudAction`/`handleImageAction` (game-form-page) — **no consolidar** ni migrar game-form-page; usar `handleMutation` en features futuras
 - **Estilo de código**: comillas simples en imports y strings, semicolons siempre — uniforme en todo el proyecto
 - **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio`, `labelText`, `displayImg`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
@@ -158,7 +170,14 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 41. ✅ **ConfirmService con modal de confirmación (Angular)**: `ConfirmService` (core) promise-based + `modal-confirm-component` (shared, renderizado en layouts); migrados los deletes de genre, platform, game, guide y game-form-page (source, character); eliminado el patrón viejo `showDeleteModal`/`ModalActionComponent` en game-guides
 42. ✅ **CRUD Adventures + AdventureImages en admin (Angular)**: features `adventure` (form modal con description/sort/is_important/is_optional + list con badges) y `adventure-image` (upload multipart con ImagePicker, grid con image-viewer, delete); anidadas bajo cada guía en guide-list (accordion)
 43. ✅ **UX accordion persistente + auto-logout en 401 (Angular)**: guide-list nunca se desmonta en refetch (`isLoading() && !hasValue()`); `AuthService.sessionSignal(ns)` reactivo + `authInterceptor` fuerza `logout(ns)` si el refresh falla
-44. ✅ **Consistencia feature guide (Angular)**: longitudes validadas contra `postgre_schema.sql` (title 256, alt_text 200); `adventure-image-form` valida archivo obligatorio y es modal solo creación (sin `isEditMode`/`selectedAdventureImage`); header sin `undefined - undefined`; fallback de errores en GETs + etiqueta de log corregida; confirm de aventura con `Id`/`Sort`; eliminado input muerto `isLoading` en adventure-list; `updateSortOrder` resetea `errorMessage`; estado agrupado por feature en guide-page (`guide`/`adventure`/`adventureImage` = `{ savePayload, isSaving }`)
+44. ✅ **Consistencia game-guides (Angular)** — features a nivel senior:
+  - **guide**: longitudes contra `postgre_schema.sql` (title 256, alt 200); `adventure-image-form` modal solo creación + valida archivo obligatorio; header sin `undefined - undefined`; fallback de errores en GETs; confirm de aventura con `Id`/`Sort`; input muerto `isLoading` eliminado de adventure-list; estado agrupado `guide`/`adventure`/`adventureImage` + helper local `handleMutation`
+  - **genre/platform**: estado agrupado `{ savePayload, isSaving }` + `handleMutation`; validación local con MessageErrorComponent (name 1-50); fallbacks `errorService` en GET y mutaciones (antes silenciosos); loading `!hasValue()`; botones `app-button-component`; `readonly`, return types, semicolons
+  - **source/character**: inconsistencia A resuelta (`errorMessage` output → signal local + MessageErrorComponent; quitados bindings `(errorMessage)` de `game-form-page.html`); source maxlength corregido name 100→200 y url 256→1000 (schema `VARCHAR(200)`/`VARCHAR(1000)`)
+  - **screenshot/map**: services pulidos (semicolons, alias `@features`)
+  - **dead code eliminado**: `getById` sin uso (genre, platform, source, character), imports `Router`/`ROUTES_CONSTANTS` en genre-page
+  - **estilo uniforme** en todas las features: comillas simples, semicolons, alias `@features/...`, `readonly`
+  - ⏳ **Pendiente `game`**: componente de imagen obsoleto (`image-form`/`image-list`), forms no-dialog, `errorMessage` output del game-form, comillas dobles/`getById`, pulido general
 45. ⏳ **Pendiente (al final del proyecto)**: portfolio — migrar al `SuccessService`/`ConfirmService` y reemplazar `image-field-component` por `image-picker-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
 
