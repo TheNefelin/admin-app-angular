@@ -67,7 +67,10 @@ export class GuidePage {
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-  protected readonly isSavingGuide = signal<boolean>(false);
+  protected readonly guide = {
+    savePayload: signal<GuideModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
 
   private readonly guideService = inject(GuideService);
   private readonly getAllGuidePayload = computed<PaginationRequestModel<number>>(() => ({
@@ -76,21 +79,24 @@ export class GuidePage {
     search: this.search(),
     filter: this.selectedGame()?.id
   }));
-  protected readonly saveGuidePayload = signal<GuideModel | null>(null);
 
   // GUIDE ADVENTURE --------------------------------------------------------
   // ------------------------------------------------------------------------
-  protected readonly isSavingAdventure = signal<boolean>(false);
+  protected readonly adventure = {
+    savePayload: signal<{ guide_id: number; data: AdventureModel | null } | null>(null),
+    isSaving: signal<boolean>(false),
+  };
 
   private readonly adventureService = inject(AdventureService);
-  protected readonly saveAdventurePayload = signal<{ guide_id: number; data: AdventureModel | null } | null>(null);
 
   // GUIDE ADVENTURE IMAGE --------------------------------------------------
   // ------------------------------------------------------------------------
-  protected readonly isSavingAdventureImage = signal<boolean>(false);
-  
+  protected readonly adventureImage = {
+    savePayload: signal<number | null>(null),
+    isSaving: signal<boolean>(false),
+  };
+
   private readonly adventureImageService = inject(AdventureImageService);
-  protected readonly saveAdventureImagePayload = signal<number | null>(null);
 
   // GET RX -----------------------------------------------------------------
   // ------------------------------------------------------------------------
@@ -150,16 +156,16 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   protected onCloseGuideModal(): void {
     this.showGuideFormModal.set(false)
-    this.saveGuidePayload.set(null);
+    this.guide.savePayload.set(null);
   }
 
   protected onCreateGuideModal(): void{
-    this.saveGuidePayload.set(null);
+    this.guide.savePayload.set(null);
     this.showGuideFormModal.set(true);
   }
 
   protected onEditGuideModal(item: GuideModel): void {
-    this.saveGuidePayload.set(item);
+    this.guide.savePayload.set(item);
     this.showGuideFormModal.set(true);
   }
 
@@ -173,7 +179,7 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.isSavingGuide.set(true);
+    this.guide.isSaving.set(true);
 
     const error = `Error al Eliminar la Guía`;
     const success = 'Guia Eliminada Correctamente';
@@ -181,7 +187,7 @@ export class GuidePage {
     this.guideService.delete(id)
     .pipe(
       finalize(() => {
-        this.isSavingGuide.set(false);
+        this.guide.isSaving.set(false);
       })
     ).subscribe({
       next: () => {
@@ -196,11 +202,11 @@ export class GuidePage {
   }
 
   protected onSubmitGuide(item: SaveGuideModel): void {
-    const id = this.saveGuidePayload()?.id
+    const id = this.guide.savePayload()?.id
     const gameId = this.selectedGame()?.id
     if (!gameId || !item) return;
 
-    this.isSavingGuide.set(true);
+    this.guide.isSaving.set(true);
 
     const payload: SaveGuideModel = { ...item, game_id: gameId };
     const error = `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`;
@@ -213,9 +219,9 @@ export class GuidePage {
     request$
     .pipe(
       finalize(() => {
-        this.isSavingGuide.set(false);
+        this.guide.isSaving.set(false);
         this.showGuideFormModal.set(false);
-        this.saveGuidePayload.set(null);
+        this.guide.savePayload.set(null);
       })
     ).subscribe({
       next: () => {
@@ -233,17 +239,17 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   protected onCloseAdventureModal(): void {
     this.showAdventureFormModal.set(false)
-    this.isSavingAdventure.set(false);
-    this.saveAdventurePayload.set(null);
+    this.adventure.isSaving.set(false);
+    this.adventure.savePayload.set(null);
   }
 
   protected onCreateAdventureModal(guide_id: number): void{
-    this.saveAdventurePayload.set({ guide_id: guide_id, data: null });
+    this.adventure.savePayload.set({ guide_id: guide_id, data: null });
     this.showAdventureFormModal.set(true);
   }
 
   protected onEditAdventureModal(item: AdventureModel): void {
-    this.saveAdventurePayload.set({ guide_id: item.guide_id, data: item });
+    this.adventure.savePayload.set({ guide_id: item.guide_id, data: item });
     this.showAdventureFormModal.set(true);
   }
 
@@ -256,14 +262,14 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.isSavingAdventure.set(true);
+    this.adventure.isSaving.set(true);
     const error = `Error al Eliminar la Aventura`;
     const success = `Aventura Eliminada Correctamente`;
 
     this.adventureService.delete(data.id)
     .pipe(
       finalize(() => {
-        this.isSavingAdventure.set(false);
+        this.adventure.isSaving.set(false);
       })
     ).subscribe({
       next: () => {
@@ -278,11 +284,11 @@ export class GuidePage {
   }
 
   protected onSubmitAdventure(item: SaveAdventureModel): void {
-    const adventureId = this.saveAdventurePayload()?.data?.id
-    const guideId = this.saveAdventurePayload()?.guide_id
+    const adventureId = this.adventure.savePayload()?.data?.id
+    const guideId = this.adventure.savePayload()?.guide_id
     if (!guideId || !item) return;
 
-    this.isSavingAdventure.set(true);
+    this.adventure.isSaving.set(true);
 
     const payload: SaveAdventureModel = { ...item, guide_id: guideId };
     const error = `Error al ${ adventureId ? 'Modificar' : 'Crear' } la Aventura`;
@@ -313,12 +319,12 @@ export class GuidePage {
   // ------------------------------------------------------------------------
   protected onCloseAdventureImageModal(): void {
     this.showAdventureImageFormModal.set(false)
-    this.isSavingAdventureImage.set(false);
-    this.saveAdventureImagePayload.set(null)
+    this.adventureImage.isSaving.set(false);
+    this.adventureImage.savePayload.set(null)
   }
 
   protected onOpenAdventureImageModal(adventure_id: number): void {
-    this.saveAdventureImagePayload.set(adventure_id);
+    this.adventureImage.savePayload.set(adventure_id);
     this.showAdventureImageFormModal.set(true)
   }
 
@@ -331,14 +337,14 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.isSavingAdventureImage.set(true);
+    this.adventureImage.isSaving.set(true);
     const error = `Error al Eliminar la Imagen de la Aventura`;
     const success = `Imagen de la aventura Eliminada Correctamente`;
 
     this.adventureImageService.deleteImage(data.id)
     .pipe(
       finalize(() => {
-        this.isSavingAdventureImage.set(false);
+        this.adventureImage.isSaving.set(false);
       })
     ).subscribe({
       next: () => {
@@ -353,10 +359,10 @@ export class GuidePage {
   }
   
   protected onSubmitAdventureImage(item: SaveAdventureImageModel): void {
-    const adventure_id = this.saveAdventureImagePayload();
+    const adventure_id = this.adventureImage.savePayload();
     if (!adventure_id || !item) return;
 
-    this.isSavingAdventureImage.set(true);
+    this.adventureImage.isSaving.set(true);
 
     const payload: SaveAdventureImageModel = { ...item, adventure_id: adventure_id };
     const error = `Error al cargar la imagen de la Aventura`;

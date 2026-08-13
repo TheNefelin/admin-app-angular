@@ -80,7 +80,7 @@ admin-app-angular/
 │           ├── guide/
 │           │   ├── models/     → GuideModel + GuideDetailModel (agrega adventures[]) extends SaveGuideModel (game_id, title, summary, sort_order, is_enabled + id/fechas)
 │           │   ├── services/   → GuideService (getAllDetailByGamePagination → GET /guides/detail, CRUD)
-│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error)
+│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage`)
 │           │   └── components/
 │           │       ├── guide-form-component/ → dialog modal, validación con MessageErrorComponent, linkedSignal + clearTrigger
 │           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs onEdit/onDelete
@@ -97,7 +97,7 @@ admin-app-angular/
 ### Game Form Page — Arquitectura
 
 - **GameFormPage** (padre): data fetching via `rxResource` con un solo `isLoading` compartido para todos los GETs; orquesta los CRUD hijos. Es la única fuente de verdad del estado de cada feature.
-- **Estado agrupado por feature** (evita flags dispersos): cada CRUD hijo agrupa `savePayload` + `isSaving` en un objeto → `source = { savePayload, isSaving }`, `character = { savePayload, resetTrigger, isSaving }`. Las imágenes (screenshots, maps, delete de imagen) comparten un único `isSavingImage`. El game usa `isSaving`.
+- **Estado agrupado por feature** (evita flags dispersos): cada CRUD hijo agrupa `savePayload` + `isSaving` en un objeto → `source = { savePayload, isSaving }`, `character = { savePayload, resetTrigger, isSaving }`. Las imágenes (screenshots, maps, delete de imagen) comparten un único `isSavingImage`. El game usa `isSaving`. En **guide-page**: `guide = { savePayload, isSaving }`, `adventure = { savePayload, isSaving }`, `adventureImage = { savePayload, isSaving }`.
 - **`handleCrudAction<T>(action, options)`**: helper genérico para CRUD de entidades (sources, characters). `options`: `loading` (signal del feature), `successMsg`, `errorMsg`, `reloadOnSuccess`, `onSuccess` (ej: resetear el form tras guardar), `onFinalize`.
 - **`handleImageAction<T>(action, successMsg, errorMsg)`**: helper para operaciones de imagen (screenshots, maps, delete imagen de character/cover). Usa `isSavingImage` fijo y hace reload en `finalize` — no recibe `loading`.
 - **Form hijos**: `linkedSignal` reactivo al payload + `clearTrigger` input para resetear. Tras un submit exitoso la página llama `onClearCharacter()` (payload null + resetTrigger++) → el form vuelve a valores por defecto y limpia `selectedFile` (equivale a pulsar Limpiar).
@@ -133,7 +133,7 @@ admin-app-angular/
 - Delete image genérico: `deleteResource<T>()` a `DELETE /{resource}/{id}/image` (games cover, characters, maps, screenshots)
 - CRUD imágenes: padre inyecta servicio, componente hijo emite modelo via `output`
 - `handleCrudAction<T>` abstrae el patrón CRUD de entidades (sources, characters); `handleImageAction<T>` el de operaciones de imagen (screenshots, maps, delete de imagen) — ver sección Game Form Page
-- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.)
+- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page** y **guide-page**
 - **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio`, `labelText`, `displayImg`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
 - **Botón delete**: usa `bg-red-500 hover:bg-red-600 text-white` en lugar de `btn-error` de DaisyUI
 - **Componentes compartidos**: `select-list-component`, `image-picker-component`, `image-field-component` en shared usan `app-button-component` para botones de acción (evita inline SVGs duplicados)
@@ -156,7 +156,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 41. ✅ **ConfirmService con modal de confirmación (Angular)**: `ConfirmService` (core) promise-based + `modal-confirm-component` (shared, renderizado en layouts); migrados los deletes de genre, platform, game, guide y game-form-page (source, character); eliminado el patrón viejo `showDeleteModal`/`ModalActionComponent` en game-guides
 42. ✅ **CRUD Adventures + AdventureImages en admin (Angular)**: features `adventure` (form modal con description/sort/is_important/is_optional + list con badges) y `adventure-image` (upload multipart con ImagePicker, grid con image-viewer, delete); anidadas bajo cada guía en guide-list (accordion)
 43. ✅ **UX accordion persistente + auto-logout en 401 (Angular)**: guide-list nunca se desmonta en refetch (`isLoading() && !hasValue()`); `AuthService.sessionSignal(ns)` reactivo + `authInterceptor` fuerza `logout(ns)` si el refresh falla
-44. ✅ **Consistencia feature guide (Angular)**: longitudes validadas contra `postgre_schema.sql` (title 256, alt_text 200); `adventure-image-form` valida archivo obligatorio y es modal solo creación (sin `isEditMode`/`selectedAdventureImage`); header sin `undefined - undefined`; fallback de errores en GETs + etiqueta de log corregida; confirm de aventura con `Id`/`Sort`; eliminado input muerto `isLoading` en adventure-list; `updateSortOrder` resetea `errorMessage`
+44. ✅ **Consistencia feature guide (Angular)**: longitudes validadas contra `postgre_schema.sql` (title 256, alt_text 200); `adventure-image-form` valida archivo obligatorio y es modal solo creación (sin `isEditMode`/`selectedAdventureImage`); header sin `undefined - undefined`; fallback de errores en GETs + etiqueta de log corregida; confirm de aventura con `Id`/`Sort`; eliminado input muerto `isLoading` en adventure-list; `updateSortOrder` resetea `errorMessage`; estado agrupado por feature en guide-page (`guide`/`adventure`/`adventureImage` = `{ savePayload, isSaving }`)
 45. ⏳ **Pendiente (al final del proyecto)**: portfolio — migrar al `SuccessService`/`ConfirmService` y reemplazar `image-field-component` por `image-picker-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
 

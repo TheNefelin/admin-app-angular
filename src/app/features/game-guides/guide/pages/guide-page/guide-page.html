@@ -83,23 +83,23 @@
 
 @if (showGuideFormModal()) {
   <app-guide-form-component 
-    [isLoading]="isSavingGuide()"
-    [selectedGuide]="saveGuidePayload()"
+    [isLoading]="guide.isSaving()"
+    [selectedGuide]="guide.savePayload()"
     (onClose)="onCloseGuideModal()"
     (onSubmit)="onSubmitGuide($event)" />
 }
 
 @if (showAdventureFormModal()) {
   <app-adventure-form-component
-    [isLoading]="isSavingAdventure()"
-    [selectedAdventure]="saveAdventurePayload()?.data ?? null"
+    [isLoading]="adventure.isSaving()"
+    [selectedAdventure]="adventure.savePayload()?.data ?? null"
     (onSubmit)="onSubmitAdventure($event)"
     (onClose)="onCloseAdventureModal()" />
 }
 
 @if (showAdventureImageFormModal()) {
   <app-adventure-image-form-component
-    [isLoading]="isSavingAdventureImage()"
+    [isLoading]="adventureImage.isSaving()"
     (onSubmit)="onSubmitAdventureImage($event)"
     (onClose)="onCloseAdventureImageModal()" />
 }
