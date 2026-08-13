@@ -1,11 +1,12 @@
 import { Component, input, linkedSignal, output, signal } from '@angular/core';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
-import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
-import { ImagePickerComponent } from "@shared/components/image-picker-component/image-picker-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { SelectListComponent } from '@shared/components/select-list-component/select-list-component';
+import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
+import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
 import { GameModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
 
 @Component({
   selector: 'app-game-form-component',
@@ -14,8 +15,9 @@ import { SelectItemModel } from '@shared/models/select-item-model';
     ButtonComponent,
     SelectListComponent,
     SelectSearchComponent,
-    ImagePickerComponent
-],
+    ImagePickerComponent,
+    MessageErrorComponent,
+  ],
   templateUrl: './game-form-component.html',
 })
 export class GameFormComponent {
@@ -25,7 +27,7 @@ export class GameFormComponent {
   readonly computedGame = input<GameModel | null>(null);
   readonly computedPlatformList = input<SelectItemModel[]>([]);
   readonly computedGenreList = input<SelectItemModel[]>([]);
-  protected readonly errorMessage = output<string | null>();
+  protected readonly errorMessage = signal<string | null>(null);
   protected readonly onDeleteImage = output<void>();
   protected readonly onSubmit = output<{ data: SaveGameModel; file: File | null }>();
 
@@ -61,7 +63,7 @@ export class GameFormComponent {
   protected updateName(value: string): void {
     const slug = this.generateSlug(value);
     this.formData.update(d => ({ ...d, name: value, slug }));
-    this.errorMessage.emit(null);
+    this.errorMessage.set(null);
   }
 
   private generateSlug(value: string): string {
@@ -73,7 +75,7 @@ export class GameFormComponent {
 
   protected updateSlug(value: string): void {
     this.formData.update(d => ({ ...d, slug: value }));
-    this.errorMessage.emit(null);
+    this.errorMessage.set(null);
   }
 
   protected updateDescription(value: string): void {
@@ -148,22 +150,22 @@ export class GameFormComponent {
   protected submit(): void {
     const name = this.formData().name.trim();
     if (!name || name.length > 100) {
-      this.errorMessage.emit('El nombre debe tener entre 1 y 100 caracteres');
+      this.errorMessage.set('El nombre debe tener entre 1 y 100 caracteres');
       return;
     }
 
     const slug = this.formData().slug.trim();
     if (!slug || slug.length > 100) {
-      this.errorMessage.emit('El slug debe tener entre 1 y 100 caracteres');
+      this.errorMessage.set('El slug debe tener entre 1 y 100 caracteres');
       return;
     }
 
-    this.onSubmit.emit({ 
-      data: this.formData(), 
-      file: this.selectedFile 
+    this.onSubmit.emit({
+      data: this.formData(),
+      file: this.selectedFile,
     });
-    
+
     this.selectedFile = null;
-    this.errorMessage.emit(null);
+    this.errorMessage.set(null);
   }
 }

@@ -4,9 +4,9 @@ import { GameDetailModel, SaveGameModel } from '@features/game-guides/game/model
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { GenreService } from '@features/game-guides/genre/services/genre-service';
 import { PlatformService } from '@features/game-guides/platform/services/platform-service';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { catchError, finalize, map, Observable, of, switchMap } from 'rxjs';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SelectItemModel } from '@shared/models/select-item-model';
@@ -15,12 +15,12 @@ import { ScreenshotService } from '@features/game-guides/screenshot/services/scr
 import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
 import { SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { MapService } from '@features/game-guides/map/services/map-service';
-import { GameFormComponent } from "@features/game-guides/game/components/game-form-component/game-form-component";
-import { SourcesFormComponent } from "@features/game-guides/source/components/source-form-component/source-form-component";
+import { GameFormComponent } from '@features/game-guides/game/components/game-form-component/game-form-component';
+import { SourcesFormComponent } from '@features/game-guides/source/components/source-form-component/source-form-component';
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
-import { SourcesListComponent } from "@features/game-guides/source/components/source-list-component/sources-list-component";
-import { ImageFormComponent } from "../../components/image-form-component/image-form-component";
+import { SourcesListComponent } from '@features/game-guides/source/components/source-list-component/sources-list-component';
+import { ImageFormComponent } from '@features/game-guides/game/components/image-form-component/image-form-component';
 import { CharacterFormComponent } from '@features/game-guides/character/components/character-form-component/character-form-component';
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
 import { CharacterService } from '@features/game-guides/character/services/character-service';
@@ -41,13 +41,13 @@ import { ConfirmService } from '@core/services/confirm-service';
     SourcesListComponent,
     CharacterFormComponent,
     CharacterListComponent,
-],
+  ],
   templateUrl: './game-form-page.html',
 })
 export class GameFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  protected readonly errorService = inject(ErrorService);
+  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
 
@@ -81,19 +81,19 @@ export class GameFormPage {
   // PLATFORM ---------------------------------------------------------
   private readonly platformService = inject(PlatformService);
   protected readonly platformListComputed = computed<SelectItemModel[]>(() => {
-    const items = this.platformListRX.value() ?? []
+    const items = this.platformListRX.value() ?? [];
     return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
   });
 
   // GENRE ------------------------------------------------------------
   private readonly genreService = inject(GenreService);
   protected readonly genreListComputed = computed<SelectItemModel[]>(() => {
-    const items = this.genreListRX.value() ?? []
+    const items = this.genreListRX.value() ?? [];
     return items.map(e => ({ id: e.id, name: e.name, img_url: null }));
   });
 
   // SOURCES -----------------------------------------------------------
-  private readonly sourceService = inject(SourceService)
+  private readonly sourceService = inject(SourceService);
   protected readonly source = {
     savePayload: signal<SourceModel | null>(null),
     resetTrigger: signal<number>(0),
@@ -178,7 +178,7 @@ export class GameFormPage {
       }),
       finalize(() => {
         this.gameRX.reload();
-        this.isSavingGame.set(false)
+        this.isSavingGame.set(false);
       })
     ).subscribe({
       next: (result) => {
@@ -270,10 +270,13 @@ export class GameFormPage {
   }
 
   protected onUploadScreenshot(item: SaveScreenshotModel): void {
+    const game = this.gameComputed();
+    if (!game) return;
+
     const data: SaveScreenshotModel = {
       ...item,
-      game_id: this.gameComputed()!.id
-    }
+      game_id: game.id,
+    };
 
     this.handleImageAction(
       this.screenshotService.create(data),
@@ -291,10 +294,13 @@ export class GameFormPage {
   }
 
   protected onUploadMap(item: SaveMapModel): void {
+    const game = this.gameComputed();
+    if (!game) return;
+
     const data: SaveMapModel = {
       ...item,
-      game_id: this.gameComputed()!.id
-    }
+      game_id: game.id,
+    };
 
     this.handleImageAction(
       this.mapService.create(data),
@@ -340,16 +346,19 @@ export class GameFormPage {
   }
 
   protected onSubmitSource(item: SaveSourceModel): void {
+    const game = this.gameComputed();
+    if (!game) return;
+
     const sourceId = this.source.savePayload()?.id;
 
     const data: SaveSourceModel = {
       ...item,
-      game_id: this.gameComputed()!.id,
+      game_id: game.id,
     };
 
     const request$ = sourceId
-    ? this.sourceService.update(sourceId, data)
-    : this.sourceService.create(data);
+      ? this.sourceService.update(sourceId, data)
+      : this.sourceService.create(data);
 
     this.handleCrudAction(
       request$,
@@ -402,16 +411,19 @@ export class GameFormPage {
   }
 
   protected onSubmitCharacter(payload: { id: number, data: SaveCharacterModel, file: File | null }): void {
+    const game = this.gameComputed();
+    if (!game) return;
+
     const { id, data, file } = payload;
 
     const saveData: SaveCharacterModel = {
       ...data,
-      game_id: this.gameComputed()!.id,
+      game_id: game.id,
     };
 
     const request$ = id
-    ? this.characterService.update(id, saveData)
-    : this.characterService.create(saveData);
+      ? this.characterService.update(id, saveData)
+      : this.characterService.create(saveData);
 
     const action$ = request$.pipe(
       switchMap(result => file
