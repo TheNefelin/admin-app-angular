@@ -45,13 +45,13 @@ admin-app-angular/
 │       └── game-guides/
 │           ├── game/
 │           │   ├── models/     → GameModel (ligero) + GameDetailModel extends GameModel (enriquecido), SaveGameModel
-│           │   ├── services/   → GameService (CRUD + getDetailById + uploadImage + deleteImage cover)
+│           │   ├── services/   → GameService (getAllPagination + getDetailById + create/update/delete + uploadImage + deleteImage cover)
 │           │   ├── pages/
-│           │   │   ├── game-form-page/  → Formulario principal con pestañas
-│           │   │   └── game-list-page/
+│           │   │   ├── game-form-page/  → Formulario principal con pestañas (host de game/source/character/image forms + lists)
+│           │   │   └── game-page/       → lista paginada con fallbacks errorService
 │           │   └── components/
-│           │       ├── game-form-component/    → Form state, cover image (ImagePickerComponent), linkedSignal
-│           │       ├── image-form-component/   → input file + alt + submit (linkedSignal, clearTrigger, validation, ngSkipHydration)
+│           │       ├── game-form-component/    → Form state, cover image (ImagePickerComponent), linkedSignal, validación local con MessageErrorComponent (name/slug 1-100)
+│           │       ├── image-form-component/   → input file + alt + submit (linkedSignal, clearTrigger, ngSkipHydration), validación local con MessageErrorComponent (alt 1-200)
 │           │       └── image-list-component/   → grid imágenes + delete (output id, placeholder fallback)
 │           ├── genre/
 │           │   ├── models/     → GenreModel, SaveGenreModel
@@ -177,7 +177,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **screenshot/map**: services pulidos (semicolons, alias `@features`)
   - **dead code eliminado**: `getById` sin uso (genre, platform, source, character), imports `Router`/`ROUTES_CONSTANTS` en genre-page
   - **estilo uniforme** en todas las features: comillas simples, semicolons, alias `@features/...`, `readonly`
-  - ⏳ **Pendiente `game`**: componente de imagen obsoleto (`image-form`/`image-list`), forms no-dialog, `errorMessage` output del game-form, comillas dobles/`getById`, pulido general
+  - 🔄 **En progreso `game`**: hecho hasta acá — `game-service` (alias, semicolons, `getById` muerto eliminado), `game-model`/`game.routes` (alias `@features`), `image-form`/`image-list` (alt validado 1-200 contra schema `VARCHAR(200)`, `errorMessage` local + MessageErrorComponent, `onClear` muerto eliminado), `game-page` (`editItem` muerto eliminado, fallbacks errorService), `game-form` (validación local con MessageErrorComponent), `game-form-page` (sin `errorMessage` output ni `gameComputed()!`, semicolons, alias). Quedan correcciones pendientes del usuario antes de confirmarla senior.
 45. ⏳ **Pendiente (al final del proyecto)**: portfolio — migrar al `SuccessService`/`ConfirmService` y reemplazar `image-field-component` por `image-picker-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
 
