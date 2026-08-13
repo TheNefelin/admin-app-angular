@@ -5,7 +5,7 @@
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Genre'" (onClick)="onCreate()"/>
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Género'" (onClick)="onCreate()"/>
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -13,7 +13,7 @@
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 
-  @if (getAllRX.isLoading()) {
+  @if (getAllRX.isLoading() && !getAllRX.hasValue()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
@@ -63,8 +63,8 @@
 
 @if (showFormModal()) {
   <app-genre-form-component
-    [isLoading]="isSaving()"
-    [data]="editItem()"
+    [isLoading]="genre.isSaving()"
+    [data]="genre.savePayload()"
     (onSubmit)="onSubmitForm($event)"
     (onClose)="onCloseForm()"
   />

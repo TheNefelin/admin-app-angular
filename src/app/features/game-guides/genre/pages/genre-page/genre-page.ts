@@ -1,18 +1,17 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, type Observable } from 'rxjs';
 import { GenreModel, SaveGenreModel } from '@features/game-guides/genre/models/genre-model';
 import { GenreService } from '@features/game-guides/genre/services/genre-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
-import { Router } from '@angular/router';
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { GenreFormComponent } from '@features/game-guides/genre/components/genre-form-component/genre-form-component';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { ErrorService } from '@core/services/error-service';
 
 @Component({
   selector: 'app-genre-page',
@@ -26,16 +25,18 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './genre-page.html',
 })
 export class GenrePage {
-  private readonly router = inject(Router);
+  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
+  protected readonly genre = {
+    savePayload: signal<GenreModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-  protected readonly editItem = signal<GenreModel | null>(null);
 
   private readonly service = inject(GenreService);
   private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
@@ -57,12 +58,43 @@ export class GenrePage {
         }),
         catchError(err => {
           console.error('[GenreService::GenrePage] getAllPagination:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los géneros');
           return of([]);
         })
       );
     },
   });
 
+  // MUTATION HELPER --------------------------------------------------------
+  private handleMutation<T>(
+    action: Observable<T>,
+    state: { isSaving: WritableSignal<boolean> },
+    options: {
+      successMsg: string;
+      errorMsg: string;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
+    },
+  ): void {
+    state.isSaving.set(true);
+    action.pipe(
+      finalize(() => {
+        state.isSaving.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(options.successMsg);
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[GenreService::GenrePage] ${options.errorMsg}:`, err);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
+      }
+    });
+  }
+
+  // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
     this.getAllRX.reload();
   }
@@ -86,56 +118,53 @@ export class GenrePage {
   }
 
   protected onCreate(): void {
-    this.editItem.set(null);
+    this.genre.savePayload.set(null);
     this.showFormModal.set(true);
   }
 
   protected onEdit(item: GenreModel): void {
-    this.editItem.set(item);
+    this.genre.savePayload.set(item);
     this.showFormModal.set(true);
   }
 
   protected onCloseForm(): void {
     this.showFormModal.set(false);
+    this.genre.savePayload.set(null);
   }
 
   protected onSubmitForm(data: SaveGenreModel): void {
-    this.isSaving.set(true);
+    const id = this.genre.savePayload()?.id;
 
-    const id = this.editItem()?.id;
-    const request$ = id
-      ? this.service.update(id, data)
-      : this.service.create(data);
-
-    request$.pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.successService.show(id ? 'Modificado correctamente' : 'Creado correctamente');
-        this.showFormModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[GenreService::GenrePage] onSubmitForm:', err);
+    this.handleMutation(
+      id ? this.service.update(id, data) : this.service.create(data),
+      this.genre,
+      {
+        successMsg: id ? 'Género modificado correctamente' : 'Género creado correctamente',
+        errorMsg: id ? 'Error al modificar el Género' : 'Error al crear el Género',
+        onSuccess: () => this.getAllRX.reload(),
+        onFinalize: () => {
+          this.showFormModal.set(false);
+          this.genre.savePayload.set(null);
+        },
       }
-    });
+    );
   }
 
   protected async onDelete(item: GenreModel): Promise<void> {
     const confirmed = await this.confirmService.confirm({
-      title: 'Eliminar Genre',
+      title: 'Eliminar Género',
       message: `Estás seguro que deseas eliminar (${item.name})`,
     });
     if (!confirmed) return;
 
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.successService.show('Eliminado correctamente');
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[GenreService::GenrePage] onDelete:', err);
+    this.handleMutation(
+      this.service.delete(item.id),
+      this.genre,
+      {
+        successMsg: 'Género eliminado correctamente',
+        errorMsg: 'Error al eliminar el Género',
+        onSuccess: () => this.getAllRX.reload(),
       }
-    });
+    );
   }
 }
