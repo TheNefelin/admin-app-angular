@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { PlatformPage } from './pages/platform-page/platform-page';
+import { PlatformPage } from '@features/game-guides/platform/pages/platform-page/platform-page';
 
 export const PLATFORM_ROUTES: Routes = [
   {

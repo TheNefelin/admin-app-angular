@@ -1,31 +1,25 @@
 import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { Observable } from 'rxjs';
-import { SaveGameModel, GameModel, GameDetailModel } from '../models/game-model';
+import { GameDetailModel, GameModel, SaveGameModel } from '@features/game-guides/game/models/game-model';
 import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
 export class GameService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'games';
 
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<GameModel>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
+    let path = `?page=${params.page}&limit=${params.limit}`;
 
-    if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`
+    if (params.search && params.search.trim() !== '')
+      path = `${path}&search=${params.search}`;
 
     return this.apiService.getAll<PaginationResponseModel<GameModel>>(
       this.namespace, `${this.endpoint}/${path}`
-    );
-  }
-
-  getById(id: number): Observable<GameModel | null> {
-    return this.apiService.getById<GameModel | null>(
-      this.namespace, this.endpoint, id
     );
   }
 

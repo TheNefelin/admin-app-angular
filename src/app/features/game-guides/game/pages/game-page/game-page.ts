@@ -4,13 +4,14 @@ import { catchError, finalize, map, of } from 'rxjs';
 import { GameModel } from '@features/game-guides/game/models/game-model';
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -28,13 +29,13 @@ import { ConfirmService } from '@core/services/confirm-service';
 })
 export class GamePage {
   private readonly router = inject(Router);
+  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-  protected readonly editItem = signal<GameModel | null>(null);
 
   private readonly service = inject(GameService);
   private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
@@ -56,6 +57,7 @@ export class GamePage {
         }),
         catchError(err => {
           console.error('[GameService::GamePage] getAllPagination:', err);
+          this.errorService.show('Error al cargar los juegos');
           return of([]);
         })
       );
@@ -106,6 +108,7 @@ export class GamePage {
       },
       error: (err) => {
         console.error('[GameService::GamePage] onDelete:', err);
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar el juego');
       }
     });
   }

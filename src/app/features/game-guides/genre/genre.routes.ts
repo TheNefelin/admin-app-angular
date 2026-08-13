@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { GenrePage } from './pages/genre-page/genre-page';
+import { GenrePage } from '@features/game-guides/genre/pages/genre-page/genre-page';
 
 export const GENRE_ROUTES: Routes = [
   {

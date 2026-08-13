@@ -1,9 +1,9 @@
-import { CharacterModel } from "@features/game-guides/character/models/character-model";
-import { GenreModel } from "@features/game-guides/genre/models/genre-model";
-import { MapModel } from "@features/game-guides/map/models/map-model";
-import { PlatformModel } from "@features/game-guides/platform/models/platform-model";
-import { ScreenshotModel } from "@features/game-guides/screenshot/models/screenshot-model";
-import { SourceModel } from "@features/game-guides/source/models/source-model";
+import { CharacterModel } from '@features/game-guides/character/models/character-model';
+import { GenreModel } from '@features/game-guides/genre/models/genre-model';
+import { MapModel } from '@features/game-guides/map/models/map-model';
+import { PlatformModel } from '@features/game-guides/platform/models/platform-model';
+import { ScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
+import { SourceModel } from '@features/game-guides/source/models/source-model';
 
 export interface GameModel {
   id: number;
