@@ -1,5 +1,5 @@
 <dialog class="modal modal-bottom modal-open sm:modal-middle">
-  <div class="modal-box overflow-visible">
+  <form class="modal-box overflow-visible">
     @if (isLoading()) {
       <app-loading-component class="flex justify-center"/>
     } @else {
@@ -74,5 +74,5 @@
           (onClick)="onClose.emit()" />
       </div>
     }
-  </div>
+  </form>
 </dialog>

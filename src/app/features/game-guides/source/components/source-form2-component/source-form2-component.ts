@@ -1,25 +1,29 @@
-import { Component, input, linkedSignal, output, signal } from '@angular/core';
-import { ButtonComponent } from '@shared/components/button-component/button-component';
-import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
+import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
+import { DatePipe } from '@angular/common';
 import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
-  selector: 'app-source-form-component',
+  selector: 'app-source-form2-component',
   imports: [
-    ButtonComponent,
+    DatePipe,
     LoadingComponent,
-    MessageErrorComponent
+    MessageErrorComponent,
+    ButtonComponent,
   ],
-  templateUrl: './source-form-component.html',
+  templateUrl: './source-form2-component.html',
 })
-export class SourcesFormComponent {
+export class SourceForm2Component {
   readonly isLoading = input<boolean>(false);
   readonly sourcePayload = input<SourceModel | null>();
   readonly clearTrigger = input<number>(0);
-  protected readonly errorMessage = signal<string | null>(null);
   protected readonly onSubmit = output<SaveSourceModel>();
-  protected readonly onClear = output<void>();
+  protected readonly onClose = output<void>();
+
+  protected readonly errorMessage = signal<string | null>(null);
+  protected readonly isEditMode = computed<boolean>(() => !!this.sourcePayload()?.id);
 
   protected readonly formData = linkedSignal<SaveSourceModel>(() => {
     void this.clearTrigger();
@@ -47,11 +51,6 @@ export class SourcesFormComponent {
     const num = value ? parseInt(value, 10) : 0;
     this.formData.update(d => ({ ...d, sort_order: num }));
     this.errorMessage.set(null);
-  }
-
-  protected clear(): void {
-    this.errorMessage.set(null);
-    this.onClear.emit();
   }
 
   protected submit(): void {

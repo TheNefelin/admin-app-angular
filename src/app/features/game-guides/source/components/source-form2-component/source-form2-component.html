@@ -1,0 +1,68 @@
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <form class="modal-box overflow-visible grid gap-2">
+
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Fuente
+      </h3>
+    
+      <div class="bg-base-300 py-2 px-4 my-2 text-xs">
+        <p>Id Fuente: [{{ sourcePayload()?.id ?? '-' }}]</p>
+        <p>{{ sourcePayload()?.created_at | date:'yyyy-MM-dd' }} - Creado</p>
+        <p>{{ sourcePayload()?.updated_at | date:'yyyy-MM-dd' }} - Modificado</p>
+      </div>
+
+      @if (errorMessage()) {
+        <app-message-error-component [message]="errorMessage()"/>
+      }
+
+      <fieldset class="fieldset">
+        <label class="label">Nombre Fuente</label>
+        <input
+          #name
+          type="text" class="input w-full" placeholder="Nombre Fuente" maxlength="200"
+          [disabled]="isLoading()"
+          [value]="formData().name"
+          (input)="updateName(name.value)"
+        />
+      </fieldset>
+    
+      <fieldset class="fieldset">
+        <label class="label">Url Fuente</label>
+        <input
+          #url
+          type="text" class="input w-full" placeholder="Url Fuente" maxlength="1000"
+          [disabled]="isLoading()"
+          [value]="formData().url"
+          (input)="updateUrl(url.value)"
+        />
+      </fieldset>
+    
+      <fieldset class="fieldset">
+        <label class="label">Orden</label>
+        <input
+          #sort
+          type="number" class="input w-full" placeholder="Orden" maxlength="3"
+          [disabled]="isLoading()"
+          [value]="formData().sort_order"
+          (input)="updateSort(sort.value)"
+        />
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <app-button-component
+          [icon]="'save'"
+          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>
+    }
+    
+  </form>
+</dialog>

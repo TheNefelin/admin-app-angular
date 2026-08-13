@@ -16,11 +16,11 @@ import { SaveScreenshotModel } from '@features/game-guides/screenshot/models/scr
 import { SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { MapService } from '@features/game-guides/map/services/map-service';
 import { GameFormComponent } from '@features/game-guides/game/components/game-form-component/game-form-component';
-import { SourcesFormComponent } from '@features/game-guides/source/components/source-form-component/source-form-component';
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from '@features/game-guides/source/components/source-list-component/sources-list-component';
 import { ImageFormComponent } from '@features/game-guides/game/components/image-form-component/image-form-component';
+import { SourceForm2Component } from '@features/game-guides/source/components/source-form2-component/source-form2-component';
 import { CharacterFormComponent } from '@features/game-guides/character/components/character-form-component/character-form-component';
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
 import { CharacterService } from '@features/game-guides/character/services/character-service';
@@ -36,9 +36,9 @@ import { ConfirmService } from '@core/services/confirm-service';
     ButtonComponent,
     ImageFormComponent,
     ImageListComponent,
-    GameFormComponent,
-    SourcesFormComponent,
+GameFormComponent,
     SourcesListComponent,
+    SourceForm2Component,
     CharacterFormComponent,
     CharacterListComponent,
   ],
@@ -98,6 +98,7 @@ export class GameFormPage {
     savePayload: signal<SourceModel | null>(null),
     resetTrigger: signal<number>(0),
     isSaving: signal<boolean>(false),
+    showForm: signal<boolean>(false),
   };
 
   // CHARACTERS --------------------------------------------------------
@@ -321,12 +322,14 @@ export class GameFormPage {
   // ----------------------------------------------------------------
 
   protected onClearSource(): void {
+    this.source.showForm.set(false);
     this.source.savePayload.set(null);
     this.source.resetTrigger.update(v => v + 1);
   }
 
   protected onEditSource(item: SourceModel): void {
     this.source.savePayload.set(item);
+    this.source.showForm.set(true);
   }
 
   protected async onDeleteSource(item: SourceModel): Promise<void> {

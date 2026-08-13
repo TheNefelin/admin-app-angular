@@ -27,8 +27,7 @@
     [computedPlatformList]="platformListComputed()"
     [computedGenreList]="genreListComputed()"
     (onDeleteImage)="onDeleteImage()"
-    (onSubmit)="onSubmit($event)"
-  />
+    (onSubmit)="onSubmit($event)" />
 
   @if (isEditMode()) {
     <span class="font-bold text-2xl px-2">
@@ -36,12 +35,10 @@
     </span>
 
     <section class="bg-base-200 border-base-300 p-4 rounded-box border overflow-hidden">
-      <app-source-form-component
-        [isLoading]="source.isSaving()"  
-        [sourcePayload]="source.savePayload()"
-        [clearTrigger]="source.resetTrigger()"
-        (onClear)="onClearSource()"      
-        (onSubmit)="onSubmitSource($event)"/>
+      <app-button-component
+        [icon]="'create'"
+        [textBtn]="'Crear Fuente'"
+        (onClick)="source.showForm.set(true)" />
 
       <app-sources-list-component
         [isLoading]="source.isSaving()"
@@ -122,3 +119,12 @@
     </div>
   }
 </section>
+
+@if (source.showForm()) {
+  <app-source-form2-component
+    [isLoading]="source.isSaving()"
+    [sourcePayload]="source.savePayload()"
+    [clearTrigger]="source.resetTrigger()"
+    (onClose)="onClearSource()"
+    (onSubmit)="onSubmitSource($event)" />
+}
