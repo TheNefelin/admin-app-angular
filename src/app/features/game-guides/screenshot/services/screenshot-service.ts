@@ -1,12 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
-import { ScreenshotModel, SaveScreenshotModel } from '../models/screenshot-model';
+import { ScreenshotModel, SaveScreenshotModel } from '@features/game-guides/screenshot/models/screenshot-model';
 import { Observable } from 'rxjs';
 
 @Service()
 export class ScreenshotService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'screenshots';
 

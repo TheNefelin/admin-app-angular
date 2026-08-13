@@ -1,12 +1,12 @@
 import { inject, Service } from '@angular/core';
 import { ApiService } from '@core/services/api-service';
 import { API_NAMESPACE } from '@shared/constants/routes-constant';
-import { MapModel, SaveMapModel } from '../models/map-model';
+import { MapModel, SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { Observable } from 'rxjs';
 
 @Service()
 export class MapService {
-  private apiService = inject(ApiService)
+  private apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.GAME_GUIDES;
   private readonly endpoint = 'maps';
 
