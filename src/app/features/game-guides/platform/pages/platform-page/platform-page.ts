@@ -1,16 +1,17 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, finalize, map, of, type Observable } from 'rxjs';
 import { PlatformModel, SavePlatformModel } from '@features/game-guides/platform/models/platform-model';
 import { PlatformService } from '@features/game-guides/platform/services/platform-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { PlatformFormComponent } from '@features/game-guides/platform/components/platform-form-component/platform-form-component';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { ErrorService } from '@core/services/error-service';
 
 @Component({
   selector: 'app-platform-page',
@@ -24,15 +25,18 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './platform-page.html',
 })
 export class PlatformPage {
+  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
+  protected readonly platform = {
+    savePayload: signal<PlatformModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
   private readonly search = signal<string>('');
-  protected readonly editItem = signal<PlatformModel | null>(null);
 
   private readonly service = inject(PlatformService);
   private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
@@ -54,12 +58,43 @@ export class PlatformPage {
         }),
         catchError(err => {
           console.error('[PlatformService::PlatformPage] getAllPagination:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las plataformas');
           return of([]);
         })
       );
     },
   });
 
+  // MUTATION HELPER --------------------------------------------------------
+  private handleMutation<T>(
+    action: Observable<T>,
+    state: { isSaving: WritableSignal<boolean> },
+    options: {
+      successMsg: string;
+      errorMsg: string;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
+    },
+  ): void {
+    state.isSaving.set(true);
+    action.pipe(
+      finalize(() => {
+        state.isSaving.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(options.successMsg);
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[PlatformService::PlatformPage] ${options.errorMsg}:`, err);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
+      }
+    });
+  }
+
+  // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
     this.getAllRX.reload();
   }
@@ -83,56 +118,53 @@ export class PlatformPage {
   }
 
   protected onCreate(): void {
-    this.editItem.set(null);
+    this.platform.savePayload.set(null);
     this.showFormModal.set(true);
   }
 
   protected onEdit(item: PlatformModel): void {
-    this.editItem.set(item);
+    this.platform.savePayload.set(item);
     this.showFormModal.set(true);
   }
 
   protected onCloseForm(): void {
     this.showFormModal.set(false);
+    this.platform.savePayload.set(null);
   }
 
   protected onSubmitForm(data: SavePlatformModel): void {
-    this.isSaving.set(true);
+    const id = this.platform.savePayload()?.id;
 
-    const id = this.editItem()?.id;
-    const request$ = id
-      ? this.service.update(id, data)
-      : this.service.create(data);
-
-    request$.pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.successService.show(id ? 'Modificado correctamente' : 'Creado correctamente');
-        this.showFormModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[PlatformService::PlatformPage] onSubmitForm:', err);
+    this.handleMutation(
+      id ? this.service.update(id, data) : this.service.create(data),
+      this.platform,
+      {
+        successMsg: id ? 'Plataforma modificada correctamente' : 'Plataforma creada correctamente',
+        errorMsg: id ? 'Error al modificar la Plataforma' : 'Error al crear la Plataforma',
+        onSuccess: () => this.getAllRX.reload(),
+        onFinalize: () => {
+          this.showFormModal.set(false);
+          this.platform.savePayload.set(null);
+        },
       }
-    });
+    );
   }
 
   protected async onDelete(item: PlatformModel): Promise<void> {
     const confirmed = await this.confirmService.confirm({
-      title: 'Eliminar Platform',
+      title: 'Eliminar Plataforma',
       message: `Estás seguro que deseas eliminar (${item.name})`,
     });
     if (!confirmed) return;
 
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.successService.show('Eliminado correctamente');
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[PlatformService::PlatformPage] onDelete:', err);
+    this.handleMutation(
+      this.service.delete(item.id),
+      this.platform,
+      {
+        successMsg: 'Plataforma eliminada correctamente',
+        errorMsg: 'Error al eliminar la Plataforma',
+        onSuccess: () => this.getAllRX.reload(),
       }
-    });
+    );
   }
 }

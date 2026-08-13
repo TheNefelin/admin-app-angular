@@ -5,7 +5,7 @@
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Platform'" (onClick)="onCreate()"/>
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Plataforma'" (onClick)="onCreate()"/>
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -13,7 +13,7 @@
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 
-  @if (getAllRX.isLoading()) {
+  @if (getAllRX.isLoading() && !getAllRX.hasValue()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
@@ -63,8 +63,8 @@
 
 @if (showFormModal()) {
   <app-platform-form-component
-    [isLoading]="isSaving()"
-    [data]="editItem()"
+    [isLoading]="platform.isSaving()"
+    [data]="platform.savePayload()"
     (onSubmit)="onSubmitForm($event)"
     (onClose)="onCloseForm()"
   />

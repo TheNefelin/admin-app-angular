@@ -1,14 +1,16 @@
 <dialog class="modal modal-bottom modal-open sm:modal-middle">
-  <div class="modal-box overflow-visible">
-    <h3 class="text-lg font-bold text-primary text-center">
-      @if (isLoading()) {
-        <app-loading-component/>
-      } @else {
-        {{ isEditMode() ? 'Modificar' : 'Crear' }} Platform
-      }
-    </h3>
+  <div class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Plataforma
+      </h3>
 
-    @if (!isLoading()) {
+      @if (errorMessage()) {
+        <app-message-error-component [message]="errorMessage()"/>
+      }
+
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input
@@ -21,10 +23,15 @@
       </fieldset>
 
       <div class="modal-action flex gap-2">
-        <button class="btn btn-primary min-w-32" (click)="submit()">
-          {{ isEditMode() ? 'Guardar' : 'Crear' }}
-        </button>
-        <button (click)="onClose.emit()" class="btn min-w-32">Cancelar</button>
+        <app-button-component
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
       </div>
     }
   </div>
