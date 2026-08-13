@@ -184,7 +184,7 @@ export class GuidePage {
   // GUIDE EVENTS -----------------------------------------------------------
   // ------------------------------------------------------------------------
   protected onCloseGuideModal(): void {
-    this.showGuideFormModal.set(false)
+    this.showGuideFormModal.set(false);
     this.guide.savePayload.set(null);
   }
 
@@ -212,16 +212,16 @@ export class GuidePage {
       this.guideService.delete(id),
       this.guide,
       {
-        successMsg: 'Guia Eliminada Correctamente',
-        errorMsg: 'Error al Eliminar la Guía',
+        successMsg: 'Guía eliminada correctamente',
+        errorMsg: 'Error al eliminar la Guía',
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
     );
   }
 
   protected onSubmitGuide(item: SaveGuideModel): void {
-    const id = this.guide.savePayload()?.id
-    const gameId = this.selectedGame()?.id
+    const id = this.guide.savePayload()?.id;
+    const gameId = this.selectedGame()?.id;
     if (!gameId || !item) return;
 
     const payload: SaveGuideModel = { ...item, game_id: gameId };
@@ -232,8 +232,8 @@ export class GuidePage {
         : this.guideService.create(payload),
       this.guide,
       {
-        successMsg: `Guia ${ id ? 'Modificada' : 'Creada' } Correctamente`,
-        errorMsg: `Error al ${ id ? 'Modificar' : 'Crear' } la Guía`,
+        successMsg: `Guía ${ id ? 'modificada' : 'creada' } correctamente`,
+        errorMsg: `Error al ${ id ? 'modificar' : 'crear' } la Guía`,
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
         onFinalize: () => {
           this.showGuideFormModal.set(false);
@@ -246,13 +246,12 @@ export class GuidePage {
   // ADVENTURE EVENTS -------------------------------------------------------
   // ------------------------------------------------------------------------
   protected onCloseAdventureModal(): void {
-    this.showAdventureFormModal.set(false)
-    this.adventure.isSaving.set(false);
+    this.showAdventureFormModal.set(false);
     this.adventure.savePayload.set(null);
   }
 
-  protected onCreateAdventureModal(guide_id: number): void{
-    this.adventure.savePayload.set({ guide_id: guide_id, data: null });
+  protected onCreateAdventureModal(guideId: number): void{
+    this.adventure.savePayload.set({ guide_id: guideId, data: null });
     this.showAdventureFormModal.set(true);
   }
 
@@ -274,8 +273,8 @@ export class GuidePage {
       this.adventureService.delete(data.id),
       this.adventure,
       {
-        successMsg: 'Aventura Eliminada Correctamente',
-        errorMsg: 'Error al Eliminar la Aventura',
+        successMsg: 'Aventura eliminada correctamente',
+        errorMsg: 'Error al eliminar la Aventura',
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
     );
@@ -294,8 +293,8 @@ export class GuidePage {
         : this.adventureService.create(payload),
       this.adventure,
       {
-        successMsg: `Aventura ${ adventureId ? 'Modificada' : 'Creada' } Correctamente`,
-        errorMsg: `Error al ${ adventureId ? 'Modificar' : 'Crear' } la Aventura`,
+        successMsg: `Aventura ${ adventureId ? 'modificada' : 'creada' } correctamente`,
+        errorMsg: `Error al ${ adventureId ? 'modificar' : 'crear' } la Aventura`,
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
         onFinalize: () => this.onCloseAdventureModal(),
       }
@@ -305,14 +304,13 @@ export class GuidePage {
   // ADVENTURE IMAGE EVENTS -------------------------------------------------
   // ------------------------------------------------------------------------
   protected onCloseAdventureImageModal(): void {
-    this.showAdventureImageFormModal.set(false)
-    this.adventureImage.isSaving.set(false);
-    this.adventureImage.savePayload.set(null)
+    this.showAdventureImageFormModal.set(false);
+    this.adventureImage.savePayload.set(null);
   }
 
-  protected onOpenAdventureImageModal(adventure_id: number): void {
-    this.adventureImage.savePayload.set(adventure_id);
-    this.showAdventureImageFormModal.set(true)
+  protected onOpenAdventureImageModal(adventureId: number): void {
+    this.adventureImage.savePayload.set(adventureId);
+    this.showAdventureImageFormModal.set(true);
   }
 
   protected async onDeleteAdventureImage(data: { id: number, alt: string }): Promise<void> {
@@ -328,24 +326,24 @@ export class GuidePage {
       this.adventureImageService.deleteImage(data.id),
       this.adventureImage,
       {
-        successMsg: 'Imagen de la aventura Eliminada Correctamente',
-        errorMsg: 'Error al Eliminar la Imagen de la Aventura',
+        successMsg: 'Imagen de la aventura eliminada correctamente',
+        errorMsg: 'Error al eliminar la Imagen de la Aventura',
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
       }
     );
   }
   
   protected onSubmitAdventureImage(item: SaveAdventureImageModel): void {
-    const adventure_id = this.adventureImage.savePayload();
-    if (!adventure_id || !item) return;
+    const adventureId = this.adventureImage.savePayload();
+    if (!adventureId || !item) return;
 
-    const payload: SaveAdventureImageModel = { ...item, adventure_id: adventure_id };
+    const payload: SaveAdventureImageModel = { ...item, adventure_id: adventureId };
 
     this.handleMutation(
       this.adventureImageService.uploadImage(payload),
       this.adventureImage,
       {
-        successMsg: 'Imagen de la Aventura Subida Correctamente',
+        successMsg: 'Imagen de la Aventura subida correctamente',
         errorMsg: 'Error al cargar la imagen de la Aventura',
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
         onFinalize: () => this.onCloseAdventureImageModal(),
