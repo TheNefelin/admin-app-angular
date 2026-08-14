@@ -6,16 +6,16 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
-  selector: 'app-source-form2-component',
+  selector: 'app-source-form-component',
   imports: [
     DatePipe,
     LoadingComponent,
     MessageErrorComponent,
     ButtonComponent,
   ],
-  templateUrl: './source-form2-component.html',
+  templateUrl: './source-form-component.html',
 })
-export class SourceForm2Component {
+export class SourceFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly sourcePayload = input<SourceModel | null>();
   readonly clearTrigger = input<number>(0);

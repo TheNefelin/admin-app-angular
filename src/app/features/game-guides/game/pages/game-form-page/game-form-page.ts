@@ -20,7 +20,7 @@ import { SaveSourceModel, SourceModel } from '@features/game-guides/source/model
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from '@features/game-guides/source/components/source-list-component/sources-list-component';
 import { ImageFormComponent } from '@features/game-guides/game/components/image-form-component/image-form-component';
-import { SourceForm2Component } from '@features/game-guides/source/components/source-form2-component/source-form2-component';
+import { SourceFormComponent } from '@features/game-guides/source/components/source-form-component/source-form-component';
 import { CharacterFormComponent } from '@features/game-guides/character/components/character-form-component/character-form-component';
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
 import { CharacterService } from '@features/game-guides/character/services/character-service';
@@ -38,7 +38,7 @@ import { ConfirmService } from '@core/services/confirm-service';
     ImageListComponent,
 GameFormComponent,
     SourcesListComponent,
-    SourceForm2Component,
+    SourceFormComponent,
     CharacterFormComponent,
     CharacterListComponent,
   ],
