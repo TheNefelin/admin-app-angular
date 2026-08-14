@@ -1,5 +1,5 @@
-import { LanguageModel } from "@features/portfolio/language/models/language-model";
-import { TechnologyModel } from "@features/portfolio/technology/models/technology-model";
+import { LanguageModel } from '@features/portfolio/language/models/language-model';
+import { TechnologyModel } from '@features/portfolio/technology/models/technology-model';
 
 export interface SaveProjectModel {
   name: string;

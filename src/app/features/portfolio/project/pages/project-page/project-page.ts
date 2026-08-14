@@ -1,18 +1,19 @@
-import { DatePipe, NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, map, of } from 'rxjs';
 import { ProjectModel } from '@features/portfolio/project/models/project-model';
 import { ProjectService } from '@features/portfolio/project/services/project-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, finalize, map, of } from 'rxjs';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
+import { DatePipe, NgOptimizedImage } from '@angular/common';
+import { ErrorService } from '@core/services/error-service';
+import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-project-page',
@@ -21,19 +22,16 @@ import { Router } from '@angular/router';
     NgOptimizedImage,
     PaginationFilterComponent,
     ButtonComponent,
-    MessageSuccessComponent,
     LoadingComponent,
     PaginationNavComponent,
-    ModalActionComponent,
   ],
   templateUrl: './project-page.html',
 })
 export class ProjectPage {
   private readonly router = inject(Router);
-  protected readonly successMessage = signal<string | null>(null);
-  protected readonly deleteModalMessage = signal<string>('');
-  protected readonly showDeleteModal = signal<boolean>(false);
-  protected readonly isDeleting = signal<boolean>(false);
+  private readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
+  private readonly confirmService = inject(ConfirmService);
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
@@ -45,7 +43,6 @@ export class ProjectPage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedList = computed<ProjectModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
@@ -60,6 +57,7 @@ export class ProjectPage {
         }),
         catchError(err => {
           console.error('[ProjectService::ProjectPage] getAllPagination:', err);
+          this.errorService.show('Error al cargar los proyectos');
           return of([]);
         })
       );
@@ -68,7 +66,6 @@ export class ProjectPage {
 
   protected onRefreshClick(): void {
     this.getAllRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -97,28 +94,21 @@ export class ProjectPage {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM, item.id_project]);
   }
 
-  protected onDelete(item: ProjectModel): void {
-    this.deleteModalMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
-    this.deleteItemId.set(item.id_project);
-    this.showDeleteModal.set(true);
-  }
+  protected async onDelete(item: ProjectModel): Promise<void> {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Proyecto',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
+    });
+    if (!confirmed) return;
 
-  protected onDeleteModalConfirm(): void {
-    this.isDeleting.set(true);
-
-    const id = this.deleteItemId();
-    if (!id) return;
-
-    this.service.delete(id).pipe(
-      finalize(() => this.isDeleting.set(false))
-    ).subscribe({
+    this.service.delete(item.id_project).subscribe({
       next: () => {
-        this.successMessage.set('Eliminado correctamente');
-        this.showDeleteModal.set(false);
+        this.successService.show('Eliminado correctamente');
         this.getAllRX.reload();
       },
       error: (err) => {
         console.error('[ProjectService::ProjectPage] onDelete:', err);
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar el proyecto');
       }
     });
   }

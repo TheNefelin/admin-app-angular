@@ -2,18 +2,20 @@ import { Component, computed, inject, linkedSignal, signal } from '@angular/core
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
 import { ProjectModel, SaveProjectModel } from '@features/portfolio/project/models/project-model';
 import { ProjectService } from '@features/portfolio/project/services/project-service';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { catchError, finalize, map, of, switchMap } from 'rxjs';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LanguageService } from '@features/portfolio/language/services/language-service';
 import { TechnologyService } from '@features/portfolio/technology/services/technology-service';
-import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
+import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { SelectListComponent } from "@shared/components/select-list-component/select-list-component";
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
+import { SelectListComponent } from '@shared/components/select-list-component/select-list-component';
+import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
+import { ErrorService } from '@core/services/error-service';
+import { SuccessService } from '@core/services/success-service';
 
 @Component({
   selector: 'app-project-form-page',
@@ -22,15 +24,17 @@ import { SelectListComponent } from "@shared/components/select-list-component/se
     ButtonComponent,
     SelectSearchComponent,
     MessageErrorComponent,
-    MessageSuccessComponent,
-    SelectListComponent
+    SelectListComponent,
+    ImagePickerComponent,
   ],
   templateUrl: './project-form-page.html',
 })
 export class ProjectFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  
+  private readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
+
   readonly routeId = toSignal(
     this.activatedRoute.paramMap.pipe(
       map(params => Number(params.get('id')) || 0)
@@ -38,7 +42,7 @@ export class ProjectFormPage {
     { initialValue: 0 }
   );
 
-  readonly isLoading = computed<boolean>(() => 
+  protected readonly isLoading = computed<boolean>(() =>
     [
       this.getProjectByIdRX,
       this.getAllLanguageRX,
@@ -46,20 +50,17 @@ export class ProjectFormPage {
     ].some(e => e.isLoading())
   );
 
+  protected readonly isEditMode = computed(() => this.routeId() > 0);
+  protected readonly project = {
+    isSaving: signal<boolean>(false),
+  };
   protected readonly clearSelectTrigger = signal<number>(0);
   protected readonly selectedFile = signal<File | null>(null);
-  protected readonly successMessage = signal<string | null>(null);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isSaving = signal<boolean>(false);
-  protected readonly isEditMode = computed(() => this.routeId() > 0);
-  protected readonly previewUrl = signal<string | null>(null);
-  protected readonly displayUrl = computed<string | null>(() =>
-    this.previewUrl() ?? this.computedProject()?.img_url ?? null
-  );
 
   protected formData = linkedSignal<SaveProjectModel>(() => {
     const item = this.computedProject();
-    
+
     return {
       name: item?.name ?? '',
       repo_url: item?.repo_url ?? null,
@@ -84,27 +85,25 @@ export class ProjectFormPage {
 
   private readonly serviceLanguage = inject(LanguageService);
   protected readonly computedLanguageList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllLanguageRX.value() ?? []
+    const items = this.getAllLanguageRX.value() ?? [];
     return items.map(e => ({ id: e.id_language, name: e.name, img_url: e.img_url }));
   });
-  
+
   private readonly serviceTechnology = inject(TechnologyService);
   protected readonly computedTechnologyList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllTechnologyRX.value() ?? []
+    const items = this.getAllTechnologyRX.value() ?? [];
     return items.map(e => ({ id: e.id_technology, name: e.name, img_url: e.img_url }));
   });
-  
+
   protected readonly getProjectByIdRX = rxResource({
     params: () => this.getProjectByIdPayload(),
     stream: ({ params: id }) => {
       if (!id) return of(null);
 
       return this.serviceProject.getById(id).pipe(
-        map(result => {
-          return result
-        }),
         catchError(err => {
           console.error('[ProjectService::ProjectFormPage] getById:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar el proyecto');
           return of(null);
         })
       );
@@ -116,6 +115,7 @@ export class ProjectFormPage {
       return this.serviceLanguage.getAll().pipe(
         catchError(err => {
           console.error('[LanguageService::ProjectFormPage] getAll:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los lenguajes');
           return of([]);
         })
       );
@@ -127,31 +127,41 @@ export class ProjectFormPage {
       return this.serviceTechnology.getAll().pipe(
         catchError(err => {
           console.error('[TechnologyService::ProjectFormPage] getAll:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las tecnologías');
           return of([]);
         })
       );
     },
   });
-  
-  protected onDeleteImageClick(): void {
-    if (this.previewUrl()) {
-      this.previewUrl.set(null);
-      this.selectedFile.set(null);
-    } else {
-      const id = this.getProjectByIdPayload();
-      if (!id) return;
-  
-      this.isSaving.set(true);
-  
-      this.serviceProject.deleteImage(id).pipe(
-        finalize(() => this.isSaving.set(false))
-      ).subscribe({
-        next: () => {
-          this.getProjectByIdRX.reload();
-        },
-        error: (err) => console.error('[ProjectService::ProjectFormPage] onDeleteImage:', err)
-      });
+
+  protected onDeleteImage(): void {
+    const id = this.getProjectByIdPayload();
+    if (!id) return;
+
+    this.project.isSaving.set(true);
+
+    this.serviceProject.deleteImage(id).pipe(
+      finalize(() => this.project.isSaving.set(false))
+    ).subscribe({
+      next: () => {
+        this.getProjectByIdRX.reload();
+      },
+      error: (err) => {
+        console.error('[ProjectService::ProjectFormPage] onDeleteImage:', err);
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar la imagen');
+      }
+    });
+  }
+
+  protected onSelectedFile(file: File | null): void {
+    this.selectedFile.set(file);
+  }
+
+  protected onDeleteFile(): void {
+    if (this.computedProject()?.img_url) {
+      this.onDeleteImage();
     }
+    this.selectedFile.set(null);
   }
 
   protected onDeleteLanguage(item: SelectItemModel): void {
@@ -168,24 +178,21 @@ export class ProjectFormPage {
     }));
   }
 
-  protected onSubmit(event: Event): void {
-    event.preventDefault();
-    this.successMessage.set(null);
-
+  protected onSubmit(): void {
     const name = this.formData().name.trim();
     if (!name || name.length > 50) {
       this.errorMessage.set('El nombre debe tener entre 1 y 50 caracteres');
       return;
     }
 
-    this.isSaving.set(true);
+    this.project.isSaving.set(true);
     const data = { ...this.formData(), name };
     const file = this.selectedFile();
     const id = this.getProjectByIdPayload();
 
     const request$ = id
-    ? this.serviceProject.update(id, data)
-    : this.serviceProject.create(data);
+      ? this.serviceProject.update(id, data)
+      : this.serviceProject.create(data);
 
     request$.pipe(
       switchMap(result => {
@@ -196,17 +203,19 @@ export class ProjectFormPage {
       }),
       finalize(() => {
         this.getProjectByIdRX.reload();
-        this.isSaving.set(false)
+        this.project.isSaving.set(false);
       })
     ).subscribe({
       next: (result) => {
-        this.successMessage.set('Guardado correctamente');
+        this.successService.show('Guardado correctamente');
+        this.selectedFile.set(null);
         if (!id && result) {
           this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM, result.id_project]);
-        }    
+        }
       },
       error: (err) => {
-        console.error('[ProjectService::ProjectFormPage] onSubmitForm:', err)
+        console.error('[ProjectService::ProjectFormPage] onSubmitForm:', err);
+        this.errorService.show(err?.error?.detail || err?.message || 'Error al guardar el proyecto');
       }
     });
   }
@@ -225,7 +234,7 @@ export class ProjectFormPage {
     this.formData.update(d => ({ ...d, app_url: value }));
     this.errorMessage.set(null);
   }
-  
+
   protected updateIsEnable(checked: boolean): void {
     this.formData.update(d => ({ ...d, is_enabled: checked }));
   }
@@ -237,8 +246,8 @@ export class ProjectFormPage {
       const exists = data.language_ids.some(id => id === item.id)
       if (exists) return data;
 
-      return { 
-        ...data, 
+      return {
+        ...data,
         language_ids: [...data.language_ids, item.id]
       }
     });
@@ -251,23 +260,11 @@ export class ProjectFormPage {
       const exists = data.technology_ids.some(id => id === item.id)
       if (exists) return data;
 
-      return { 
-        ...data, 
+      return {
+        ...data,
         technology_ids: [...data.technology_ids, item.id]
       }
     });
-  }
-
-  protected onSelectedFile(file: File | null): void {
-    if (!file) {
-      this.previewUrl.set(null);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => this.previewUrl.set(reader.result as string);
-    reader.readAsDataURL(file);
-    this.selectedFile.set(file);
   }
 
   protected goToProject(): void {

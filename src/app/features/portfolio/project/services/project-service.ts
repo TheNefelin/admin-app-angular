@@ -9,15 +9,15 @@ import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
 export class ProjectService {
-  private apiService = inject(ApiService)
+  private readonly apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.PORTFOLIO;
   private readonly endpoint = 'project';
 
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<ProjectModel>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
+    let path = `?page=${params.page}&limit=${params.limit}`;
 
     if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`
+      path = `${path}&search=${params.search}`;
 
     return this.apiService.getAll<PaginationResponseModel<ProjectModel>>(
       this.namespace,
