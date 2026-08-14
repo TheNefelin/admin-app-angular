@@ -1,30 +1,25 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">URL GRP</span>
 
-  <app-pagination-filter-component 
+  <app-pagination-filter-component
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
   <app-button-component [icon]="'create'" [textBtn]="'Crear Url Grp'" (onClick)="onCreate()"/>
 
-  @if (successMessage()) {
-    <app-message-success-component [message]="successMessage()"/>
-  }
-
-  <app-pagination-nav-component 
+  <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 
-  @if (getAllUrlGrpRX.isLoading()) {
+  @if (getAllRX.isLoading() && !getAllRX.hasValue()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
   } @else {
     <div class="overflow-x-auto">
       <table class="table bg-base-200">
-        <!-- head -->
         <thead>
           <tr>
             <th>Activo</th>
@@ -33,24 +28,24 @@
             <th>Acciones</th>
           </tr>
         </thead>
-  
+
         <tbody>
-          @for (item of computedUrlGrpList(); track item.id_urlgrp) {
+          @for (item of computedList(); track item.id_urlgrp) {
             <tr>
               @if (item.is_enabled) {
                 <th class="text-success m-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
                     <path d="M0 0h1024v1024H0z" fill="none" />
                     <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896m-55.8 536.4l-99.5-99.6a38.4 38.4 0 1 0-54.4 54.3L429.1 682a38.3 38.3 0 0 0 54.3 0l262.4-262.5a38.4 38.4 0 1 0-54.3-54.3z" />
-                  </svg>                                                                  
+                  </svg>
                 </th>
               } @else {
                 <th class="text-error m-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                     <path d="M0 0h32v32H0z" fill="none" />
                     <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
-                  </svg>     
-                </th>           
+                  </svg>
+                </th>
               }
               <td>
                 <div class="flex items-center gap-3">
@@ -69,13 +64,12 @@
                 <div class="flex gap-2">
                   <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
                   <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
-                </div>                
+                </div>
               </th>
             </tr>
           }
         </tbody>
-     
-        <!-- foot -->
+
         <tfoot>
           <tr>
             <th>Activo</th>
@@ -85,31 +79,21 @@
           </tr>
         </tfoot>
       </table>
-    </div> 
+    </div>
   }
 
-  <app-pagination-nav-component 
+  <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Url Grp'"
-    [message]="'Estas seguro que deceas eliminar UrlGrp'"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}
-
 @if (showFormModal()) {
   <app-url-grp-form-component
-    [isLoading]="getByIdUrlGrpRX.isLoading() || isSaving()"
-    [data]="computedUrlGrp()"
+    [isLoading]="urlGrp.isSaving()"
+    [data]="urlGrp.savePayload()"
     (onSubmit)="onSubmitForm($event)"
-    (onClose)="showFormModal.set(false)"
+    (onClose)="onCloseForm()"
   />
 }
