@@ -14,7 +14,9 @@
       </div>
     } @else {
       <img
-        class="w-full h-full object-cover"
+        class="w-full object-cover"
+        [class.h-full]="aspectRatio() !== null"
+        [class.h-auto]="aspectRatio() === null"
         [src]="image() ?? '/images/placeholder.webp'"
         [alt]="labelText() ?? 'Imagen'" />
     }

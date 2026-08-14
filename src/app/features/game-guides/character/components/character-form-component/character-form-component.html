@@ -1,98 +1,99 @@
-<section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-  @if (errorMessage()) {
-    <div class="sm:col-span-3">
-      <app-message-error-component [message]="errorMessage()"/>
-    </div>
-  }
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <form class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        {{ isEditMode() ? 'Modificar' : 'Crear' }} Personaje
+      </h3>
 
-  <app-image-picker-component 
-    [isLoading]="isLoading()"
-    [clearTrigger]="clearTrigger()"
-    [labelText]="'Personajes'"
-    [aspectRatio]="'aspect-square'" 
-    [displayImg]="formData().image_url"
-    (onSelectedFile)="onSelectedFile($event)"
-    (onDeleteFile)="onDeleteFile()" />
+      <div class="bg-base-300 py-2 px-4 my-2 text-xs">
+        <p>Id Personaje: [{{ saveCharacter()?.id ?? '-' }}]</p>
+        <p>{{ saveCharacter()?.created_at | date:'yyyy-MM-dd' }} - Creado</p>
+        <p>{{ saveCharacter()?.updated_at | date:'yyyy-MM-dd' }} - Modificado</p>
+      </div>
 
-  <div class="sm:col-span-2 flex flex-col h-full">
-    <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
-      <fieldset class="fieldset">
-        <label class="label">Nombre</label>
-        <input
-          #name
-          type="text" class="input w-full" placeholder="Nombre"
-          [disabled]="isLoading()"
-          [value]="formData().name"
-          (input)="updateName(name.value)"
-          maxlength="100"/>
-      </fieldset>
+      @if (errorMessage()) {
+        <app-message-error-component [message]="errorMessage()"/>
+      }
+
+      <div class="grid grid-cols-2 gap-4">
+        <app-image-picker-component
+          [isLoading]="isLoading()"
+          [clearTrigger]="clearTrigger()"
+          [labelText]="'Personajes'"
+          [aspectRatio]="'aspect-square'"
+          [displayImg]="formData().image_url"
+          (onSelectedFile)="onSelectedFile($event)"
+          (onDeleteFile)="onDeleteFile()" />
+
+        <div>
+          <fieldset class="fieldset">
+            <label class="label">Nombre</label>
+            <input
+              #name
+              type="text" class="input w-full" placeholder="Nombre"
+              [value]="formData().name"
+              (input)="updateName(name.value)"
+              maxlength="100"/>
+          </fieldset>
     
-      <fieldset class="fieldset">
-        <label class="label">Slug</label>
-        <input
-          #slug
-          type="text" class="input w-full" placeholder="Slug"
-          [disabled]="isLoading()"
-          [value]="formData().slug"
-          (input)="updateSlug(slug.value)"
-          maxlength="100"/>
-      </fieldset>
-    </div>
-
-    <fieldset class="fieldset">
-      <label class="label">Descripción</label>
-      <textarea
-        #description
-        class="textarea w-full" placeholder="Descripción"
-        [disabled]="isLoading()"
-        [value]="formData().description"
-        (input)="updateDescription(description.value)"
-        rows="3"
-      ></textarea>
-    </fieldset>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 md:gap-4">
-      <fieldset class="fieldset">
-        <label class="label">Sort Order</label>
-        <input
-          #sortOrder
-          type="number" class="input w-full" placeholder="Sort Order"
-          [disabled]="isLoading()"
-          [value]="formData().sort_order"
-          (input)="updateSortOrder(sortOrder.value)"
-          maxlength="100"/>
-      </fieldset>
-
-      <fieldset class="fieldset py-2 md:py-7 flex items-center">
-        <label class="label cursor-pointer justify-start gap-2 pt-2">
-          <input
-            #isPlayable
-            type="checkbox" class="checkbox checkbox-primary"
-            [disabled]="isLoading()"
-            [checked]="formData().is_playable"
-            (change)="updateIsPlayable(isPlayable.checked)"
-          />
-          Personaje Jugable
-        </label>
-      </fieldset>
-    </div>
-
-    <div class="flex gap-2 justify-end mt-auto">
-      @if (isLoading()) {
-        <div class="w-52 flex justify-center">
-          <app-loading-component/>
+          <fieldset class="fieldset">
+            <label class="label">Slug</label>
+            <input
+              #slug
+              type="text" class="input w-full" placeholder="Slug"
+              [value]="formData().slug"
+              (input)="updateSlug(slug.value)"
+              maxlength="100"/>
+          </fieldset>
+    
+          <fieldset class="fieldset">
+            <label class="label">Descripción</label>
+            <textarea
+              #description
+              class="textarea w-full" placeholder="Descripción"
+              [value]="formData().description"
+              (input)="updateDescription(description.value)"
+              rows="3"
+            ></textarea>
+          </fieldset>
+    
+          <fieldset class="fieldset">
+            <label class="label">Sort Order</label>
+            <input
+              #sortOrder
+              type="number" class="input w-full" placeholder="Sort Order"
+              [value]="formData().sort_order"
+              (input)="updateSortOrder(sortOrder.value)"
+              maxlength="100"/>
+          </fieldset>
+    
+          <fieldset class="fieldset">
+            <label class="label cursor-pointer justify-start gap-2 pt-2">
+              <input
+                #isPlayable
+                type="checkbox" class="checkbox checkbox-primary"
+                [checked]="formData().is_playable"
+                (change)="updateIsPlayable(isPlayable.checked)"
+              />
+              Personaje Jugable
+            </label>
+          </fieldset>    
         </div>
-      } @else {
+      </div>
+
+      <div class="modal-action flex gap-2">
         <app-button-component
-          [icon]="'save'" 
-          [textBtn]="saveCharacter()?.id ? 'Modificar' : 'Guardar'" 
+          [icon]="'save'"
+          [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
           (onClick)="submit()" />
-        
+
         <app-button-component
-          [icon]="'clear'" 
-          [textBtn]="'Limpiar'"
-          (onClick)="clear()" />
-      }          
-    </div>
-  </div>
-</section>
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>
+    }
+  </form>
+</dialog>

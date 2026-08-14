@@ -1,0 +1,51 @@
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <div class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
+        Crear Map
+      </h3>
+
+      @if (errorMessage()) {
+        <app-message-error-component [message]="errorMessage()"/>
+      }
+
+      <app-image-picker-component
+        [labelText]="'Map'"
+        [aspectRatio]="null"
+        (onSelectedFile)="onSelectedFile($event)" />
+
+      <fieldset class="fieldset">
+        <label class="label">Alt</label>
+        <input
+          #alt
+          type="text" class="input w-full" placeholder="Alt"
+          maxlength="200"
+          [value]="formData().alt_text"
+          (input)="updateAlt(alt.value)" />
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <label class="label">Sort Order</label>
+        <input
+          #sort
+          type="number" class="input w-full" placeholder="Sort Order"
+          [value]="formData().sort_order"
+          (input)="updateSort(sort.value)" />
+      </fieldset>
+
+      <div class="modal-action flex gap-2">
+        <app-button-component
+          [icon]="'save'"
+          [textBtn]="'Guardar'"
+          (onClick)="submit()" />
+
+        <app-button-component
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
+      </div>
+    }
+  </div>
+</dialog>

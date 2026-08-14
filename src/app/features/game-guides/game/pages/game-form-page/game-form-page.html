@@ -50,47 +50,36 @@
 
   @if (isEditMode()) {
     <span class="font-bold text-2xl px-2">
-      Fondos - Mapas / Equipos
+      Fondos
     </span>
 
-    <div class="bg-base-200 border-base-300 p-4 rounded-box border">
-      <div class="tabs tabs-lift">
-        <label class="tab">
-          <input type="radio" name="my_tabs_3" checked="checked" />
-          Screenshots
-        </label>
+    <section class="bg-base-200 border-base-300 p-4 rounded-box border grid">
+      <app-button-component
+        [icon]="'create'"
+        [textBtn]="'Crear Screenshot'"
+        (onClick)="screenshot.showForm.set(true)" />
 
-        <div class="tab-content bg-base-100 border-base-300 p-4">
-          <app-image-form-component
-            ngSkipHydration
-            [label]="'Screenshot'"
-            [isLoading]="isSavingImage()"
+      <app-image-list-component 
+        [imageList]="gameComputed()?.screenshots"
+        (onDeleteImage)="onDeleteScreenshot($event)" />
+    </section>    
+  }
 
-            (onSubmit)="onUploadScreenshot($event)" />
+  @if (isEditMode()) {
+    <span class="font-bold text-2xl px-2">
+      Mapas / Equipos
+    </span>
 
-          <app-image-list-component 
-            [imageList]="gameComputed()?.screenshots"
-            (onDeleteImage)="onDeleteScreenshot($event)" />
-        </div>
+    <section class="bg-base-200 border-base-300 p-4 rounded-box border grid">
+      <app-button-component
+        [icon]="'create'"
+        [textBtn]="'Crear Map'"
+        (onClick)="map.showForm.set(true)" />
 
-        <label class="tab">
-          <input type="radio" name="my_tabs_3" />
-          Maps / Equipos
-        </label>
-
-        <div class="tab-content bg-base-100 border-base-300 p-4">
-          <app-image-form-component
-            ngSkipHydration
-            [label]="'Map'"
-            [isLoading]="isSavingImage()"
-            (onSubmit)="onUploadMap($event)"/>
-
-          <app-image-list-component 
-            [imageList]="gameComputed()?.maps"
-            (onDeleteImage)="onDeleteMap($event)" />
-        </div>
-      </div>  
-    </div>  
+      <app-image-list-component 
+        [imageList]="gameComputed()?.maps"
+        (onDeleteImage)="onDeleteMap($event)" />
+    </section>  
   }
 
   @if (isEditMode()) {
@@ -99,15 +88,10 @@
     </span>
 
     <div class="bg-base-200 border-base-300 p-4 rounded-box border grid">
-      <app-character-form-component
-        [isLoading]="character.isSaving()"
-        [saveCharacter]="character.savePayload()"
-        [clearTrigger]="character.resetTrigger()"
-        (onClear)="onClearCharacter()"
-        (onDeleteImage)="onDeleteCharacterImage($event)"
-        (onSubmit)="onSubmitCharacter($event)" />
-
-      <span class="divider"></span>
+      <app-button-component
+        [icon]="'create'"
+        [textBtn]="'Crear Personaje'"
+        (onClick)="character.showForm.set(true)" />
 
       <div class="overflow-hidden">
         <app-character-list-component
@@ -127,4 +111,28 @@
     [clearTrigger]="source.resetTrigger()"
     (onClose)="onClearSource()"
     (onSubmit)="onSubmitSource($event)" />
+}
+
+@if (character.showForm()) {
+  <app-character-form-component
+    [isLoading]="character.isSaving()"
+    [saveCharacter]="character.savePayload()"
+    [clearTrigger]="character.resetTrigger()"
+    (onClose)="onClearCharacter()"
+    (onDeleteImage)="onDeleteCharacterImage($event)"
+    (onSubmit)="onSubmitCharacter($event)" />
+}
+
+@if (screenshot.showForm()) {
+  <app-screenshot-form-component
+    [isLoading]="isSavingImage()"
+    (onClose)="screenshot.showForm.set(false)"
+    (onSubmit)="onUploadScreenshot($event)" />
+}
+
+@if (map.showForm()) {
+  <app-map-form-component
+    [isLoading]="isSavingImage()"
+    (onClose)="map.showForm.set(false)"
+    (onSubmit)="onUploadMap($event)" />
 }

@@ -12,7 +12,7 @@ import { ButtonComponent } from "../button-component/button-component";
 })
 export class ImagePickerComponent {
   readonly isLoading = input<boolean>(false)
-  readonly aspectRatio = input<'aspect-square' | 'aspect-video'>('aspect-square');
+  readonly aspectRatio = input<'aspect-square' | 'aspect-video' | null>('aspect-square');
   readonly labelText = input<string | null>(null)
   readonly displayImg = input<string | null>(null)
   readonly clearTrigger = input<number>(0);

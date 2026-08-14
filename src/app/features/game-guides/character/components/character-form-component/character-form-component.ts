@@ -1,4 +1,5 @@
-import { Component, effect, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, computed, effect, input, linkedSignal, output, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
@@ -8,10 +9,11 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 @Component({
   selector: 'app-character-form-component',
   imports: [
+    DatePipe,
     ImagePickerComponent,
     ButtonComponent,
     LoadingComponent,
-    MessageErrorComponent
+    MessageErrorComponent,
   ],
   templateUrl: './character-form-component.html',
 })
@@ -19,12 +21,13 @@ export class CharacterFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly saveCharacter = input<CharacterModel | null>(null);
   readonly clearTrigger = input<number>(0);
-  protected readonly onClear = output<void>();
+  protected readonly onClose = output<void>();
   protected readonly onDeleteImage = output<number>();
   protected readonly onSubmit = output<{ id: number, data: SaveCharacterModel; file: File | null }>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly selectedFile = signal<File | null>(null);
+  protected readonly isEditMode = computed<boolean>(() => !!this.saveCharacter()?.id);
   protected readonly formData = linkedSignal<SaveCharacterModel>(() => {
     void this.clearTrigger();
     const data = this.saveCharacter();
@@ -117,10 +120,5 @@ export class CharacterFormComponent {
       file: file,
     });
     this.errorMessage.set(null);
-  }
-
-  protected clear(): void {
-    this.errorMessage.set(null);
-    this.onClear.emit();
   }
 }

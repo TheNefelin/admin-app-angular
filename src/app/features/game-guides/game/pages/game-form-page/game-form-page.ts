@@ -19,7 +19,8 @@ import { GameFormComponent } from '@features/game-guides/game/components/game-fo
 import { SaveSourceModel, SourceModel } from '@features/game-guides/source/models/source-model';
 import { SourceService } from '@features/game-guides/source/services/source-service';
 import { SourcesListComponent } from '@features/game-guides/source/components/source-list-component/sources-list-component';
-import { ImageFormComponent } from '@features/game-guides/game/components/image-form-component/image-form-component';
+import { ScreenshotFormComponent } from '@features/game-guides/screenshot/components/screenshot-form-component/screenshot-form-component';
+import { MapFormComponent } from '@features/game-guides/map/components/map-form-component/map-form-component';
 import { SourceFormComponent } from '@features/game-guides/source/components/source-form-component/source-form-component';
 import { CharacterFormComponent } from '@features/game-guides/character/components/character-form-component/character-form-component';
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
@@ -34,13 +35,14 @@ import { ConfirmService } from '@core/services/confirm-service';
   imports: [
     LoadingComponent,
     ButtonComponent,
-    ImageFormComponent,
     ImageListComponent,
-GameFormComponent,
+    GameFormComponent,
     SourcesListComponent,
     SourceFormComponent,
     CharacterFormComponent,
     CharacterListComponent,
+    ScreenshotFormComponent,
+    MapFormComponent,
   ],
   templateUrl: './game-form-page.html',
 })
@@ -107,11 +109,18 @@ export class GameFormPage {
     savePayload: signal<CharacterModel | null>(null),
     resetTrigger: signal<number>(0),
     isSaving: signal<boolean>(false),
+    showForm: signal<boolean>(false),
   };
 
   // SCREENCHOTS AND MAPS ----------------------------------------------
   private readonly screenshotService = inject(ScreenshotService);
   private readonly mapService = inject(MapService);
+  protected readonly screenshot = {
+    showForm: signal<boolean>(false),
+  };
+  protected readonly map = {
+    showForm: signal<boolean>(false),
+  };
 
   // GETS -----------------------------------------------------------
   // ----------------------------------------------------------------
@@ -221,6 +230,7 @@ export class GameFormPage {
     action: Observable<T>,
     successMsg: string,
     errorMsg: string,
+    options?: { onSuccess?: () => void },
   ): void {
     this.isSavingImage.set(true);
     action.pipe(
@@ -229,7 +239,10 @@ export class GameFormPage {
         this.gameRX.reload();
       })
     ).subscribe({
-      next: () => this.successService.show(successMsg),
+      next: () => {
+        this.successService.show(successMsg);
+        options?.onSuccess?.();
+      },
       error: (err) => {
         console.error(`[GameFormPage] ${errorMsg}:`, err);
         this.errorService.show(err?.error?.detail || err?.message || errorMsg);
@@ -282,7 +295,8 @@ export class GameFormPage {
     this.handleImageAction(
       this.screenshotService.create(data),
       'Screenshot guardado',
-      'Error al guardar screenshot'
+      'Error al guardar screenshot',
+      { onSuccess: () => this.screenshot.showForm.set(false) }
     );
   }
 
@@ -306,7 +320,8 @@ export class GameFormPage {
     this.handleImageAction(
       this.mapService.create(data),
       'Map guardado',
-      'Error al guardar Map'
+      'Error al guardar Map',
+      { onSuccess: () => this.map.showForm.set(false) }
     );
   }
 
@@ -379,6 +394,7 @@ export class GameFormPage {
   // ----------------------------------------------------------------
 
   protected onClearCharacter(): void {
+    this.character.showForm.set(false);
     this.character.savePayload.set(null);
     this.character.resetTrigger.update(v => v + 1);
   }
@@ -395,6 +411,7 @@ export class GameFormPage {
 
   protected onEditCharacter(item: CharacterModel): void {
     this.character.savePayload.set(item);
+    this.character.showForm.set(true);
   }  
 
   protected async onDeleteCharacter(item: CharacterModel): Promise<void> {
