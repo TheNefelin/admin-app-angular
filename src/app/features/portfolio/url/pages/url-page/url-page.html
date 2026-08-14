@@ -1,38 +1,33 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">URL</span>
 
-  <app-pagination-filter-component 
+  <app-pagination-filter-component
     (onRefreshClick)="onRefreshClick()"
     (onFilterChange)="onFilterChange($event)"/>
 
   <div class="flex gap-4">
     <app-button-component [icon]="'create'" [textBtn]="'Crear Url'" (onClick)="onCreate()"/>
-    <app-select-search-component 
-      [placeholder]="'Filtrar por Url Grp'" 
+    <app-select-search-component
+      [placeholder]="'Filtrar por Url Grp'"
       [items]="computedUrlGrpList()"
-      [isLoading]="getAllUrlGrpRX.isLoading()" 
+      [isLoading]="getAllUrlGrpRX.isLoading()"
       (selectionChange)="onUrlGrpChange($event)"
       (cleared)="onUrlGrpClear()"/>
   </div>
 
-  @if (successMessage()) {
-    <app-message-success-component [message]="successMessage()"/>
-  }
-
-  <app-pagination-nav-component 
+  <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 
-  @if (getAllUrlRX.isLoading()) {
+  @if (getAllUrlRX.isLoading() && !getAllUrlRX.hasValue()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
   } @else {
     <div class="overflow-x-auto">
       <table class="table bg-base-200">
-        <!-- head -->
         <thead>
           <tr>
             <th>Activo</th>
@@ -42,7 +37,7 @@
             <th>Acciones</th>
           </tr>
         </thead>
-  
+
         <tbody>
           @for (item of computedUrlList(); track item.id_url) {
             <tr>
@@ -51,15 +46,15 @@
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
                     <path d="M0 0h1024v1024H0z" fill="none" />
                     <path fill="currentColor" d="M512 64a448 448 0 1 1 0 896a448 448 0 0 1 0-896m-55.8 536.4l-99.5-99.6a38.4 38.4 0 1 0-54.4 54.3L429.1 682a38.3 38.3 0 0 0 54.3 0l262.4-262.5a38.4 38.4 0 1 0-54.3-54.3z" />
-                  </svg>                                                                  
+                  </svg>
                 </th>
               } @else {
                 <th class="text-error m-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
                     <path d="M0 0h32v32H0z" fill="none" />
                     <path fill="currentColor" d="M16 2C8.2 2 2 8.2 2 16s6.2 14 14 14s14-6.2 14-14S23.8 2 16 2m5.4 21L16 17.6L10.6 23L9 21.4l5.4-5.4L9 10.6L10.6 9l5.4 5.4L21.4 9l1.6 1.6l-5.4 5.4l5.4 5.4z" />
-                  </svg>     
-                </th>           
+                  </svg>
+                </th>
               }
               <td>
                 <div class="flex items-center gap-3">
@@ -88,8 +83,7 @@
             </tr>
           }
         </tbody>
-     
-        <!-- foot -->
+
         <tfoot>
           <tr>
             <th>Activo</th>
@@ -100,32 +94,22 @@
           </tr>
         </tfoot>
       </table>
-    </div> 
+    </div>
   }
 
-  <app-pagination-nav-component 
+  <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Url'"
-    [message]="'Estas seguro que deceas eliminar Url'"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}
-
 @if (showFormModal()) {
-  <app-url-form-component 
-    [isLoading]="getByIdUrlRX.isLoading() || isSaving()"
-    [data]="computedUrl()"
+  <app-url-form-component
+    [isLoading]="url.isSaving()"
+    [data]="url.savePayload()"
     [urlgrpList]="computedUrlGrpList()"
     (onSubmit)="onSubmitForm($event)"
-    (onClose)="showFormModal.set(false)"
+    (onClose)="onCloseForm()"
   />
 }

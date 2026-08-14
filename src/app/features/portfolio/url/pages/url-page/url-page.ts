@@ -1,42 +1,44 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { UrlService } from '@features/portfolio/url/services/url-service';
-import { catchError, finalize, map, of } from 'rxjs';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { catchError, finalize, map, of, type Observable } from 'rxjs';
 import { SaveUrlModel, FilterByUrlGrp, UrlModel, UrlModelDetail } from '@features/portfolio/url/models/url-model';
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
-import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
+import { UrlService } from '@features/portfolio/url/services/url-service';
 import { UrlGrpService } from '@features/portfolio/url-grp/services/url-grp-service';
+import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { UrlFormComponent } from "@features/portfolio/url/components/url-form-component/url-form-component";
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
+import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
+import { UrlFormComponent } from '@features/portfolio/url/components/url-form-component/url-form-component';
+import { ErrorService } from '@core/services/error-service';
+import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-url-page',
   imports: [
     DatePipe,
-    LoadingComponent,
     PaginationFilterComponent,
     ButtonComponent,
-    MessageSuccessComponent,
+    LoadingComponent,
     PaginationNavComponent,
-    ModalActionComponent,
     SelectSearchComponent,
-    UrlFormComponent
+    UrlFormComponent,
   ],
   templateUrl: './url-page.html',
 })
 export class UrlPage {
-  protected readonly successMessage = signal<string | null>(null);
-  protected readonly showDeleteModal = signal<boolean>(false);
+  private readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
+  private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
-  protected readonly isDeleting = signal<boolean>(false);
+  protected readonly url = {
+    savePayload: signal<UrlModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(10);
@@ -45,8 +47,8 @@ export class UrlPage {
 
   private readonly serviceUrlrp = inject(UrlGrpService);
   protected readonly computedUrlGrpList = computed<SelectItemModel[]>(() => {
-    const items = this.getAllUrlGrpRX.value() ?? []
-    return items.map(e => ({ id: e.id_urlgrp, name: e.name, img_url: null}));
+    const items = this.getAllUrlGrpRX.value() ?? [];
+    return items.map(e => ({ id: e.id_urlgrp, name: e.name, img_url: null }));
   });
   private readonly serviceUrl = inject(UrlService);
   private readonly getAllUrlPayload = computed<PaginationRequestModel<FilterByUrlGrp | null>>(() => ({
@@ -55,19 +57,14 @@ export class UrlPage {
     search: this.search(),
     filter: this.selectedUrlGrpId() ? { id_urlgrp: this.selectedUrlGrpId()! } : null,
   }));
-  protected readonly getByIdUrlPayload = signal<number | null>(null);
-  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedUrlList = computed<UrlModelDetail[]>(() => this.getAllUrlRX.value() ?? []);
-  protected readonly computedUrl = computed<UrlModel | null>(() => {
-    if (this.getByIdUrlRX.isLoading()) return null;
-    return this.getByIdUrlRX.value() ?? null;
-  });
 
   protected readonly getAllUrlGrpRX = rxResource({
     stream: () => {
       return this.serviceUrlrp.getAll().pipe(
         catchError(err => {
           console.error('[UrlGrpService::UrlPage] getAll:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los grupos de URLs');
           return of([]);
         })
       );
@@ -86,40 +83,56 @@ export class UrlPage {
         }),
         catchError(err => {
           console.error('[UrlService::UrlPage] getAllPagination:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las URLs');
           return of([]);
         })
       );
     },
   });
 
-  protected readonly getByIdUrlRX = rxResource({
-    params: () => this.getByIdUrlPayload(),
-    stream: ({ params: id }) => {
-      if (!id) return of(null);
-
-      return this.serviceUrl.getById(id).pipe(
-        catchError(err => {
-          console.error('[UrlService::UrlPage] getById:', err);
-          return of(null);
-        })
-      );
+  // MUTATION HELPER --------------------------------------------------------
+  private handleMutation<T>(
+    action: Observable<T>,
+    state: { isSaving: WritableSignal<boolean> },
+    options: {
+      successMsg: string;
+      errorMsg: string;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
     },
-  });
+  ): void {
+    state.isSaving.set(true);
+    action.pipe(
+      finalize(() => {
+        state.isSaving.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(options.successMsg);
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[UrlService::UrlPage] ${options.errorMsg}:`, err);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
+      }
+    });
+  }
 
+  // EVENTS -----------------------------------------------------------------
   protected onUrlGrpChange(item: SelectItemModel): void {
     this.selectedUrlGrpId.set(item.id);
-    this.currentPage.set(1);  
+    this.currentPage.set(1);
   }
 
   protected onUrlGrpClear(): void {
     this.selectedUrlGrpId.set(null);
-    this.currentPage.set(1);  
+    this.currentPage.set(1);
   }
 
   protected onRefreshClick(): void {
     this.getAllUrlRX.reload();
     this.getAllUrlGrpRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -141,59 +154,53 @@ export class UrlPage {
   }
 
   protected onCreate(): void {
-    this.getByIdUrlPayload.set(null);
+    this.url.savePayload.set(null);
     this.showFormModal.set(true);
   }
-  
+
   protected onEdit(item: UrlModel): void {
-    this.getByIdUrlPayload.set(item.id_url);
+    this.url.savePayload.set(item);
     this.showFormModal.set(true);
+  }
+
+  protected onCloseForm(): void {
+    this.showFormModal.set(false);
+    this.url.savePayload.set(null);
   }
 
   protected onSubmitForm(data: SaveUrlModel): void {
-    this.isSaving.set(true);
-    const id = this.getByIdUrlPayload();
+    const id = this.url.savePayload()?.id_url;
 
-    const request$ = id
-    ? this.serviceUrl.update(id, data)
-    : this.serviceUrl.create(data);
-
-    request$.pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.successMessage.set('Guardado correctamente');
-        this.showFormModal.set(false);
-        this.getAllUrlRX.reload();
-      },
-      error: (err) => {
-        console.error('[UrlService::UrlPage] onSubmitForm:', err);
+    this.handleMutation(
+      id ? this.serviceUrl.update(id, data) : this.serviceUrl.create(data),
+      this.url,
+      {
+        successMsg: id ? 'Url modificada correctamente' : 'Url creada correctamente',
+        errorMsg: id ? 'Error al modificar la Url' : 'Error al crear la Url',
+        onSuccess: () => this.getAllUrlRX.reload(),
+        onFinalize: () => {
+          this.showFormModal.set(false);
+          this.url.savePayload.set(null);
+        },
       }
-    });
+    );
   }
 
-  protected onDelete(item: UrlModel): void {
-    this.deleteItemId.set(item.id_url);
-    this.showDeleteModal.set(true);
-  }
-
-  protected onDeleteModalConfirm(): void {
-    this.isDeleting.set(true);
-    
-    const id = this.deleteItemId();
-    if (!id) return;
-
-    this.serviceUrl.delete(id).pipe(
-      finalize(() => this.isDeleting.set(false))
-    ).subscribe({
-      next: () => {
-        this.successMessage.set('Eliminado correctamente');
-        this.showDeleteModal.set(false);
-        this.getAllUrlRX.reload();
-      },
-      error: (err) => {
-        console.error('[UrlService::UrlPage] onDelete:', err);
-      }
+  protected async onDelete(item: UrlModel): Promise<void> {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Url',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
     });
+    if (!confirmed) return;
+
+    this.handleMutation(
+      this.serviceUrl.delete(item.id_url),
+      this.url,
+      {
+        successMsg: 'Url eliminada correctamente',
+        errorMsg: 'Error al eliminar la Url',
+        onSuccess: () => this.getAllUrlRX.reload(),
+      }
+    );
   }
 }

@@ -18,7 +18,3 @@ export interface UrlModel extends SaveUrlModel {
 export interface UrlModelDetail extends UrlModel {
   urlgrp_name: string;
 }
-
-export interface UrlModelDetail extends UrlModel {
-  urlgrp_name: string;
-}

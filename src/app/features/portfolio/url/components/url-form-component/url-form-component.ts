@@ -1,59 +1,59 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { SaveUrlModel, UrlModel } from '@features/portfolio/url/models/url-model';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { SelectSearchComponent } from "@shared/components/select-search-component/select-search-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
+import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
 
 @Component({
   selector: 'app-url-form-component',
   imports: [
     LoadingComponent,
+    ButtonComponent,
+    MessageErrorComponent,
     SelectSearchComponent,
-    MessageErrorComponent
   ],
   templateUrl: './url-form-component.html',
 })
 export class UrlFormComponent {
+  readonly isLoading = input<boolean>(false);
   readonly data = input<UrlModel | null>(null);
   readonly urlgrpList = input<SelectItemModel[]>([]);
-  readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<SaveUrlModel>();
-  readonly onClose = output<void>();
+
+  protected readonly onClose = output<void>();
+  protected readonly onSubmit = output<SaveUrlModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isEditMode = computed(() => this.data() !== null);
-  protected formData = linkedSignal<SaveUrlModel>(() => {
-    const item = this.data();
-    return { 
-      name: item?.name ?? '', 
-      link: item?.link ?? '', 
-      is_enabled: item?.is_enabled ?? true, 
-      id_urlgrp: item?.id_urlgrp ?? 0 
-    };
-  });
+  protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id_url);
+  protected readonly formData = linkedSignal<SaveUrlModel>(() => ({
+    name: this.data()?.name ?? '',
+    link: this.data()?.link ?? '',
+    is_enabled: this.data()?.is_enabled ?? true,
+    id_urlgrp: this.data()?.id_urlgrp ?? 0,
+  }));
 
   protected updateName(value: string): void {
-    this.formData.update(d => ({ ...d, name: value }));
+    this.formData.set({ ...this.formData(), name: value });
     this.errorMessage.set(null);
   }
 
   protected updateLink(value: string): void {
-    this.formData.update(d => ({ ...d, link: value }));
+    this.formData.set({ ...this.formData(), link: value });
     this.errorMessage.set(null);
   }
 
-  protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enabled: checked }));
+  protected updateIsEnabled(checked: boolean): void {
+    this.formData.set({ ...this.formData(), is_enabled: checked });
   }
 
   protected updateUrlGrp(item: SelectItemModel): void {
-    this.formData.update(d => ({ ...d, id_urlgrp: item.id }));
+    this.formData.set({ ...this.formData(), id_urlgrp: item.id });
     this.errorMessage.set(null);
   }
 
   protected clearUrlGrp(): void {
-    this.formData.update(d => ({ ...d, id_urlgrp: 0 }));
+    this.formData.set({ ...this.formData(), id_urlgrp: 0 });
   }
 
   protected submit(): void {
@@ -82,5 +82,6 @@ export class UrlFormComponent {
     }
 
     this.onSubmit.emit({ ...this.formData(), name, link });
+    this.errorMessage.set(null);
   }
 }

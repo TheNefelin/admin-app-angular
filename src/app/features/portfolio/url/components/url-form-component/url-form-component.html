@@ -1,23 +1,16 @@
-<dialog 
-  class="modal modal-bottom modal-open sm:modal-middle">
-  
-  <div class="modal-box overflow-visible">
-
-    <h3 class="text-lg font-bold text-primary text-center">
-      @if (isLoading()) {
-        <app-loading-component/>
-      } @else {
+<dialog class="modal modal-bottom modal-open sm:modal-middle">
+  <div class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
         {{ isEditMode() ? 'Modificar' : 'Crear' }} Url
-      }
-    </h3>
+      </h3>
 
-    @if (errorMessage()) {
-      <div class="py-2">
+      @if (errorMessage()) {
         <app-message-error-component [message]="errorMessage()"/>
-      </div>
-    }
+      }
 
-    @if (!isLoading()) {
       <fieldset class="fieldset">
         <label class="label">Nombre</label>
         <input
@@ -36,38 +29,42 @@
           type="text" class="input w-full" placeholder="URL"
           [value]="formData().link"
           (input)="updateLink(link.value)"
-          maxlength="50"
         />
       </fieldset>
 
       <fieldset class="fieldset">
         <label class="label">Seleccionar Url Grp</label>
-        <app-select-search-component 
+        <app-select-search-component
           [items]="urlgrpList()"
           [selectedId]="formData().id_urlgrp"
-          [isLoading]="isLoading()" 
+          [isLoading]="isLoading()"
           (selectionChange)="updateUrlGrp($event)"
           (cleared)="clearUrlGrp()"
-          />
+        />
       </fieldset>
- 
+
       <fieldset class="fieldset">
         <label class="label cursor-pointer justify-start gap-2 pt-2">
           <input
             #isEnabled
             type="checkbox" class="checkbox checkbox-primary"
             [checked]="formData().is_enabled"
-            (change)="updateIsEnable(isEnabled.checked)"
+            (change)="updateIsEnabled(isEnabled.checked)"
           />
           Activo
         </label>
       </fieldset>
 
       <div class="modal-action flex gap-2">
-        <button class="btn btn-primary min-w-32" (click)="submit()">
-          {{ isEditMode() ? 'Guardar' : 'Crear' }}
-        </button>
-        <button (click)="onClose.emit()" class="btn min-w-32">Cancelar</button>
+        <app-button-component
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
       </div>
     }
   </div>

@@ -8,29 +8,23 @@ import { API_NAMESPACE } from '@shared/constants/routes-constant';
 
 @Service()
 export class UrlService {
-  private apiService = inject(ApiService)
+  private readonly apiService = inject(ApiService);
   private readonly namespace = API_NAMESPACE.PORTFOLIO;
   private readonly endpoint = 'url';
-  
+
   getAllPagination(params: PaginationRequestModel<FilterByUrlGrp | null>): Observable<PaginationResponseModel<UrlModelDetail>> {
-    let path = `?page=${params.page}&limit=${params.limit}`
-    
+    let path = `?page=${params.page}&limit=${params.limit}`;
+
     if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`
+      path = `${path}&search=${params.search}`;
 
     if (params.filter)
       if (params.filter.id_urlgrp && params.filter.id_urlgrp > 0)
-        path = `${path}&id_urlgrp=${params.filter.id_urlgrp}`
+        path = `${path}&id_urlgrp=${params.filter.id_urlgrp}`;
 
     return this.apiService.getAll<PaginationResponseModel<UrlModelDetail>>(
       this.namespace,
       `${this.endpoint}/pagination/${path}`
-    );
-  }
-
-  getById(id: number): Observable<UrlModel | null> {
-    return this.apiService.getById<UrlModel | null>(
-      this.namespace, this.endpoint, id
     );
   }
 
