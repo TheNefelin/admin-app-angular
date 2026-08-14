@@ -36,7 +36,7 @@ admin-app-angular/
 │   │       ├── auth-interceptor.ts → añade Bearer del namespace de la URL; refresh+retry en 401; logout forzado si el refresh falla
 │   │       └── error-interceptor.ts → formatea el detail del backend a error signal
 │   ├── shared/
-│   │   ├── components/        → button, loading, image-picker, image-viewer, message-error, message-success, modal-error, modal-confirm, pagination-filter, toast-success, google-auth-component
+│   │   ├── components/        → button, loading, image-picker, image-viewer, message-error, modal-error, modal-confirm, pagination-filter, pagination-nav, select-list, select-search, toast-success, google-auth-component
 │   │   ├── models/            → pagination, select-item, upload-image-model
 │   │   ├── constants/
 │   │   │   └── routes-constant.ts → API_NAMESPACE, rutas dashboard
@@ -105,6 +105,36 @@ admin-app-angular/
 │               └── components/
 │                   ├── source-form-component/ → dialog modal (crear/modificar), validación local con MessageErrorComponent (name max 200, url max 1000), header con id/fechas; abierto desde game-form-page via estado `source.showForm`
 │                   └── source-list-component/ → Tabla con lista de fuentes
+│       └── portfolio/
+│           ├── url-grp/
+│           │   ├── models/     → UrlGrpModel (id_url_grp), SaveUrlGrpModel
+│           │   ├── services/   → UrlGrpService (getAllPagination + getAll + create/update/delete)
+│           │   ├── page/       → url-grp-page/ (lista paginada, estado agrupado `urlGrp` = { savePayload, isSaving } + helper local `handleMutation`; toasts SuccessService, confirmación ConfirmService, fallbacks ErrorService)
+│           │   └── components/
+│           │       └── url-grp-form-component/ → dialog modal, validación local con MessageErrorComponent, app-button-component
+│           ├── url/
+│           │   ├── models/     → UrlModel (id_url, id_url_grp), SaveUrlModel
+│           │   ├── services/   → UrlService (getAllPagination + create/update/delete)
+│           │   ├── page/       → url-page/ (lista paginada + filtro por url-grp, estado agrupado `url` = { savePayload, isSaving } + `handleMutation`)
+│           │   └── components/
+│           │       └── url-form-component/ → dialog modal, ImagePicker (crear) / display (editar), validación local con MessageErrorComponent
+│           ├── language/
+│           │   ├── models/     → LanguageModel (id_language), SaveLanguageModel
+│           │   ├── services/   → LanguageService (getAllPagination + getAll + create/update/delete + uploadImage/deleteImage)
+│           │   ├── page/       → language-page/ (lista paginada, estado agrupado `language` = { savePayload, isSaving } + `handleMutation`)
+│           │   └── components/
+│           │       └── language-form-component/ → dialog modal, ImagePicker aspect-square + app-button-component, validación local
+│           ├── technology/
+│           │   ├── models/     → TechnologyModel (id_technology), SaveTechnologyModel
+│           │   ├── services/   → TechnologyService (getAllPagination + getAll + create/update/delete + uploadImage/deleteImage)
+│           │   ├── page/       → technology-page/ (lista paginada, estado agrupado `technology` = { savePayload, isSaving } + `handleMutation`)
+│           │   └── components/
+│           │       └── technology-form-component/ → dialog modal, ImagePicker aspect-square + app-button-component, validación local
+│           └── project/
+│               ├── models/     → ProjectModel (id_project, languages, technologies), SaveProjectModel
+│               ├── services/   → ProjectService (getAllPagination + getById + create/update/delete + uploadImage/deleteImage)
+│               ├── pages/      → project-page/ (lista paginada, toasts/confirm/error services) + project-form-page/ (form con ImagePicker aspect-video, selects de language/technology, estado agrupado `project` = { isSaving })
+│               └── project.routes.ts → rutas ROOT/FORM
 ```
 
 ---
@@ -137,7 +167,7 @@ admin-app-angular/
   - **Error → `ErrorService`** (modal): `errorService.show(msg)` setea un signal único `error`; los layouts renderizan `app-modal-error-component` con `@if (errorService.error(); as msg)` y `(close)="errorService.clear()"`. El `errorInterceptor` lo dispara automáticamente ante cualquier HTTP error
   - **Confirmación → `ConfirmService`** (modal, promise-based): `await confirmService.confirm({ title, message })` abre `app-modal-confirm-component` (renderizado en layouts con `@if (confirmService.dialog(); as dialog)`) y resuelve `Promise<boolean>`. `accept()`/`reject()` resuelven con `true`/`false` y cierran. La página nunca toca `onConfirm`/`onClose` — solo espera el boolean. `isLoading` de la mutación queda en la feature (no en el service). Usado en deletes de genre, platform, game, guide y game-form-page (source, character)
   - **Los forms muestran validaciones locales** con `app-message-error-component` (`@if (errorMessage())`), nunca como toast/modal
-  - ⚠️ **Migración en curso**: guide-page, genre, platform, game y game-form-page ya usan `SuccessService` y `ConfirmService`. Solo **portfolio** usa los patrones viejos `successMessage` signal + `app-message-success-component` y `showDeleteModal` + `app-modal-action-component` — migrar al `SuccessService`/`ConfirmService` cuando se retome (item 45)
+  - ⚠️ **Migración completada**: genre, platform, game, game-form-page y **portfolio** (url-grp, url, language, technology, project) ya usan `SuccessService`/`ConfirmService`/`ErrorService`. Los componentes obsoletos `message-success-component`, `modal-action-component` e `image-field-component` fueron eliminados de `shared`
 - `rxResource` para lecturas; `subscribe()` para mutaciones (create/delete/upload)
 - **Listados con estado colapsable**: no desmontar la lista en refetch → usar `isLoading() && !hasValue()` en vez de solo `isLoading()` para el spinner; así el accordion/expansión conserva su estado abierto al guardar (guide-page)
 - Todos los métodos HTTP pasan por `ApiService` genérico
@@ -153,9 +183,8 @@ admin-app-angular/
 - **Estilo de código**: comillas simples en imports y strings, semicolons siempre — uniforme en todo el proyecto
 - **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio` (`'aspect-square' | 'aspect-video' | null` — `null` = aspecto original sin clase), `labelText`, `displayImg`, `clearTrigger`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
 - **Botón delete**: usa `bg-red-500 hover:bg-red-600 text-white` en lugar de `btn-error` de DaisyUI
-- **Componentes compartidos**: `select-list-component`, `image-picker-component`, `image-field-component` en shared usan `app-button-component` para botones de acción (evita inline SVGs duplicados)
+- **Componentes compartidos**: `select-list-component`, `image-picker-component`, `select-search-component` en shared usan `app-button-component` para botones de acción (evita inline SVGs duplicados)
 - **Hydration**: componentes con `File` API o `@if/@else` que causan mismatch usan `ngSkipHydration` en el template padre
-- **Pendiente portfolio (al final del proyecto)**: `image-field-component` será reemplazado por `image-picker-component`
 
 ---
 
@@ -181,7 +210,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **dead code eliminado**: `getById` sin uso (genre, platform, source, character), imports `Router`/`ROUTES_CONSTANTS` en genre-page
   - **estilo uniforme** en todas las features: comillas simples, semicolons, alias `@features/...`, `readonly`
   - ✅ **game**: feature completa a nivel senior — `game-service` (alias, semicolons, `getById` muerto eliminado), `game-model`/`game.routes` (alias `@features`), `image-list` (alt validado 1-200 contra schema `VARCHAR(200)`), `game-page` (`editItem` muerto eliminado, fallbacks errorService), `game-form` (validación local con MessageErrorComponent), `game-form-page` (sin `errorMessage` output ni `gameComputed()!`, semicolons, alias), **sub-recursos en modal** (`SourceFormComponent`, `CharacterFormComponent`, `ScreenshotFormComponent`, `MapFormComponent`; `image-form-component` obsoleto eliminado, `ImagePickerComponent` acepta `null` en aspectRatio), **estado agrupado por feature** (`game`/`screenshot`/`map` con `isSaving` propio; `handleImageAction` recibe `loading` por feature)
-45. ⏳ **Pendiente (al final del proyecto)**: portfolio — migrar al `SuccessService`/`ConfirmService` y reemplazar `image-field-component` por `image-picker-component`
+45. ✅ **Portfolio en admin (Angular)** — migración completa a patrones senior: url-grp, url, language, technology y project migrados a `SuccessService`/`ConfirmService`/`ErrorService` con fallbacks reales, estado agrupado `{ savePayload, isSaving }` + helper local `handleMutation`, spinners `isLoading() && !hasValue()`, botones `app-button-component`, estilos uniformes (comillas simples, semicolons, alias `@features`); `image-field-component` reemplazado por `image-picker-component` en language/technology/project; `project-form-page` reemplazó el manejo manual de imagen (FileReader/previewUrl) por `ImagePickerComponent` y eliminó el `map(result => result)` muerto; `getById` eliminado de services sin uso (url-grp, url, language, technology), conservado en project (lo usa el form page); `getAll()` conservado en url-grp/language/technology (los usan url-page/project-form-page); **componentes obsoletos eliminados de shared**: `message-success-component`, `modal-action-component`, `image-field-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
 
 ---

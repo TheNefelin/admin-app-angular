@@ -1,25 +1,25 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from "@angular/router";
-import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
-import { ErrorService } from "@core/services/error-service";
+import { Router } from '@angular/router';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
-import { NavbarComponent } from "@layouts/components/navbar-component/navbar-component";
+import { AppShellComponent, ShellMenuItem } from '@shared/components/app-shell-component/app-shell-component';
 
 @Component({
   selector: 'app-main-layout-component',
   imports: [
-    RouterOutlet,
-    ModalErrorComponent,
-    NavbarComponent
-],
+    AppShellComponent,
+  ],
   templateUrl: './main-layout-component.html',
 })
 export class MainLayoutComponent {
-  private router = inject(Router);
-  
-  protected readonly errorService = inject(ErrorService);
+  private readonly router = inject(Router);
 
-  protected goToMain(): void {
+  protected readonly menuItems: ShellMenuItem[] = [
+    { label: 'Dashboard', icon: 'dashboard', action: () => this.goToMain() },
+  ];
+
+  protected readonly authConfig = null;
+
+  private goToMain(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.ROOT]);
   }
 }

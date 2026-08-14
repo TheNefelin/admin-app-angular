@@ -1,49 +1,45 @@
 import { Component, inject } from '@angular/core';
-import { ModalErrorComponent } from "@shared/components/modal-error-component/modal-error-component";
-import { NavbarComponent } from "@layouts/components/navbar-component/navbar-component";
-import { Router, RouterOutlet } from "@angular/router";
-import { ErrorService } from '@core/services/error-service';
-import { SuccessService } from '@core/services/success-service';
-import { ConfirmService } from '@core/services/confirm-service';
+import { Router } from '@angular/router';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
-import { ToastSuccessComponent } from "@shared/components/toast-success-component/toast-success-component";
-import { ModalConfirmComponent } from "@shared/components/modal-confirm-component/modal-confirm-component";
+import { AppShellComponent, ShellMenuItem } from '@shared/components/app-shell-component/app-shell-component';
 
 @Component({
   selector: 'app-guide-games-layout-component',
   imports: [
-    RouterOutlet,
-    ModalErrorComponent,
-    NavbarComponent,
-    ToastSuccessComponent,
-    ModalConfirmComponent
+    AppShellComponent,
   ],
   templateUrl: './guide-games-layout-component.html',
 })
 export class GuideGamesLayoutComponent {
-  private router = inject(Router);
-  
-  protected readonly errorService = inject(ErrorService);
-  protected readonly successService = inject(SuccessService)
-  protected readonly confirmService = inject(ConfirmService);
+  private readonly router = inject(Router);
 
-  protected goToMain(): void {
+  protected readonly menuItems: ShellMenuItem[] = [
+    { label: 'Dashboard', icon: 'dashboard', action: () => this.goToMain() },
+    { label: 'Genres', icon: 'settings', action: () => this.goToGenre() },
+    { label: 'Platforms', icon: 'settings', action: () => this.goToPlatform() },
+    { label: 'Games', icon: 'settings', action: () => this.goToGame() },
+    { label: 'Guides', icon: 'settings', action: () => this.goToGuide() },
+  ];
+
+  protected readonly authConfig = { namespace: 'game-guides', label: 'Game Guides' };
+
+  private goToMain(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.ROOT]);
   }
 
-  protected goToGenre(): void {
+  private goToGenre(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GENRE]);
   }
 
-  protected goToPlatform(): void {
+  private goToPlatform(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.PLATFORM]);
   }
 
-  protected goToGame(): void {
+  private goToGame(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GAME.ROOT]);
   }
 
-  protected goToGuide(): void {
+  private goToGuide(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.GAME_GUIDE.GUIDE]);
   }
 }

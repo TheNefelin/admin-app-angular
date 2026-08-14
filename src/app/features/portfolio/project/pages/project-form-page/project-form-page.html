@@ -15,107 +15,19 @@
       (onClick)="goToProject()"/>
   </div>
 
-  @if (errorMessage()) {
-    <app-message-error-component [message]="errorMessage()"/>
-  }
-
-  @if (isLoading() || project.isSaving()) {
+  @if (isLoading()) {
     <div class="flex justify-center p-4">
       <app-loading-component/>
     </div>
   } @else {
-    <form (submit)="onSubmit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
-      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <app-image-picker-component
-          [isLoading]="isLoading()"
-          [labelText]="'Imagen del Proyecto'"
-          [aspectRatio]="'aspect-video'"
-          [displayImg]="computedProject()?.img_url ?? null"
-          (onSelectedFile)="onSelectedFile($event)"
-          (onDeleteFile)="onDeleteFile()" />
-
-        <div>
-          <fieldset class="fieldset">
-            <label class="label">Nombre</label>
-            <input
-              #name
-              type="text" class="input w-full" placeholder="Nombre"
-              [value]="formData().name"
-              (input)="updateName(name.value)"
-              maxlength="50"
-            />
-          </fieldset>
-
-          <fieldset class="fieldset">
-            <label class="label">Repo Url</label>
-            <input
-              #repoUrl
-              type="text" class="input w-full" placeholder="URL"
-              [value]="formData().repo_url"
-              (input)="updateRepoUrl(repoUrl.value)"
-              maxlength="256"
-            />
-          </fieldset>
-
-          <fieldset class="fieldset">
-            <label class="label">App url</label>
-            <input
-              #appUrl
-              type="text" class="input w-full" placeholder="URL"
-              [value]="formData().app_url"
-              (input)="updateAppUrl(appUrl.value)"
-              maxlength="256"
-            />
-          </fieldset>
-
-          <fieldset class="fieldset">
-            <label class="label cursor-pointer justify-start gap-2 pt-2">
-              <input
-                #isEnabled
-                type="checkbox" class="checkbox checkbox-primary"
-                [checked]="formData().is_enabled"
-                (change)="updateIsEnable(isEnabled.checked)"
-              />
-              Activo
-            </label>
-          </fieldset>
-        </div>
-      </section>
-
-      <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <fieldset class="fieldset">
-          <label class="label">Seleccionar Lenguaje</label>
-          <app-select-search-component
-            [items]="computedLanguageList()"
-            [isLoading]="isLoading()"
-            [clearTrigger]="clearSelectTrigger()"
-            (selectionChange)="updateLanguage($event)"/>
-
-          <app-select-list-component
-            [data]="formLanguageList()"
-            (onDeleteItem)="onDeleteLanguage($event)"/>
-        </fieldset>
-
-        <fieldset class="fieldset">
-          <label class="label">Seleccionar Tecnologia</label>
-          <app-select-search-component
-            [items]="computedTechnologyList()"
-            [isLoading]="isLoading()"
-            [clearTrigger]="clearSelectTrigger()"
-            (selectionChange)="updateTechnology($event)"/>
-
-          <app-select-list-component
-            [data]="formTechnologyList()"
-            (onDeleteItem)="onDeleteTechnology($event)"/>
-        </fieldset>
-      </section>
-
-      <div class="flex justify-end">
-        <app-button-component
-          [icon]="'save'"
-          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-          (onClick)="onSubmit()"/>
-      </div>
-    </form>
+    <app-project-form-component
+      [isLoading]="isLoading()"
+      [isSaving]="project.isSaving()"
+      [isEditMode]="isEditMode()"
+      [computedProject]="computedProject()"
+      [computedLanguageList]="computedLanguageList()"
+      [computedTechnologyList]="computedTechnologyList()"
+      (onDeleteImage)="onDeleteImage()"
+      (onSubmit)="onSubmit($event)" />
   }
 </section>

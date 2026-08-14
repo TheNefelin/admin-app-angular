@@ -1,6 +1,6 @@
-import { Component, computed, inject, linkedSignal, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { ProjectModel, SaveProjectModel } from '@features/portfolio/project/models/project-model';
+import { SaveProjectModel } from '@features/portfolio/project/models/project-model';
 import { ProjectService } from '@features/portfolio/project/services/project-service';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { catchError, finalize, map, of, switchMap } from 'rxjs';
@@ -9,11 +9,8 @@ import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LanguageService } from '@features/portfolio/language/services/language-service';
 import { TechnologyService } from '@features/portfolio/technology/services/technology-service';
-import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
-import { SelectListComponent } from '@shared/components/select-list-component/select-list-component';
-import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
+import { ProjectFormComponent } from '@features/portfolio/project/components/project-form-component/project-form-component';
 import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 
@@ -22,10 +19,7 @@ import { SuccessService } from '@core/services/success-service';
   imports: [
     LoadingComponent,
     ButtonComponent,
-    SelectSearchComponent,
-    MessageErrorComponent,
-    SelectListComponent,
-    ImagePickerComponent,
+    ProjectFormComponent,
   ],
   templateUrl: './project-form-page.html',
 })
@@ -54,34 +48,10 @@ export class ProjectFormPage {
   protected readonly project = {
     isSaving: signal<boolean>(false),
   };
-  protected readonly clearSelectTrigger = signal<number>(0);
-  protected readonly selectedFile = signal<File | null>(null);
-  protected readonly errorMessage = signal<string | null>(null);
-
-  protected formData = linkedSignal<SaveProjectModel>(() => {
-    const item = this.computedProject();
-
-    return {
-      name: item?.name ?? '',
-      repo_url: item?.repo_url ?? null,
-      app_url: item?.app_url ?? null,
-      is_enabled: item?.is_enabled ?? false,
-      language_ids: item?.languages.map(e => e.id_language) ?? [],
-      technology_ids: item?.technologies.map(e => e.id_technology) ?? []
-    }
-  });
-  protected formLanguageList = linkedSignal<SelectItemModel[]>(() => {
-    const ids = this.formData().language_ids;
-    return this.computedLanguageList().filter(e => ids.includes(e.id));
-  });
-  protected formTechnologyList = linkedSignal<SelectItemModel[]>(() => {
-    const ids = this.formData().technology_ids;
-    return this.computedTechnologyList().filter(e => ids.includes(e.id));
-  });
 
   private readonly serviceProject = inject(ProjectService);
   private readonly getProjectByIdPayload = computed(() => this.routeId());
-  protected readonly computedProject = computed<ProjectModel | null>(() => this.getProjectByIdRX.value() ?? null);
+  protected readonly computedProject = computed(() => this.getProjectByIdRX.value() ?? null);
 
   private readonly serviceLanguage = inject(LanguageService);
   protected readonly computedLanguageList = computed<SelectItemModel[]>(() => {
@@ -153,41 +123,8 @@ export class ProjectFormPage {
     });
   }
 
-  protected onSelectedFile(file: File | null): void {
-    this.selectedFile.set(file);
-  }
-
-  protected onDeleteFile(): void {
-    if (this.computedProject()?.img_url) {
-      this.onDeleteImage();
-    }
-    this.selectedFile.set(null);
-  }
-
-  protected onDeleteLanguage(item: SelectItemModel): void {
-    this.formData.update(data => ({
-      ...data,
-      language_ids: data.language_ids.filter(id => id !== item.id)
-    }));
-  }
-
-  protected onDeleteTechnology(item: SelectItemModel): void {
-    this.formData.update(data => ({
-      ...data,
-      technology_ids: data.technology_ids.filter(id => id !== item.id)
-    }));
-  }
-
-  protected onSubmit(): void {
-    const name = this.formData().name.trim();
-    if (!name || name.length > 50) {
-      this.errorMessage.set('El nombre debe tener entre 1 y 50 caracteres');
-      return;
-    }
-
+  protected onSubmit({ data, file }: { data: SaveProjectModel; file: File | null }): void {
     this.project.isSaving.set(true);
-    const data = { ...this.formData(), name };
-    const file = this.selectedFile();
     const id = this.getProjectByIdPayload();
 
     const request$ = id
@@ -208,7 +145,6 @@ export class ProjectFormPage {
     ).subscribe({
       next: (result) => {
         this.successService.show('Guardado correctamente');
-        this.selectedFile.set(null);
         if (!id && result) {
           this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.FORM, result.id_project]);
         }
@@ -216,53 +152,6 @@ export class ProjectFormPage {
       error: (err) => {
         console.error('[ProjectService::ProjectFormPage] onSubmitForm:', err);
         this.errorService.show(err?.error?.detail || err?.message || 'Error al guardar el proyecto');
-      }
-    });
-  }
-
-  protected updateName(value: string): void {
-    this.formData.update(d => ({ ...d, name: value }));
-    this.errorMessage.set(null);
-  }
-
-  protected updateRepoUrl(value: string): void {
-    this.formData.update(d => ({ ...d, repo_url: value }));
-    this.errorMessage.set(null);
-  }
-
-  protected updateAppUrl(value: string): void {
-    this.formData.update(d => ({ ...d, app_url: value }));
-    this.errorMessage.set(null);
-  }
-
-  protected updateIsEnable(checked: boolean): void {
-    this.formData.update(d => ({ ...d, is_enabled: checked }));
-  }
-
-  protected updateLanguage(item: SelectItemModel): void {
-    this.clearSelectTrigger.update(e => e + 1);
-
-    this.formData.update(data => {
-      const exists = data.language_ids.some(id => id === item.id)
-      if (exists) return data;
-
-      return {
-        ...data,
-        language_ids: [...data.language_ids, item.id]
-      }
-    });
-  }
-
-  protected updateTechnology(item: SelectItemModel): void {
-    this.clearSelectTrigger.update(e => e + 1);
-
-    this.formData.update(data => {
-      const exists = data.technology_ids.some(id => id === item.id)
-      if (exists) return data;
-
-      return {
-        ...data,
-        technology_ids: [...data.technology_ids, item.id]
       }
     });
   }

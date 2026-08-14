@@ -1,53 +1,50 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { ErrorService } from '@core/services/error-service';
-import { SuccessService } from '@core/services/success-service';
-import { ConfirmService } from '@core/services/confirm-service';
+import { Router } from '@angular/router';
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
-import { ModalErrorComponent } from '@shared/components/modal-error-component/modal-error-component';
-import { ToastSuccessComponent } from '@shared/components/toast-success-component/toast-success-component';
-import { ModalConfirmComponent } from '@shared/components/modal-confirm-component/modal-confirm-component';
-import { NavbarComponent } from '@layouts/components/navbar-component/navbar-component';
+import { AppShellComponent, ShellMenuItem } from '@shared/components/app-shell-component/app-shell-component';
 
 @Component({
   selector: 'app-portfolio-layout-component',
   imports: [
-    RouterOutlet,
-    ModalErrorComponent,
-    ToastSuccessComponent,
-    ModalConfirmComponent,
-    NavbarComponent
-],
+    AppShellComponent,
+  ],
   templateUrl: './portfolio-layout-component.html',
 })
 export class PortfolioLayoutComponent {
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
-  protected readonly errorService = inject(ErrorService);
-  protected readonly successService = inject(SuccessService);
-  protected readonly confirmService = inject(ConfirmService);
+  protected readonly menuItems: ShellMenuItem[] = [
+    { label: 'Dashboard', icon: 'dashboard', action: () => this.goToDashboard() },
+    { label: 'Url Grp', icon: 'settings', action: () => this.goToUrlGrp() },
+    { label: 'Url', icon: 'settings', action: () => this.goToUrl() },
+    { label: 'Language', icon: 'settings', action: () => this.goToLanguage() },
+    { label: 'Technology', icon: 'settings', action: () => this.goToTechnology() },
+    { label: 'Project', icon: 'settings', action: () => this.goToProject() },
+  ];
 
-  protected goToDashboard(): void {
+  protected readonly authConfig = null;
+
+  private goToDashboard(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD]);
   }
 
-  protected goToUrlGrp() : void {
+  private goToUrlGrp(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.URLGRP]);
   }
 
-  protected goToUrl() : void {
+  private goToUrl(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.URL]);
   }
 
-  protected goToLanguage() : void {
+  private goToLanguage(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.LANGUAGE]);
   }
 
-  protected goToTechnology() : void {
+  private goToTechnology(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.TECHNOLOGY]);
   }
 
-  protected goToProject() : void {
+  private goToProject(): void {
     this.router.navigate([ROUTES_CONSTANTS.DASHBOARD.PORTFOLIO.PROJECT.ROOT]);
   }
 }

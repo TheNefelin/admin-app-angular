@@ -1,0 +1,19 @@
+@if (errorService.error(); as msg) {
+  <app-modal-error-component
+    [message]="msg"
+    (close)="errorService.clear()" />
+}
+
+@if (successService.toasts().length) {
+  <app-toast-success-component
+    [toasts]="successService.toasts()"
+    (close)="successService.clear($event)" />
+}
+
+@if (confirmService.dialog(); as dialog) {
+  <app-modal-confirm-component
+    [title]="dialog.title"
+    [message]="dialog.message"
+    (onConfirm)="confirmService.accept()"
+    (onClose)="confirmService.reject()" />
+}
