@@ -21,7 +21,7 @@
 
   <app-game-form-component
     [isLoading]="isLoading()"
-    [isSaving]="isSavingGame()"
+    [isSaving]="game.isSaving()"
     [isEditMode]="isEditMode()"
     [computedGame]="gameComputed()"
     [computedPlatformList]="platformListComputed()"
@@ -42,9 +42,9 @@
 
       <app-sources-list-component
         [isLoading]="source.isSaving()"
-        [sourceList]="gameComputed()?.sources ?? []" 
+        [sourceList]="gameComputed()?.sources ?? []"
         (onEdit)="onEditSource($event)"
-        (onDelete)="onDeleteSource($event)"/>
+        (onDelete)="onDeleteSource($event)" />
     </section>
   }
 
@@ -59,10 +59,10 @@
         [textBtn]="'Crear Screenshot'"
         (onClick)="screenshot.showForm.set(true)" />
 
-      <app-image-list-component 
+      <app-image-list-component
         [imageList]="gameComputed()?.screenshots"
         (onDeleteImage)="onDeleteScreenshot($event)" />
-    </section>    
+    </section>
   }
 
   @if (isEditMode()) {
@@ -76,10 +76,10 @@
         [textBtn]="'Crear Map'"
         (onClick)="map.showForm.set(true)" />
 
-      <app-image-list-component 
+      <app-image-list-component
         [imageList]="gameComputed()?.maps"
         (onDeleteImage)="onDeleteMap($event)" />
-    </section>  
+    </section>
   }
 
   @if (isEditMode()) {
@@ -125,14 +125,14 @@
 
 @if (screenshot.showForm()) {
   <app-screenshot-form-component
-    [isLoading]="isSavingImage()"
+    [isLoading]="screenshot.isSaving()"
     (onClose)="screenshot.showForm.set(false)"
     (onSubmit)="onUploadScreenshot($event)" />
 }
 
 @if (map.showForm()) {
   <app-map-form-component
-    [isLoading]="isSavingImage()"
+    [isLoading]="map.isSaving()"
     (onClose)="map.showForm.set(false)"
     (onSubmit)="onUploadMap($event)" />
 }

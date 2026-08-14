@@ -1,4 +1,4 @@
-import { Component, input, linkedSignal, output, signal } from '@angular/core';
+import { Component, input, output, signal } from '@angular/core';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { SaveMapModel } from '@features/game-guides/map/models/map-model';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
@@ -22,12 +22,12 @@ export class MapFormComponent {
 
   protected readonly errorMessage = signal<string | null>(null);
 
-  protected readonly formData = linkedSignal<SaveMapModel>(() => ({
+  protected readonly formData = signal<SaveMapModel>({
     game_id: 0,
     alt_text: '',
     sort_order: undefined,
     file: undefined,
-  }));
+  });
 
   protected updateAlt(value: string): void {
     this.formData.update(d => ({ ...d, alt_text: value }));

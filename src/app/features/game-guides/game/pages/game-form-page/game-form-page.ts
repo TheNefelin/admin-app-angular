@@ -68,8 +68,6 @@ export class GameFormPage {
     ].some(e => e.isLoading())
   );
 
-  protected readonly isSavingGame = signal<boolean>(false);
-  protected readonly isSavingImage = signal<boolean>(false);
   protected readonly isEditMode = computed(() => this.routeId() > 0);
 
   // SERVICES -------------------------------------------------------
@@ -79,6 +77,9 @@ export class GameFormPage {
   private readonly gameService = inject(GameService);
   private readonly gameIdPayload = computed(() => this.routeId());
   protected readonly gameComputed = computed<GameDetailModel | null>(() => this.gameRX.value() ?? null);
+  protected readonly game = {
+    isSaving: signal<boolean>(false),
+  };
 
   // PLATFORM ---------------------------------------------------------
   private readonly platformService = inject(PlatformService);
@@ -116,9 +117,11 @@ export class GameFormPage {
   private readonly screenshotService = inject(ScreenshotService);
   private readonly mapService = inject(MapService);
   protected readonly screenshot = {
+    isSaving: signal<boolean>(false),
     showForm: signal<boolean>(false),
   };
   protected readonly map = {
+    isSaving: signal<boolean>(false),
     showForm: signal<boolean>(false),
   };
 
@@ -170,7 +173,7 @@ export class GameFormPage {
   // ----------------------------------------------------------------
   
   protected onSubmit(payload: { data: SaveGameModel; file: File | null }): void {
-    this.isSavingGame.set(true);
+    this.game.isSaving.set(true);
     const data = { ...payload.data, name: payload.data.name.trim(), slug: payload.data.slug.trim() };
     const file = payload.file;
     const id = this.gameIdPayload();
@@ -188,7 +191,7 @@ export class GameFormPage {
       }),
       finalize(() => {
         this.gameRX.reload();
-        this.isSavingGame.set(false);
+        this.game.isSaving.set(false);
       })
     ).subscribe({
       next: (result) => {
@@ -208,10 +211,10 @@ export class GameFormPage {
     const id = this.gameIdPayload();
     if (!id) return;
 
-    this.isSavingGame.set(true);
+    this.game.isSaving.set(true);
 
     this.gameService.deleteImage(id).pipe(
-      finalize(() => this.isSavingGame.set(false))
+      finalize(() => this.game.isSaving.set(false))
     ).subscribe({
       next: () => {
         this.gameRX.reload();
@@ -228,14 +231,15 @@ export class GameFormPage {
 
   private handleImageAction<T>(
     action: Observable<T>,
+    loading: WritableSignal<boolean>,
     successMsg: string,
     errorMsg: string,
     options?: { onSuccess?: () => void },
   ): void {
-    this.isSavingImage.set(true);
+    loading.set(true);
     action.pipe(
       finalize(() => {
-        this.isSavingImage.set(false);
+        loading.set(false);
         this.gameRX.reload();
       })
     ).subscribe({
@@ -294,6 +298,7 @@ export class GameFormPage {
 
     this.handleImageAction(
       this.screenshotService.create(data),
+      this.screenshot.isSaving,
       'Screenshot guardado',
       'Error al guardar screenshot',
       { onSuccess: () => this.screenshot.showForm.set(false) }
@@ -303,6 +308,7 @@ export class GameFormPage {
   protected onDeleteScreenshot(id: number): void {
     this.handleImageAction(
       this.screenshotService.delete(id),
+      this.screenshot.isSaving,
       'Screenshot eliminado',
       'Error al eliminar screenshot'
     );
@@ -319,6 +325,7 @@ export class GameFormPage {
 
     this.handleImageAction(
       this.mapService.create(data),
+      this.map.isSaving,
       'Map guardado',
       'Error al guardar Map',
       { onSuccess: () => this.map.showForm.set(false) }
@@ -328,6 +335,7 @@ export class GameFormPage {
   protected onDeleteMap(id: number): void {
     this.handleImageAction(
       this.mapService.delete(id),
+      this.map.isSaving,
       'Map eliminado',
       'Error al eliminar Map'
     );
@@ -404,6 +412,7 @@ export class GameFormPage {
 
     this.handleImageAction(
       this.characterService.deleteImage(characterId),
+      this.character.isSaving,
       'Imagen eliminada correctamente',
       'Error al eliminar la imagen'
     );
