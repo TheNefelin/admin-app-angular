@@ -11,7 +11,6 @@ import { PaginationNavComponent } from '@shared/components/pagination-nav-compon
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -29,7 +28,6 @@ import { ConfirmService } from '@core/services/confirm-service';
 })
 export class ProjectPage {
   private readonly router = inject(Router);
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly totalPages = signal<number>(1);
@@ -57,7 +55,6 @@ export class ProjectPage {
         }),
         catchError(err => {
           console.error('[ProjectService::ProjectPage] getAllPagination:', err);
-          this.errorService.show('Error al cargar los proyectos');
           return of([]);
         })
       );
@@ -108,7 +105,6 @@ export class ProjectPage {
       },
       error: (err) => {
         console.error('[ProjectService::ProjectPage] onDelete:', err);
-        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar el proyecto');
       }
     });
   }

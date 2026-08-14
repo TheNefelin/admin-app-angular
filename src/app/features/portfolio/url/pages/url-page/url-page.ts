@@ -13,7 +13,6 @@ import { LoadingComponent } from '@shared/components/loading-component/loading-c
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { UrlFormComponent } from '@features/portfolio/url/components/url-form-component/url-form-component';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -31,7 +30,6 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './url-page.html',
 })
 export class UrlPage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -64,7 +62,6 @@ export class UrlPage {
       return this.serviceUrlrp.getAll().pipe(
         catchError(err => {
           console.error('[UrlGrpService::UrlPage] getAll:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los grupos de URLs');
           return of([]);
         })
       );
@@ -83,7 +80,6 @@ export class UrlPage {
         }),
         catchError(err => {
           console.error('[UrlService::UrlPage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las URLs');
           return of([]);
         })
       );
@@ -114,7 +110,6 @@ export class UrlPage {
       },
       error: (err) => {
         console.error(`[UrlService::UrlPage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

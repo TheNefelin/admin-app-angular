@@ -11,7 +11,6 @@ import { LanguageService } from '@features/portfolio/language/services/language-
 import { TechnologyService } from '@features/portfolio/technology/services/technology-service';
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { ProjectFormComponent } from '@features/portfolio/project/components/project-form-component/project-form-component';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 
 @Component({
@@ -26,7 +25,6 @@ import { SuccessService } from '@core/services/success-service';
 export class ProjectFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
 
   readonly routeId = toSignal(
@@ -73,7 +71,6 @@ export class ProjectFormPage {
       return this.serviceProject.getById(id).pipe(
         catchError(err => {
           console.error('[ProjectService::ProjectFormPage] getById:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar el proyecto');
           return of(null);
         })
       );
@@ -85,7 +82,6 @@ export class ProjectFormPage {
       return this.serviceLanguage.getAll().pipe(
         catchError(err => {
           console.error('[LanguageService::ProjectFormPage] getAll:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los lenguajes');
           return of([]);
         })
       );
@@ -97,7 +93,6 @@ export class ProjectFormPage {
       return this.serviceTechnology.getAll().pipe(
         catchError(err => {
           console.error('[TechnologyService::ProjectFormPage] getAll:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las tecnologías');
           return of([]);
         })
       );
@@ -118,7 +113,6 @@ export class ProjectFormPage {
       },
       error: (err) => {
         console.error('[ProjectService::ProjectFormPage] onDeleteImage:', err);
-        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar la imagen');
       }
     });
   }
@@ -151,7 +145,6 @@ export class ProjectFormPage {
       },
       error: (err) => {
         console.error('[ProjectService::ProjectFormPage] onSubmitForm:', err);
-        this.errorService.show(err?.error?.detail || err?.message || 'Error al guardar el proyecto');
       }
     });
   }

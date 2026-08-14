@@ -10,7 +10,6 @@ import { catchError, finalize, map, of, type Observable } from 'rxjs';
 import { GuideFormComponent } from '@features/game-guides/guide/components/guide-form-component/guide-form-component';
 import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { GuideService } from '@features/game-guides/guide/services/guide-service';
-import { ErrorService } from '@core/services/error-service';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { GuideListComponent } from '@features/game-guides/guide/components/guide-list-component/guide-list-component';
 import { SuccessService } from '@core/services/success-service';
@@ -48,7 +47,6 @@ export class GuidePage {
   
   // SERVICES ---------------------------------------------------------------
   // ------------------------------------------------------------------------
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
 
@@ -114,7 +112,6 @@ export class GuidePage {
         }),
         catchError(err => {
           console.error('[GameService::GuidePage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los juegos');
           return of([]);
         })
       );
@@ -133,7 +130,6 @@ export class GuidePage {
         }),
         catchError(err => {
           console.error('[GuideService::GuidePage] getAllDetailByGamePagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las guías');
           return of([]);
         })
       );
@@ -176,7 +172,6 @@ export class GuidePage {
       },
       error: (err) => {
         console.error(`[GuidePage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

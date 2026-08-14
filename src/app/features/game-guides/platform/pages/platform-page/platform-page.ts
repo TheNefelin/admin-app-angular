@@ -11,7 +11,6 @@ import { PaginationNavComponent } from '@shared/components/pagination-nav-compon
 import { PlatformFormComponent } from '@features/game-guides/platform/components/platform-form-component/platform-form-component';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
-import { ErrorService } from '@core/services/error-service';
 
 @Component({
   selector: 'app-platform-page',
@@ -25,7 +24,6 @@ import { ErrorService } from '@core/services/error-service';
   templateUrl: './platform-page.html',
 })
 export class PlatformPage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -58,7 +56,6 @@ export class PlatformPage {
         }),
         catchError(err => {
           console.error('[PlatformService::PlatformPage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las plataformas');
           return of([]);
         })
       );
@@ -89,7 +86,6 @@ export class PlatformPage {
       },
       error: (err) => {
         console.error(`[PlatformService::PlatformPage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

@@ -26,7 +26,6 @@ import { CharacterFormComponent } from '@features/game-guides/character/componen
 import { CharacterListComponent } from '@features/game-guides/character/components/character-list-component/character-list-component';
 import { CharacterService } from '@features/game-guides/character/services/character-service';
 import { CharacterModel, SaveCharacterModel } from '@features/game-guides/character/models/character-model';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -49,7 +48,6 @@ import { ConfirmService } from '@core/services/confirm-service';
 export class GameFormPage {
   private readonly router = inject(Router);
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
 
@@ -136,7 +134,6 @@ export class GameFormPage {
       return this.gameService.getDetailById(id).pipe(
         catchError(err => {
           console.error('[GameService::GameFormPage] getDetailById:', err);
-          this.errorService.show('Error al cargar el juego');
           return of(null);
         })
       );
@@ -149,7 +146,6 @@ export class GameFormPage {
         map(res => res.items),
         catchError(err => {
           console.error('[PlatformService::GameFormPage] getAll:', err);
-          this.errorService.show('Error al cargar plataformas');
           return of([]);
         })
       );
@@ -162,7 +158,6 @@ export class GameFormPage {
         map(res => res.items),
         catchError(err => {
           console.error('[GenreService::GameFormPage] getAll:', err);
-          this.errorService.show('Error al cargar géneros');
           return of([]);
         })
       );
@@ -202,7 +197,6 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onSubmitForm:', err);
-        this.errorService.show(err?.error?.detail || err?.message || 'Error al guardar el juego');
       }
     });
   }
@@ -221,7 +215,6 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error('[GameService::GameFormPage] onDeleteImage:', err);
-        this.errorService.show(err?.error?.detail || err?.message || 'Error al eliminar la imagen');
       }
     });
   }
@@ -249,7 +242,6 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error(`[GameFormPage] ${errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || errorMsg);
       }
     });
   }
@@ -282,7 +274,6 @@ export class GameFormPage {
       },
       error: (err) => {
         console.error(`[GameFormPage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

@@ -10,7 +10,6 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { TechnologyFormComponent } from '@features/portfolio/technology/components/technology-form-component/technology-form-component';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -28,7 +27,6 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './technology-page.html',
 })
 export class TechnologyPage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -61,7 +59,6 @@ export class TechnologyPage {
         }),
         catchError(err => {
           console.error('[TechnologyService::TechnologyPage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las tecnologías');
           return of([]);
         })
       );
@@ -92,7 +89,6 @@ export class TechnologyPage {
       },
       error: (err) => {
         console.error(`[TechnologyService::TechnologyPage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

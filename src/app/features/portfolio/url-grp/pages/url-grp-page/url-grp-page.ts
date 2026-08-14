@@ -10,7 +10,6 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { UrlGrpFormComponent } from '@features/portfolio/url-grp/components/url-grp-form-component/url-grp-form-component';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -27,7 +26,6 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './url-grp-page.html',
 })
 export class UrlGrpPage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -60,7 +58,6 @@ export class UrlGrpPage {
         }),
         catchError(err => {
           console.error('[UrlGrpService::UrlGrpPage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los grupos de URLs');
           return of([]);
         })
       );
@@ -91,7 +88,6 @@ export class UrlGrpPage {
       },
       error: (err) => {
         console.error(`[UrlGrpService::UrlGrpPage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

@@ -13,10 +13,6 @@ export const routes: Routes = [
         path: '',
         loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
       },
-      {
-        path: 'test',
-        loadChildren: () => import("@features/z-test/test.routes").then(m => m.TEST_ROUTES),
-      },
     ]
   },
   {

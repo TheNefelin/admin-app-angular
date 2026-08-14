@@ -11,7 +11,6 @@ import { PaginationNavComponent } from '@shared/components/pagination-nav-compon
 import { GenreFormComponent } from '@features/game-guides/genre/components/genre-form-component/genre-form-component';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
-import { ErrorService } from '@core/services/error-service';
 
 @Component({
   selector: 'app-genre-page',
@@ -25,7 +24,6 @@ import { ErrorService } from '@core/services/error-service';
   templateUrl: './genre-page.html',
 })
 export class GenrePage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -58,7 +56,6 @@ export class GenrePage {
         }),
         catchError(err => {
           console.error('[GenreService::GenrePage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los géneros');
           return of([]);
         })
       );
@@ -89,7 +86,6 @@ export class GenrePage {
       },
       error: (err) => {
         console.error(`[GenreService::GenrePage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }

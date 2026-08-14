@@ -10,7 +10,6 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { LanguageFormComponent } from '@features/portfolio/language/components/language-form-component/language-form-component';
-import { ErrorService } from '@core/services/error-service';
 import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
 
@@ -28,7 +27,6 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './language-page.html',
 })
 export class LanguagePage {
-  private readonly errorService = inject(ErrorService);
   private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -61,7 +59,6 @@ export class LanguagePage {
         }),
         catchError(err => {
           console.error('[LanguageService::LanguagePage] getAllPagination:', err);
-          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar los lenguajes');
           return of([]);
         })
       );
@@ -92,7 +89,6 @@ export class LanguagePage {
       },
       error: (err) => {
         console.error(`[LanguageService::LanguagePage] ${options.errorMsg}:`, err);
-        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
       }
     });
   }
