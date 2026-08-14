@@ -7,17 +7,13 @@
 
   <app-button-component [icon]="'create'" [textBtn]="'Crear Language'" (onClick)="onCreate()"/>
 
-  @if (successMessage()) {
-    <app-message-success-component [message]="successMessage()"/>
-  }
-
   <app-pagination-nav-component
     [currentPage]="currentPage()"
     [totalPages]="totalPages()"
     (prevPage)="prevPage()"
     (nextPage)="nextPage()"/>
 
-  @if (getAllRX.isLoading()) {
+  @if (getAllRX.isLoading() && !getAllRX.hasValue()) {
     <div class="p-4 flex justify-center items-center">
       <app-loading-component/>
     </div>
@@ -40,7 +36,7 @@
                 <div class="avatar">
                   <div class="mask h-10 w-10">
                     <img
-                      class="object-cover" 
+                      class="object-cover"
                       [ngSrc]="item.img_url ?? '/images/placeholder.webp'"
                       [alt]="item.name"
                       fill
@@ -91,20 +87,10 @@
     (nextPage)="nextPage()"/>
 </section>
 
-@if (showDeleteModal()) {
-  <app-modal-action-component
-    [isLoading]="isDeleting()"
-    [title]="'Eliminar Language'"
-    [message]="deleteMessage()"
-    (onConfirm)="onDeleteModalConfirm()"
-    (onClose)="showDeleteModal.set(false)"
-  />
-}
-
 @if (showFormModal()) {
   <app-language-form-component
-    [isLoading]="getByIdRX.isLoading() || isSaving()"
-    [data]="computedItem()"
+    [isLoading]="language.isSaving()"
+    [data]="language.savePayload()"
     (onSubmit)="onSubmitForm($event)"
     (onClose)="onCloseForm()"
     (onDeleteImage)="onDeleteImage()"
