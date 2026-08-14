@@ -1,41 +1,41 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { catchError, finalize, map, of, switchMap, type Observable } from 'rxjs';
+import { SaveTechnologyModel, TechnologyModel } from '@features/portfolio/technology/models/technology-model';
 import { TechnologyService } from '@features/portfolio/technology/services/technology-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
-import { catchError, finalize, map, of, switchMap } from 'rxjs';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { SaveTechnologyModel, TechnologyModel } from '@features/portfolio/technology/models/technology-model';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
-import { ModalActionComponent } from "@shared/components/modal-action-component/modal-action-component";
-import { PaginationNavComponent } from "@shared/components/pagination-nav-component/pagination-nav-component";
-import { PaginationFilterComponent } from "@shared/components/pagination-filter-component/pagination-filter-component";
-import { TechnologyFormComponent } from "@features/portfolio/technology/components/technology-form-component/technology-form-component";
-import { MessageSuccessComponent } from "@shared/components/message-success-component/message-success-component";
-
+import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
+import { TechnologyFormComponent } from '@features/portfolio/technology/components/technology-form-component/technology-form-component';
+import { ErrorService } from '@core/services/error-service';
+import { SuccessService } from '@core/services/success-service';
+import { ConfirmService } from '@core/services/confirm-service';
 
 @Component({
   selector: 'app-technology-page',
   imports: [
     DatePipe,
     NgOptimizedImage,
-    LoadingComponent,
-    ButtonComponent,
-    ModalActionComponent,
-    PaginationNavComponent,
     PaginationFilterComponent,
+    ButtonComponent,
+    LoadingComponent,
+    PaginationNavComponent,
     TechnologyFormComponent,
-    MessageSuccessComponent
   ],
   templateUrl: './technology-page.html',
 })
 export class TechnologyPage {
-  protected readonly successMessage = signal<string | null>(null);
-  protected readonly deleteMessage = signal<string>('');
-  protected readonly showDeleteModal = signal<boolean>(false);
+  private readonly errorService = inject(ErrorService);
+  private readonly successService = inject(SuccessService);
+  private readonly confirmService = inject(ConfirmService);
   protected readonly showFormModal = signal<boolean>(false);
-  protected readonly isSaving = signal<boolean>(false);
-  protected readonly isDeleting = signal<boolean>(false);
+  protected readonly technology = {
+    savePayload: signal<TechnologyModel | null>(null),
+    isSaving: signal<boolean>(false),
+  };
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
   private readonly limit = signal<number>(5);
@@ -47,13 +47,7 @@ export class TechnologyPage {
     limit: this.limit(),
     search: this.search()
   }));
-  protected readonly getByIdPayload = signal<number | null>(null);
-  protected readonly deleteItemId = signal<number | null>(null);
   protected readonly computedList = computed<TechnologyModel[]>(() => this.getAllRX.value() ?? []);
-  protected readonly computedItem = computed<TechnologyModel | null>(() => {
-    if (this.getByIdRX.isLoading()) return null;
-    return this.getByIdRX.value() ?? null;
-  });
 
   protected readonly getAllRX = rxResource({
     params: () => this.getAllPayload(),
@@ -67,29 +61,45 @@ export class TechnologyPage {
         }),
         catchError(err => {
           console.error('[TechnologyService::TechnologyPage] getAllPagination:', err);
+          this.errorService.show(err?.error?.detail || err?.message || 'Error al cargar las tecnologías');
           return of([]);
         })
       );
     },
   });
 
-  protected readonly getByIdRX = rxResource({
-    params: () => this.getByIdPayload(),
-    stream: ({ params: id }) => {
-      if (!id) return of(null);
-
-      return this.service.getById(id).pipe(
-        catchError(err => {
-          console.error('[TechnologyService::TechnologyPage] getById:', err);
-          return of(null);
-        })
-      );
+  // MUTATION HELPER --------------------------------------------------------
+  private handleMutation<T>(
+    action: Observable<T>,
+    state: { isSaving: WritableSignal<boolean> },
+    options: {
+      successMsg: string;
+      errorMsg: string;
+      onSuccess?: () => void;
+      onFinalize?: () => void;
     },
-  });
+  ): void {
+    state.isSaving.set(true);
+    action.pipe(
+      finalize(() => {
+        state.isSaving.set(false);
+        options.onFinalize?.();
+      })
+    ).subscribe({
+      next: () => {
+        this.successService.show(options.successMsg);
+        options.onSuccess?.();
+      },
+      error: (err) => {
+        console.error(`[TechnologyService::TechnologyPage] ${options.errorMsg}:`, err);
+        this.errorService.show(err?.error?.detail || err?.message || options.errorMsg);
+      }
+    });
+  }
 
+  // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
     this.getAllRX.reload();
-    this.successMessage.set(null);
   }
 
   protected onFilterChange(filter: { search: string; limit: number }): void {
@@ -111,92 +121,87 @@ export class TechnologyPage {
   }
 
   protected onCreate(): void {
-    this.getByIdPayload.set(null);
+    this.technology.savePayload.set(null);
     this.showFormModal.set(true);
   }
 
   protected onEdit(item: TechnologyModel): void {
-    this.getByIdPayload.set(item.id_technology);
+    this.technology.savePayload.set(item);
     this.showFormModal.set(true);
   }
 
+  protected onCloseForm(): void {
+    this.showFormModal.set(false);
+    this.technology.savePayload.set(null);
+  }
+
   protected onDeleteImage(): void {
-    const id = this.getByIdPayload();
+    const id = this.technology.savePayload()?.id_technology;
     if (!id) return;
 
-    this.isSaving.set(true);
-
-    this.service.deleteImage(id).pipe(
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => {
-        this.getByIdRX.reload();
-        this.getAllRX.reload();
-      },
-      error: (err) => console.error('[TechnologyService::TechnologyPage] onDeleteImage:', err)
-    });
+    this.handleMutation(
+      this.service.deleteImage(id),
+      this.technology,
+      {
+        successMsg: 'Imagen eliminada correctamente',
+        errorMsg: 'Error al eliminar la imagen',
+        onSuccess: () => {
+          this.technology.savePayload.update(item => item ? { ...item, img_url: null } : item);
+          this.getAllRX.reload();
+        },
+      }
+    );
   }
 
   protected onSubmitForm({ data, file }: { data: SaveTechnologyModel; file: File | null }): void {
-    this.isSaving.set(true);
-    const id = this.getByIdPayload();
+    const id = this.technology.savePayload()?.id_technology;
 
     const request$ = id
-    ? this.service.update(id, data)
-    : this.service.create(data);
+      ? this.service.update(id, data)
+      : this.service.create(data);
 
-    request$.pipe(
+    const action$ = request$.pipe(
       switchMap(result => {
         const entityId = result?.id_technology ?? id;
 
         if (entityId && file) {
           return this.service.uploadImage(entityId, { file });
         }
-        
-        return of(null);
-      }),
-      finalize(() => this.isSaving.set(false))
-    ).subscribe({
-      next: () => this.finalizeSave(),
-      error: (err) => console.error('[TechnologyService::TechnologyPage] onSubmitForm:', err)
-    });
-  }
 
-  private finalizeSave(): void {
-    this.successMessage.set('Guardado correctamente');
-    this.showFormModal.set(false);
-    this.getByIdPayload.set(null);
-    this.getAllRX.reload();
-  }
+        return of(result);
+      })
+    );
 
-  protected onCloseForm(): void {
-    this.showFormModal.set(false);
-    this.getByIdPayload.set(null);
-  }
-
-  protected onDelete(item: TechnologyModel): void {
-    this.deleteMessage.set(`Estas seguro que deceas eliminar (${item.name})`);
-    this.deleteItemId.set(item.id_technology);
-    this.showDeleteModal.set(true);
-  }
-
-  protected onDeleteModalConfirm(): void {
-    this.isDeleting.set(true);
-
-    const id = this.deleteItemId();
-    if (!id) return;
-
-    this.service.delete(id).pipe(
-      finalize(() => this.isDeleting.set(false))
-    ).subscribe({
-      next: () => {
-        this.successMessage.set('Eliminado correctamente');
-        this.showDeleteModal.set(false);
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[TechnologyService::TechnologyPage] onDelete:', err);
+    this.handleMutation(
+      action$,
+      this.technology,
+      {
+        successMsg: id ? 'Technology modificado correctamente' : 'Technology creado correctamente',
+        errorMsg: id ? 'Error al modificar el Technology' : 'Error al crear el Technology',
+        onSuccess: () => this.getAllRX.reload(),
+        onFinalize: () => {
+          this.showFormModal.set(false);
+          this.technology.savePayload.set(null);
+        },
       }
+    );
+  }
+
+  protected async onDelete(item: TechnologyModel): Promise<void> {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar Technology',
+      message: `Estás seguro que deseas eliminar (${item.name})`,
     });
+    if (!confirmed) return;
+
+    this.handleMutation(
+      this.service.delete(item.id_technology),
+      this.technology,
+      {
+        successMsg: 'Technology eliminado correctamente',
+        errorMsg: 'Error al eliminar el Technology',
+        onSuccess: () => this.getAllRX.reload(),
+      }
+    );
   }
 }

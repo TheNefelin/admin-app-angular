@@ -1,42 +1,47 @@
 <dialog class="modal modal-bottom modal-open sm:modal-middle">
-  <div class="modal-box overflow-visible">
-    <h3 class="text-lg font-bold text-primary text-center">
-      @if (isLoading()) {
-        <app-loading-component/>
-      } @else {
+  <div class="modal-box overflow-visible grid gap-2">
+    @if (isLoading()) {
+      <app-loading-component class="flex justify-center"/>
+    } @else {
+      <h3 class="text-lg font-bold text-neutral-content text-center">
         {{ isEditMode() ? 'Modificar' : 'Crear' }} Technology
-      }
-    </h3>
+      </h3>
 
-    @if (errorMessage()) {
-      <div class="py-2">
+      @if (errorMessage()) {
         <app-message-error-component [message]="errorMessage()"/>
+      }
+
+      <div class="grid grid-cols-2 gap-4">
+        <app-image-picker-component
+          [isLoading]="isLoading()"
+          [labelText]="'Technology'"
+          [aspectRatio]="'aspect-square'"
+          [displayImg]="data()?.img_url ?? null"
+          (onSelectedFile)="onFileSelected($event)"
+          (onDeleteFile)="onDeleteFile()" />
+
+        <fieldset class="fieldset">
+          <label class="label">Nombre</label>
+          <input
+            #name
+            type="text" class="input w-full" placeholder="Nombre"
+            [value]="formData().name"
+            (input)="updateName(name.value)"
+            maxlength="50"
+          />
+        </fieldset>
       </div>
-    }
-
-    @if (!isLoading()) {
-      <app-image-field-component
-        [aspect]="'aspect-square'"
-        [imgUrl]="data()?.img_url ?? null"
-        (fileSelected)="onFileSelected($event)"
-        (onDelete)="onDeleteImage.emit()"/>
-
-      <fieldset class="fieldset">
-        <label class="label">Nombre</label>
-        <input
-          #name
-          type="text" class="input w-full" placeholder="Nombre"
-          [value]="formData().name"
-          (input)="updateName(name.value)"
-          maxlength="50"
-        />
-      </fieldset>
 
       <div class="modal-action flex gap-2">
-        <button class="btn btn-primary min-w-32" (click)="submit()">
-          {{ isEditMode() ? 'Guardar' : 'Crear' }}
-        </button>
-        <button (click)="onClose.emit()" class="btn min-w-32">Cancelar</button>
+        <app-button-component
+          [icon]="'create'"
+          [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
+          (onClick)="submit()" />
+
+        <app-button-component
+          [icon]="'cancel'"
+          [textBtn]="'Cancelar'"
+          (onClick)="onClose.emit()" />
       </div>
     }
   </div>

@@ -1,38 +1,37 @@
 import { Component, computed, input, linkedSignal, output, signal } from '@angular/core';
 import { SaveTechnologyModel, TechnologyModel } from '@features/portfolio/technology/models/technology-model';
-import { LoadingComponent } from "@shared/components/loading-component/loading-component";
-import { MessageErrorComponent } from "@shared/components/message-error-component/message-error-component";
-import { ImageFieldComponent } from "@shared/components/image-field-component/image-field-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
+import { MessageErrorComponent } from '@shared/components/message-error-component/message-error-component';
+import { ImagePickerComponent } from '@shared/components/image-picker-component/image-picker-component';
 
 @Component({
   selector: 'app-technology-form-component',
   imports: [
     LoadingComponent,
+    ButtonComponent,
     MessageErrorComponent,
-    ImageFieldComponent
+    ImagePickerComponent,
   ],
   templateUrl: './technology-form-component.html',
 })
 export class TechnologyFormComponent {
-  readonly data = input<TechnologyModel | null>(null);
   readonly isLoading = input<boolean>(false);
-  readonly onSubmit = output<{ data: SaveTechnologyModel; file: File | null }>();
-  readonly onClose = output<void>();
-  readonly onDeleteImage = output<void>();
+  readonly data = input<TechnologyModel | null>(null);
 
-  protected readonly selectedFile = signal<File | null>(null);
+  protected readonly onClose = output<void>();
+  protected readonly onSubmit = output<{ data: SaveTechnologyModel; file: File | null }>();
+  protected readonly onDeleteImage = output<void>();
+
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly isEditMode = computed(() => this.data() !== null);
-
-  protected formData = linkedSignal<SaveTechnologyModel>(() => {
-    const item = this.data();
-    return {
-      name: item?.name ?? '',
-    }
-  });
+  protected readonly selectedFile = signal<File | null>(null);
+  protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id_technology);
+  protected readonly formData = linkedSignal<SaveTechnologyModel>(() => ({
+    name: this.data()?.name ?? '',
+  }));
 
   protected updateName(value: string): void {
-    this.formData.update(d => ({ ...d, name: value }));
+    this.formData.set({ name: value });
     this.errorMessage.set(null);
   }
 
@@ -40,9 +39,15 @@ export class TechnologyFormComponent {
     this.selectedFile.set(file);
   }
 
+  protected onDeleteFile(): void {
+    if (this.data()?.img_url) {
+      this.onDeleteImage.emit();
+    }
+    this.selectedFile.set(null);
+  }
+
   protected submit(): void {
     const name = this.formData().name.trim();
-
     if (!name || name.length > 50) {
       this.errorMessage.set('El nombre debe tener entre 1 y 50 caracteres');
       return;
@@ -52,5 +57,6 @@ export class TechnologyFormComponent {
       data: { ...this.formData(), name },
       file: this.selectedFile()
     });
+    this.errorMessage.set(null);
   }
 }
