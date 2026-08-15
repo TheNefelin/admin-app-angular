@@ -1,5 +1,5 @@
 import { Component, output, signal } from '@angular/core';
-import { ButtonComponent } from "../button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { outputFromObservable, toObservable } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
 
@@ -63,6 +63,9 @@ export class PaginationFilterComponent {
     } else if (num < 1) {
       input.value = '1';
       this.limitValue.set('1');
+    } else if (num > 100) {
+      input.value = '100';
+      this.limitValue.set('100');
     } else {
       input.value = sanitized;
       this.limitValue.set(sanitized);

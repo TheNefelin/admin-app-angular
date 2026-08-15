@@ -1,6 +1,6 @@
 import { Location } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { ButtonComponent } from "@shared/components/button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
   selector: 'app-not-found-page',

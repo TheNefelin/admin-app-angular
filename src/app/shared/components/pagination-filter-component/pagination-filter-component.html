@@ -1,4 +1,4 @@
-<form (submit)="onSubmit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 flex items-center flex-wrap w-full">
+<form (ngSubmit)="onSubmit($event)" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 flex items-center flex-wrap w-full">
   <fieldset class="fieldset">
     <label class="input validator">
       <svg class="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -11,7 +11,9 @@
   </fieldset>
 
   <fieldset class="fieldset">
+    <label class="label" for="page-limit">Cantidad por página</label>
     <input 
+      id="page-limit"
       type="number" class="input validator" placeholder="10 (cantidad de items)" min="1"
       (input)="onLimitInput($event)"/>
   </fieldset>

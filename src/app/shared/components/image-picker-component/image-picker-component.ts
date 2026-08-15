@@ -1,6 +1,6 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
-import { LoadingComponent } from "../loading-component/loading-component";
-import { ButtonComponent } from "../button-component/button-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
   selector: 'app-image-picker-component',

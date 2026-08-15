@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { NgClass, NgOptimizedImage } from "@angular/common";
+import { NgClass, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-btn-component',

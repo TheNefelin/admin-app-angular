@@ -21,8 +21,9 @@
           (onDeleteFile)="onDeleteFile()" />
 
         <fieldset class="fieldset">
-          <label class="label">Nombre</label>
+          <label class="label" for="language-name">Nombre</label>
           <input
+            id="language-name"
             #name
             type="text" class="input w-full" placeholder="Nombre"
             [value]="formData().name"

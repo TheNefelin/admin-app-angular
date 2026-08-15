@@ -1,8 +1,8 @@
 import { Component, input, output } from '@angular/core';
-import { LoadingComponent } from "../loading-component/loading-component";
+import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { NgOptimizedImage } from '@angular/common';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { ButtonComponent } from "../button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
   selector: 'app-select-list-component',

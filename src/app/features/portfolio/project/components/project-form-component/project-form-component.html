@@ -1,4 +1,4 @@
-<form (submit)="submit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
+<form (ngSubmit)="submit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
   @if (errorMessage()) {
     <app-message-error-component [message]="errorMessage()"/>
   }
@@ -14,8 +14,9 @@
 
     <div>
       <fieldset class="fieldset">
-        <label class="label">Nombre</label>
+        <label class="label" for="project-name">Nombre</label>
         <input
+          id="project-name"
           #name
           type="text" class="input w-full" placeholder="Nombre"
           [value]="formData().name"
@@ -25,8 +26,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Repo Url</label>
+        <label class="label" for="project-repo-url">Repo Url</label>
         <input
+          id="project-repo-url"
           #repoUrl
           type="text" class="input w-full" placeholder="URL"
           [value]="formData().repo_url"
@@ -36,8 +38,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">App url</label>
+        <label class="label" for="project-app-url">App url</label>
         <input
+          id="project-app-url"
           #appUrl
           type="text" class="input w-full" placeholder="URL"
           [value]="formData().app_url"

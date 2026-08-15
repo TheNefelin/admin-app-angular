@@ -1,4 +1,4 @@
-import { Service, signal } from "@angular/core";
+import { Service, signal } from '@angular/core';
 
 export type ToastType = 'success' | 'info';
 

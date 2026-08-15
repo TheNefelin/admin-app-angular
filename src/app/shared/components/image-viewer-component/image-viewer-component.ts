@@ -1,6 +1,6 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, input, output } from '@angular/core';
-import { ButtonComponent } from "../button-component/button-component";
+import { ButtonComponent } from '@shared/components/button-component/button-component';
 
 @Component({
   selector: 'app-image-viewer-component',

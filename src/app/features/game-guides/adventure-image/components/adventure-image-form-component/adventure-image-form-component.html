@@ -18,8 +18,9 @@
         (onSelectedFile)="onSelectedFile($event)" />
 
       <fieldset class="fieldset">
-        <label class="label">Alt</label>
+        <label class="label" for="adventure-image-alt">Alt</label>
         <input
+          id="adventure-image-alt"
           #alt
           type="text" class="input w-full" placeholder="Alt"
           [disabled]="isLoading()"
@@ -29,8 +30,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Sort Order</label>
+        <label class="label" for="adventure-image-sort">Sort Order</label>
         <input
+          id="adventure-image-sort"
           #sort
           type="number" class="input w-full" placeholder="Sort Order"
           [disabled]="isLoading()"

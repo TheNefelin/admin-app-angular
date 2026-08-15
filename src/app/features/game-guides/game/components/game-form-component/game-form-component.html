@@ -1,4 +1,4 @@
-<form (submit)="submit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
+<form (ngSubmit)="submit()" class="fieldset bg-base-200 border-base-300 rounded-box border p-4 grid gap-4">
   @if (errorMessage()) {
     <app-message-error-component [message]="errorMessage()"/>
   }
@@ -13,8 +13,9 @@
 
     <div>
       <fieldset class="fieldset">
-        <label class="label">Nombre</label>
+        <label class="label" for="game-name">Nombre</label>
         <input
+          id="game-name"
           #name
           type="text" class="input w-full" placeholder="Nombre"
           [value]="formData().name"
@@ -24,8 +25,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Slug</label>
+        <label class="label" for="game-slug">Slug</label>
         <input
+          id="game-slug"
           #slug
           type="text" class="input w-full" placeholder="Slug"
           [value]="formData().slug"
@@ -35,8 +37,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Año de Lanzamiento</label>
+        <label class="label" for="game-release-year">Año de Lanzamiento</label>
         <input
+          id="game-release-year"
           #releaseYear
           type="number" class="input w-full" placeholder="2024"
           [value]="formData().release_year"
@@ -46,8 +49,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Rating (1-10)</label>
+        <label class="label" for="game-rating">Rating (1-10)</label>
         <input
+          id="game-rating"
           #rating
           type="number" class="input w-full" placeholder="1 - 10"
           [value]="formData().rating"
@@ -57,8 +61,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Sort Order</label>
+        <label class="label" for="game-sort">Sort Order</label>
         <input
+          id="game-sort"
           #sortOrder
           type="number" class="input w-full" placeholder="0"
           [value]="formData().sort_order"
@@ -82,8 +87,9 @@
   </section>
 
   <fieldset class="fieldset">
-    <label class="label">Descripción</label>
+    <label class="label" for="game-description">Descripción</label>
     <textarea
+      id="game-description"
       #description
       class="textarea w-full" placeholder="Descripción"
       [value]="formData().description"

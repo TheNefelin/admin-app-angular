@@ -1,5 +1,5 @@
 <dialog class="modal modal-bottom modal-open sm:modal-middle">
-  <form class="modal-box overflow-visible grid gap-2">
+  <form (ngSubmit)="submit()" class="modal-box overflow-visible grid gap-2">
 
     @if (isLoading()) {
       <app-loading-component class="flex justify-center"/>
@@ -19,8 +19,9 @@
       }
 
       <fieldset class="fieldset">
-        <label class="label">Nombre Fuente</label>
+        <label class="label" for="source-name">Nombre Fuente</label>
         <input
+          id="source-name"
           #name
           type="text" class="input w-full" placeholder="Nombre Fuente" maxlength="200"
           [disabled]="isLoading()"
@@ -30,8 +31,9 @@
       </fieldset>
     
       <fieldset class="fieldset">
-        <label class="label">Url Fuente</label>
+        <label class="label" for="source-url">Url Fuente</label>
         <input
+          id="source-url"
           #url
           type="text" class="input w-full" placeholder="Url Fuente" maxlength="1000"
           [disabled]="isLoading()"
@@ -41,8 +43,9 @@
       </fieldset>
     
       <fieldset class="fieldset">
-        <label class="label">Orden</label>
+        <label class="label" for="source-sort">Orden</label>
         <input
+          id="source-sort"
           #sort
           type="number" class="input w-full" placeholder="Orden" maxlength="3"
           [disabled]="isLoading()"

@@ -1,5 +1,5 @@
 <dialog class="modal modal-bottom modal-open sm:modal-middle">
-  <form class="modal-box overflow-visible">
+  <form (ngSubmit)="submit()" class="modal-box overflow-visible">
     @if (isLoading()) {
       <app-loading-component class="flex justify-center"/>
     } @else {
@@ -18,8 +18,9 @@
       }
 
       <fieldset class="fieldset">
-        <label class="label">Title</label>
+        <label class="label" for="guide-title">Title</label>
         <input
+          id="guide-title"
           #title
           type="text" class="input w-full" placeholder="Title"
           [value]="formData().title"
@@ -29,8 +30,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Descripción</label>
+        <label class="label" for="guide-summary">Descripción</label>
         <textarea
+          id="guide-summary"
           #summary
           class="textarea w-full" placeholder="Descripción"
           [value]="formData().summary"
@@ -40,8 +42,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Sort Order</label>
+        <label class="label" for="guide-sort">Sort Order</label>
         <input
+          id="guide-sort"
           #sortOrder
           type="number" class="input w-full" placeholder="0"
           [value]="formData().sort_order"

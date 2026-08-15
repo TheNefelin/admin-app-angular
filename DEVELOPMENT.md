@@ -15,7 +15,7 @@ Documentación específica del **dashboard de administración** (`admin-app-angu
 | SSR | Express (`src/server.ts`) |
 | Estilos | Tailwind 4 + DaisyUI 5 |
 | Estado | Signals (`linkedSignal`, `clearTrigger`, `sessionSignal`) |
-| Data fetching | `rxResource` (lecturas) + `subscribe()` (mutaciones) |
+| Data fetching | `rxResource` (lecturas) + `MutationService` (mutaciones) |
 
 ---
 
@@ -239,6 +239,16 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **`select-search-component` limpia su selección en silencio al escribir**: `onSearch` borraba `selectedItemInternal` sin avisar al padre (la UI mostraba "sin selección" pero el filtro del padre seguía activo con el item viejo). Ahora emite `cleared` al invalidar la selección → el padre sincroniza (guide-page `onGameClear`, url-page `onUrlGrpClear`)
   - **Tabnabbing**: 4 enlaces externos con `target="_blank"` sin `rel="noopener noreferrer"` (project-page ×2, url-page, navbar-component)
   - **Imports muertos / bug de timer**: `loadGoogleScript` creaba un timeout de 10s que nunca se limpiaba — si el script cargaba, el timer seguía vivo y borraba el script + rechazaba una promesa ya resuelta; ahora `clearTimeout` en `onload`/`onerror`. Eliminado import `finalize` sin usar en game-page
+57. ✅ **Auditoría de calidad (Angular) — Media #3 y #4, Media #6 y #7**:
+  - **Deletes migrados a `MutationService`**: game-page y project-page usaban `.subscribe()` crudo (toast + reload + error duplicados). Ahora `mutation.run(delete, { isSaving: deleting }, { successMsg, errorMsg, onSuccess: reload })` con signal local `deleting` — mismo patrón que las otras 7 páginas. Eliminados imports muertos de `SuccessService`
+  - **Badges de adventure con estado claro**: las ramas `@else` de `is_important`/`is_optional` mostraban el MISMO texto que las `@if` (dos badges "Importante" distintos solo por color). Ahora: check verde "Importante/Opcional" vs X roja "No Importante/No Opcional" — se mantiene el diseño con íconos
+  - **`JSON.parse` seguro en `server.ts`**: los 3 handlers de proxy/upload hacían `JSON.parse(text)` sin validar — una respuesta no-JSON (HTML de un gateway, etc.) lanzaba excepción y respondía 502 genérico, perdiendo el detail real del backend. Nuevo helper `parseJsonSafe()` que devuelve `{ detail: text }` si el parseo falla, así el error real llega al admin
+  - **Límite de paginación acotado**: `pagination-filter` sanitizaba a `≥ 1` pero sin tope → escribir `200` mandaba `limit=999` al backend y este respondía 422. Ahora clampa a `1-100` (mismo límite que valida la API)
+58. ✅ **Auditoría de calidad (Angular) — Bajas #8 a #11**:
+  - **Forms con `(ngSubmit)`**: `(submit)` nativo ejecutaba el handler pero SIN `preventDefault` → presionar Enter recargaba la página y perdía el form. `NgForm` devuelve `false` en forms normales y Angular llama `preventDefault()` automáticamente. Migrados project-form, game-form y pagination-filter; los modales character/source/guide no tenían NINGÚN handler (Enter recargaba toda la app) y ahora tienen `(ngSubmit)="submit()"`
+  - **Spinner solo en carga inicial**: game-page usaba `isLoading()` → al cambiar página/filtrar la tabla completa era reemplazada por el spinner (parpadeo). Ahora `isLoading() && !hasValue()` como el resto de páginas
+  - **Imports con comillas simples**: 28 imports usaban `from "..."` (inconsistencia del auto-import). Normalizados a comillas simples en 18 archivos
+  - **Accesibilidad (WCAG)**: labels de forms CRUD con `id` + `for` (asociación explícita, click enfoca el input, lectores de pantalla anuncian el campo). Inputs ya envueltos en `<label>` (select-search, image-picker, pagination search) mantienen la asociación implícita. `aria-label` en el checkbox del theme-toggle y label en el input de límite de paginación
 
 ---
 

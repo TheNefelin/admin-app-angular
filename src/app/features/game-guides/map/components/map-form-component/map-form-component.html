@@ -17,8 +17,9 @@
         (onSelectedFile)="onSelectedFile($event)" />
 
       <fieldset class="fieldset">
-        <label class="label">Alt</label>
+        <label class="label" for="map-alt">Alt</label>
         <input
+          id="map-alt"
           #alt
           type="text" class="input w-full" placeholder="Alt"
           maxlength="200"
@@ -27,8 +28,9 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Sort Order</label>
+        <label class="label" for="map-sort">Sort Order</label>
         <input
+          id="map-sort"
           #sort
           type="number" class="input w-full" placeholder="Sort Order"
           [value]="formData().sort_order"

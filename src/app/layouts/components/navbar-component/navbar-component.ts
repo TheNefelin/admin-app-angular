@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { ThemeToggleComponent } from "../theme-toggle-component/theme-toggle-component";
-import { GoogleAuthComponent } from "@shared/components/google-auth-component/google-auth-component";
+import { ThemeToggleComponent } from '@layouts/components/theme-toggle-component/theme-toggle-component';
+import { GoogleAuthComponent } from '@shared/components/google-auth-component/google-auth-component';
 
 export interface NavbarAuthConfig {
   namespace: string;

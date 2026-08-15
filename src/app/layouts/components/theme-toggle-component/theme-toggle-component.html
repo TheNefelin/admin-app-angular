@@ -2,6 +2,7 @@
   <!-- this hidden checkbox controls the state -->
   <input 
     type="checkbox" 
+    aria-label="Cambiar tema claro/oscuro"
     [checked]="theme() === 'dark'"
     (change)="toggle()"/>
 

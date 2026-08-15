@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { DashboardBtnComponent } from "@features/dashboard/components/dashboard-btn-component/dashboard-btn-component";
+import { DashboardBtnComponent } from '@features/dashboard/components/dashboard-btn-component/dashboard-btn-component';
 
 @Component({
   selector: 'app-dashboard-page',
