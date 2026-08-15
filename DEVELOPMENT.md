@@ -226,7 +226,11 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **`MutationService`** (core): patrón único de mutaciones extraído del helper local `handleMutation` duplicado en 7 páginas (language, technology, url-grp, url, genre, platform, guide); `game-form-page` conserva `handleCrudAction`/`handleImageAction` (intencional)
   - **`CrudPage<TModel>`** (shared/base): clase base abstracta con el andamiaje de paginación/filtro/reload; migradas las 9 páginas de listado (project, game, language, technology, url-grp, url, genre, platform, guide). Los GETs (`rxResource`) y mutaciones quedan en cada página
   - **`z-test` eliminado**: ruta `test` + carpeta `features/z-test` removidas
+  - **Búsquedas seguras**: los 11 services paginados usan `encodeURIComponent()` en el query param `search` (evita romper URLs con `&`, `=`, `#`, `%`) y unifican `!== ''`
   - Verificado con `npx ng build` (0 errores/warnings)
+53. ✅ **Auditoría de calidad (Angular)** — hallazgos de severidad alta corregidos:
+  - **XSS almacenado en `select-search-component`**: eliminado `[innerHTML]` y el método `highlight()` (generaba HTML en el `.ts`); nuevo `highlightParts(): HighlightPart[]` puro (segmentos `{ text, marked }`) renderizado en el template con `@for` + interpolación `{{ }}` (escape automático de Angular). Adiós también al regex con metacharacteres (el `indexOf` no necesita escape)
+  - **Botón "Refrescar" muerto en `pagination-filter-component`**: conectado `(onClick)` al nuevo `onRefresh()`; tanto el botón como el Enter del form aplican los filtros actuales (sin esperar el debounce de 300ms) y disparan `reload()`. El componente quedó 100% declarativo (sin constructor ni `subscribe` manual): `refreshTrigger` signal + `outputFromObservable`
 
 ---
 

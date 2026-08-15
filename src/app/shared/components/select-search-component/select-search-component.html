@@ -34,8 +34,14 @@
               type="button"
               class="rounded-none"
               [class.active]="selectedItem()?.id === item.id"
-              (mousedown)="select(item, $event)"
-              [innerHTML]="highlight(item.name)">
+              (mousedown)="select(item, $event)">
+              @for (part of highlightParts(item.name); track $index) {
+                @if (part.marked) {
+                  <mark class="bg-primary/20 text-primary font-semibold rounded">{{ part.text }}</mark>
+                } @else {
+                  <span>{{ part.text }}</span>
+                }
+              }
             </button>
           </li>
         }

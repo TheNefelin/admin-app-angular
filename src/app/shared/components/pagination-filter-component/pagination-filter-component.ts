@@ -1,7 +1,7 @@
 import { Component, output, signal } from '@angular/core';
 import { ButtonComponent } from "../button-component/button-component";
-import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
 import { outputFromObservable, toObservable } from '@angular/core/rxjs-interop';
+import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
 
 @Component({
   selector: 'app-pagination-filter-component',
@@ -16,21 +16,37 @@ export class PaginationFilterComponent {
   protected searchValue = signal('');
   protected limitValue = signal('10');
 
+  private readonly refreshTrigger = signal(0);
+
   readonly onFilterChange = outputFromObservable(
     merge(
       toObservable(this.searchValue).pipe(debounceTime(300), distinctUntilChanged()),
       toObservable(this.limitValue).pipe(debounceTime(300), distinctUntilChanged()),
+      toObservable(this.refreshTrigger),
     ).pipe(
-      map(() => ({
-        search: this.searchValue(),
-        limit: Number(this.limitValue()) || 10,
-      })),
+      map(() => this.currentFilter()),
     ),
   );
 
   protected onSubmit(event: Event): void {
     event.preventDefault();
+    this.applyAndRefresh();
+  }
+
+  protected onRefresh(): void {
+    this.applyAndRefresh();
+  }
+
+  private applyAndRefresh(): void {
+    this.refreshTrigger.update(v => v + 1);
     this.onRefreshClick.emit();
+  }
+
+  private currentFilter(): { search: string; limit: number } {
+    return {
+      search: this.searchValue(),
+      limit: Number(this.limitValue()) || 10,
+    };
   }
 
   protected onSearchInput(event: Event): void {

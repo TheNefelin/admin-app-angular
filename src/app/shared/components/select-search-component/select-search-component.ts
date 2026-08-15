@@ -2,6 +2,11 @@ import { Component, computed, effect, ElementRef, input, output, signal, viewChi
 import { LoadingComponent } from "../loading-component/loading-component";
 import { SelectItemModel } from '@shared/models/select-item-model';
 
+interface HighlightPart {
+  text: string;
+  marked: boolean;
+}
+
 @Component({
   selector: 'app-select-search-component',
   imports: [
@@ -109,14 +114,25 @@ export class SelectSearchComponent {
     }, 150);
   }
 
-  protected highlight(text: string): string {
+  protected highlightParts(text: string): HighlightPart[] {
     const term = this.searchText().trim();
-    if (!term) return text;
-    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(${escaped})`, 'gi');
-    return text.replace(
-      regex,
-      '<mark class="bg-primary/20 text-primary font-semibold rounded">$1</mark>'
-    );
+    if (!term) return [{ text, marked: false }];
+
+    const lower = text.toLowerCase();
+    const termLower = term.toLowerCase();
+    const parts: HighlightPart[] = [];
+    let start = 0;
+    let index = lower.indexOf(termLower);
+
+    while (index !== -1) {
+      if (index > start) parts.push({ text: text.slice(start, index), marked: false });
+      parts.push({ text: text.slice(index, index + term.length), marked: true });
+      start = index + term.length;
+      index = lower.indexOf(termLower, start);
+    }
+
+    if (start < text.length) parts.push({ text: text.slice(start), marked: false });
+
+    return parts.length > 0 ? parts : [{ text, marked: false }];
   }
 }
