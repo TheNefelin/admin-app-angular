@@ -36,7 +36,7 @@ export class TechnologyPage {
   };
   protected readonly totalPages = signal<number>(1);
   protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(5);
+  private readonly limit = signal<number>(10);
   private readonly search = signal<string>('');
 
   private readonly service = inject(TechnologyService);
