@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of, type Observable } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { GenreModel, SaveGenreModel } from '@features/game-guides/genre/models/genre-model';
 import { GenreService } from '@features/game-guides/genre/services/genre-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -9,8 +9,8 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { GenreFormComponent } from '@features/game-guides/genre/components/genre-form-component/genre-form-component';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 
 @Component({
   selector: 'app-genre-page',
@@ -24,8 +24,8 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './genre-page.html',
 })
 export class GenrePage {
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly genre = {
     savePayload: signal<GenreModel | null>(null),
@@ -61,34 +61,6 @@ export class GenrePage {
       );
     },
   });
-
-  // MUTATION HELPER --------------------------------------------------------
-  private handleMutation<T>(
-    action: Observable<T>,
-    state: { isSaving: WritableSignal<boolean> },
-    options: {
-      successMsg: string;
-      errorMsg: string;
-      onSuccess?: () => void;
-      onFinalize?: () => void;
-    },
-  ): void {
-    state.isSaving.set(true);
-    action.pipe(
-      finalize(() => {
-        state.isSaving.set(false);
-        options.onFinalize?.();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(options.successMsg);
-        options.onSuccess?.();
-      },
-      error: (err) => {
-        console.error(`[GenreService::GenrePage] ${options.errorMsg}:`, err);
-      }
-    });
-  }
 
   // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
@@ -131,7 +103,7 @@ export class GenrePage {
   protected onSubmitForm(data: SaveGenreModel): void {
     const id = this.genre.savePayload()?.id;
 
-    this.handleMutation(
+    this.mutation.run(
       id ? this.service.update(id, data) : this.service.create(data),
       this.genre,
       {
@@ -153,7 +125,7 @@ export class GenrePage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.delete(item.id),
       this.genre,
       {

@@ -1,7 +1,7 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of, switchMap, type Observable } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { SaveLanguageModel, LanguageModel } from '@features/portfolio/language/models/language-model';
 import { LanguageService } from '@features/portfolio/language/services/language-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -10,8 +10,8 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { LanguageFormComponent } from '@features/portfolio/language/components/language-form-component/language-form-component';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 
 @Component({
   selector: 'app-language-page',
@@ -27,8 +27,8 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './language-page.html',
 })
 export class LanguagePage {
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly language = {
     savePayload: signal<LanguageModel | null>(null),
@@ -64,34 +64,6 @@ export class LanguagePage {
       );
     },
   });
-
-  // MUTATION HELPER --------------------------------------------------------
-  private handleMutation<T>(
-    action: Observable<T>,
-    state: { isSaving: WritableSignal<boolean> },
-    options: {
-      successMsg: string;
-      errorMsg: string;
-      onSuccess?: () => void;
-      onFinalize?: () => void;
-    },
-  ): void {
-    state.isSaving.set(true);
-    action.pipe(
-      finalize(() => {
-        state.isSaving.set(false);
-        options.onFinalize?.();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(options.successMsg);
-        options.onSuccess?.();
-      },
-      error: (err) => {
-        console.error(`[LanguageService::LanguagePage] ${options.errorMsg}:`, err);
-      }
-    });
-  }
 
   // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
@@ -135,7 +107,7 @@ export class LanguagePage {
     const id = this.language.savePayload()?.id_language;
     if (!id) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.deleteImage(id),
       this.language,
       {
@@ -168,7 +140,7 @@ export class LanguagePage {
       })
     );
 
-    this.handleMutation(
+    this.mutation.run(
       action$,
       this.language,
       {
@@ -190,7 +162,7 @@ export class LanguagePage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.delete(item.id_language),
       this.language,
       {

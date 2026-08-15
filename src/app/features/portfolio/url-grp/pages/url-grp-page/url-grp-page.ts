@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of, type Observable } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { SaveUrlGrpModel, UrlGrpModel } from '@features/portfolio/url-grp/models/url-grp-model';
 import { UrlGrpService } from '@features/portfolio/url-grp/services/url-grp-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -10,8 +10,8 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { UrlGrpFormComponent } from '@features/portfolio/url-grp/components/url-grp-form-component/url-grp-form-component';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 
 @Component({
   selector: 'app-url-grp-page',
@@ -26,8 +26,8 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './url-grp-page.html',
 })
 export class UrlGrpPage {
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly urlGrp = {
     savePayload: signal<UrlGrpModel | null>(null),
@@ -63,34 +63,6 @@ export class UrlGrpPage {
       );
     },
   });
-
-  // MUTATION HELPER --------------------------------------------------------
-  private handleMutation<T>(
-    action: Observable<T>,
-    state: { isSaving: WritableSignal<boolean> },
-    options: {
-      successMsg: string;
-      errorMsg: string;
-      onSuccess?: () => void;
-      onFinalize?: () => void;
-    },
-  ): void {
-    state.isSaving.set(true);
-    action.pipe(
-      finalize(() => {
-        state.isSaving.set(false);
-        options.onFinalize?.();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(options.successMsg);
-        options.onSuccess?.();
-      },
-      error: (err) => {
-        console.error(`[UrlGrpService::UrlGrpPage] ${options.errorMsg}:`, err);
-      }
-    });
-  }
 
   // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
@@ -133,7 +105,7 @@ export class UrlGrpPage {
   protected onSubmitForm(data: SaveUrlGrpModel): void {
     const id = this.urlGrp.savePayload()?.id_urlgrp;
 
-    this.handleMutation(
+    this.mutation.run(
       id ? this.service.update(id, data) : this.service.create(data),
       this.urlGrp,
       {
@@ -155,7 +127,7 @@ export class UrlGrpPage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.delete(item.id_urlgrp),
       this.urlGrp,
       {

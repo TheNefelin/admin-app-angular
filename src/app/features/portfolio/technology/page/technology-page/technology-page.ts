@@ -1,7 +1,7 @@
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of, switchMap, type Observable } from 'rxjs';
+import { catchError, map, of, switchMap } from 'rxjs';
 import { SaveTechnologyModel, TechnologyModel } from '@features/portfolio/technology/models/technology-model';
 import { TechnologyService } from '@features/portfolio/technology/services/technology-service';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -10,8 +10,8 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { TechnologyFormComponent } from '@features/portfolio/technology/components/technology-form-component/technology-form-component';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 
 @Component({
   selector: 'app-technology-page',
@@ -27,8 +27,8 @@ import { ConfirmService } from '@core/services/confirm-service';
   templateUrl: './technology-page.html',
 })
 export class TechnologyPage {
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
   protected readonly technology = {
     savePayload: signal<TechnologyModel | null>(null),
@@ -64,34 +64,6 @@ export class TechnologyPage {
       );
     },
   });
-
-  // MUTATION HELPER --------------------------------------------------------
-  private handleMutation<T>(
-    action: Observable<T>,
-    state: { isSaving: WritableSignal<boolean> },
-    options: {
-      successMsg: string;
-      errorMsg: string;
-      onSuccess?: () => void;
-      onFinalize?: () => void;
-    },
-  ): void {
-    state.isSaving.set(true);
-    action.pipe(
-      finalize(() => {
-        state.isSaving.set(false);
-        options.onFinalize?.();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(options.successMsg);
-        options.onSuccess?.();
-      },
-      error: (err) => {
-        console.error(`[TechnologyService::TechnologyPage] ${options.errorMsg}:`, err);
-      }
-    });
-  }
 
   // EVENTS -----------------------------------------------------------------
   protected onRefreshClick(): void {
@@ -135,7 +107,7 @@ export class TechnologyPage {
     const id = this.technology.savePayload()?.id_technology;
     if (!id) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.deleteImage(id),
       this.technology,
       {
@@ -168,7 +140,7 @@ export class TechnologyPage {
       })
     );
 
-    this.handleMutation(
+    this.mutation.run(
       action$,
       this.technology,
       {
@@ -190,7 +162,7 @@ export class TechnologyPage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.service.delete(item.id_technology),
       this.technology,
       {

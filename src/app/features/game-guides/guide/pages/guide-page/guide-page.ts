@@ -1,19 +1,19 @@
 import { NgOptimizedImage } from '@angular/common';
-import { Component, computed, inject, signal, type WritableSignal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
-import { catchError, finalize, map, of, type Observable } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { GuideFormComponent } from '@features/game-guides/guide/components/guide-form-component/guide-form-component';
 import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { GuideService } from '@features/game-guides/guide/services/guide-service';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { GuideListComponent } from '@features/game-guides/guide/components/guide-list-component/guide-list-component';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 import { AdventureService } from '@features/game-guides/adventure/services/adventure-service';
 import { AdventureModel, SaveAdventureModel } from '@features/game-guides/adventure/models/adventure-model';
 import { AdventureFormComponent } from '@features/game-guides/adventure/components/adventure-form-component/adventure-form-component';
@@ -47,8 +47,8 @@ export class GuidePage {
   
   // SERVICES ---------------------------------------------------------------
   // ------------------------------------------------------------------------
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
 
   // GAME SERVICE -----------------------------------------------------------
   // ------------------------------------------------------------------------
@@ -148,34 +148,6 @@ export class GuidePage {
     this.currentPage.set(1);
   }
 
-  // MUTATION HELPER --------------------------------------------------------
-  private handleMutation<T>(
-    action: Observable<T>,
-    state: { isSaving: WritableSignal<boolean> },
-    options: {
-      successMsg: string;
-      errorMsg: string;
-      onSuccess?: () => void;
-      onFinalize?: () => void;
-    },
-  ): void {
-    state.isSaving.set(true);
-    action.pipe(
-      finalize(() => {
-        state.isSaving.set(false);
-        options.onFinalize?.();
-      })
-    ).subscribe({
-      next: () => {
-        this.successService.show(options.successMsg);
-        options.onSuccess?.();
-      },
-      error: (err) => {
-        console.error(`[GuidePage] ${options.errorMsg}:`, err);
-      }
-    });
-  }
-
   // GUIDE EVENTS -----------------------------------------------------------
   // ------------------------------------------------------------------------
   protected onCloseGuideModal(): void {
@@ -203,7 +175,7 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.guideService.delete(id),
       this.guide,
       {
@@ -221,7 +193,7 @@ export class GuidePage {
 
     const payload: SaveGuideModel = { ...item, game_id: gameId };
 
-    this.handleMutation(
+    this.mutation.run(
       id
         ? this.guideService.update(id, payload)
         : this.guideService.create(payload),
@@ -264,7 +236,7 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.adventureService.delete(data.id),
       this.adventure,
       {
@@ -282,7 +254,7 @@ export class GuidePage {
 
     const payload: SaveAdventureModel = { ...item, guide_id: guideId };
 
-    this.handleMutation(
+    this.mutation.run(
       adventureId
         ? this.adventureService.update(adventureId, payload)
         : this.adventureService.create(payload),
@@ -317,7 +289,7 @@ export class GuidePage {
     });
     if (!confirmed) return;
 
-    this.handleMutation(
+    this.mutation.run(
       this.adventureImageService.deleteImage(data.id),
       this.adventureImage,
       {
@@ -334,7 +306,7 @@ export class GuidePage {
 
     const payload: SaveAdventureImageModel = { ...item, adventure_id: adventureId };
 
-    this.handleMutation(
+    this.mutation.run(
       this.adventureImageService.uploadImage(payload),
       this.adventureImage,
       {
