@@ -15,8 +15,8 @@ export class UrlService {
   getAllPagination(params: PaginationRequestModel<FilterByUrlGrp | null>): Observable<PaginationResponseModel<UrlModelDetail>> {
     let path = `?page=${params.page}&limit=${params.limit}`;
 
-    if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`;
+    if (params.search && params.search.trim() !== '')
+      path = `${path}&search=${encodeURIComponent(params.search)}`;
 
     if (params.filter)
       if (params.filter.id_urlgrp && params.filter.id_urlgrp > 0)

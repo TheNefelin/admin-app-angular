@@ -15,8 +15,8 @@ export class GuideService {
   getAllDetailByGamePagination(params: PaginationRequestModel<number>): Observable<PaginationResponseModel<GuideDetailModel>> {
     let path = `?page=${params.page}&limit=${params.limit}`;
 
-    if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`;
+    if (params.search && params.search.trim() !== '')
+      path = `${path}&search=${encodeURIComponent(params.search)}`;
 
     if (params.filter && params.filter > 0)
       path = `${path}&game_id=${params.filter}`;

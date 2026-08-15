@@ -16,8 +16,8 @@ export class ProjectService {
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<ProjectModel>> {
     let path = `?page=${params.page}&limit=${params.limit}`;
 
-    if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`;
+    if (params.search && params.search.trim() !== '')
+      path = `${path}&search=${encodeURIComponent(params.search)}`;
 
     return this.apiService.getAll<PaginationResponseModel<ProjectModel>>(
       this.namespace,

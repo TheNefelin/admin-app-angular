@@ -112,7 +112,8 @@ export class SelectSearchComponent {
   protected highlight(text: string): string {
     const term = this.searchText().trim();
     if (!term) return text;
-    const regex = new RegExp(`(${term})`, 'gi');
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escaped})`, 'gi');
     return text.replace(
       regex,
       '<mark class="bg-primary/20 text-primary font-semibold rounded">$1</mark>'

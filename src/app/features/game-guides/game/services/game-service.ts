@@ -16,7 +16,7 @@ export class GameService {
     let path = `?page=${params.page}&limit=${params.limit}`;
 
     if (params.search && params.search.trim() !== '')
-      path = `${path}&search=${params.search}`;
+      path = `${path}&search=${encodeURIComponent(params.search)}`;
 
     return this.apiService.getAll<PaginationResponseModel<GameModel>>(
       this.namespace, `${this.endpoint}/${path}`

@@ -31,11 +31,17 @@ admin-app-angular/
 │   │   │   ├── auth-service.ts    → login Google (popup), refresh (rotación), logout; sesión en sessionStorage por namespace; sessionSignal(ns) reactivo
 │   │   │   ├── error-service.ts   → Error signal global (modal en layouts)
 │   │   │   ├── success-service.ts → cola de toasts ToastModel[] con auto-cierre a los 5s y cierre manual por id
-│   │   │   └── confirm-service.ts → diálogo de confirmación promise-based: dialog signal + confirm()/accept()/reject()
+│   │   │   ├── confirm-service.ts → diálogo de confirmación promise-based: dialog signal + confirm()/accept()/reject()
+│   │   │   └── mutation-service.ts → patrón único de mutaciones (isSaving + toast éxito + console.error); lo usan las 7 páginas CRUD con modal
+│   │   └── interceptors/
+│   │       ├── auth-interceptor.ts → añade Bearer del namespace de la URL; refresh+retry en 401; logout forzado si el refresh falla
+│   │       └── error-interceptor.ts → formatea el detail del backend a error signal (ÚNICA fuente de errores HTTP; las páginas ya no llaman errorService.show)
 │   │   └── interceptors/
 │   │       ├── auth-interceptor.ts → añade Bearer del namespace de la URL; refresh+retry en 401; logout forzado si el refresh falla
 │   │       └── error-interceptor.ts → formatea el detail del backend a error signal
 │   ├── shared/
+│   │   ├── base/
+│   │   │   └── crud-page.ts       → CrudPage<TModel>: clase base abstracta con señales/métodos de paginación, filtro y reload (totalPages/currentPage/limit/search/getAllPayload + nextPage/prevPage/onFilterChange/onRefreshClick + reload() abstracto)
 │   │   ├── components/        → button, loading, image-picker, image-viewer, message-error, modal-error, modal-confirm, pagination-filter, pagination-nav, select-list, select-search, toast-success, google-auth-component
 │   │   ├── models/            → pagination, select-item, upload-image-model
 │   │   ├── constants/
@@ -48,20 +54,20 @@ admin-app-angular/
 │           │   ├── services/   → GameService (getAllPagination + getDetailById + create/update/delete + uploadImage + deleteImage cover)
 │           │   ├── pages/
 │           │   │   ├── game-form-page/  → Formulario principal (host de game form + lists + modales de fuentes/personajes/screenshots/maps)
-│           │   │   └── game-page/       → lista paginada con fallbacks errorService
+│           │   │   └── game-page/       → lista paginada (hereda CrudPage<GameModel>; usa MutationService)
 │           │   └── components/
 │           │       ├── game-form-component/    → Form state, cover image (ImagePickerComponent), linkedSignal, validación local con MessageErrorComponent (name/slug 1-100)
 │           │       └── image-list-component/   → grid imágenes + delete (output id, placeholder fallback)
 │           ├── genre/
 │           │   ├── models/     → GenreModel, SaveGenreModel
 │           │   ├── services/   → GenreService (CRUD + getAllPagination)
-│           │   ├── pages/      → genre-page/ (lista paginada, rxResource, estado agrupado `genre` = { savePayload, isSaving } + helper local `handleMutation`)
+│           │   ├── pages/      → genre-page/ (lista paginada, rxResource, estado agrupado `genre` = { savePayload, isSaving }; hereda CrudPage<GenreModel>; usa MutationService)
 │           │   └── components/
 │           │       └── genre-form-component/ → dialog modal, validación local con MessageErrorComponent (name 1-50), app-button-component
 │           ├── platform/
 │           │   ├── models/     → PlatformModel, SavePlatformModel
 │           │   ├── services/   → PlatformService (CRUD + getAllPagination)
-│           │   ├── pages/      → platform-page/ (lista paginada, rxResource, estado agrupado `platform` = { savePayload, isSaving } + helper local `handleMutation`)
+│           │   ├── pages/      → platform-page/ (lista paginada, rxResource, estado agrupado `platform` = { savePayload, isSaving }; hereda CrudPage<PlatformModel>; usa MutationService)
 │           │   └── components/
 │           │       └── platform-form-component/ → dialog modal, validación local con MessageErrorComponent (name 1-50), app-button-component
 │           ├── screenshot/
@@ -95,7 +101,7 @@ admin-app-angular/
 │           ├── guide/
 │           │   ├── models/     → GuideModel + GuideDetailModel (agrega adventures[]) extends SaveGuideModel (game_id, title, summary, sort_order, is_enabled + id/fechas)
 │           │   ├── services/   → GuideService (getAllDetailByGamePagination → GET /guides/detail, CRUD)
-│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage` + helper local `handleMutation`)
+│           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage`; hereda CrudPage<GuideModel>; usa MutationService)
 │           │   └── components/
 │           │       ├── guide-form-component/ → dialog modal, validación con MessageErrorComponent, linkedSignal + clearTrigger
 │           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs onEdit/onDelete
@@ -109,31 +115,31 @@ admin-app-angular/
 │           ├── url-grp/
 │           │   ├── models/     → UrlGrpModel (id_url_grp), SaveUrlGrpModel
 │           │   ├── services/   → UrlGrpService (getAllPagination + getAll + create/update/delete)
-│           │   ├── page/       → url-grp-page/ (lista paginada, estado agrupado `urlGrp` = { savePayload, isSaving } + helper local `handleMutation`; toasts SuccessService, confirmación ConfirmService, fallbacks ErrorService)
+│           │   ├── page/       → url-grp-page/ (lista paginada, estado agrupado `urlGrp` = { savePayload, isSaving }; toasts SuccessService, confirmación ConfirmService, fallbacks ErrorService; hereda CrudPage<UrlGrpModel>; usa MutationService)
 │           │   └── components/
 │           │       └── url-grp-form-component/ → dialog modal, validación local con MessageErrorComponent, app-button-component
 │           ├── url/
 │           │   ├── models/     → UrlModel (id_url, id_url_grp), SaveUrlModel
 │           │   ├── services/   → UrlService (getAllPagination + create/update/delete)
-│           │   ├── page/       → url-page/ (lista paginada + filtro por url-grp, estado agrupado `url` = { savePayload, isSaving } + `handleMutation`)
+│           │   ├── page/       → url-page/ (lista paginada + filtro por url-grp, estado agrupado `url` = { savePayload, isSaving }; hereda CrudPage<UrlModelDetail>; usa MutationService)
 │           │   └── components/
 │           │       └── url-form-component/ → dialog modal, ImagePicker (crear) / display (editar), validación local con MessageErrorComponent
 │           ├── language/
 │           │   ├── models/     → LanguageModel (id_language), SaveLanguageModel
 │           │   ├── services/   → LanguageService (getAllPagination + getAll + create/update/delete + uploadImage/deleteImage)
-│           │   ├── page/       → language-page/ (lista paginada, estado agrupado `language` = { savePayload, isSaving } + `handleMutation`)
+│           │   ├── page/       → language-page/ (lista paginada, estado agrupado `language` = { savePayload, isSaving }; hereda CrudPage<LanguageModel>; usa MutationService)
 │           │   └── components/
 │           │       └── language-form-component/ → dialog modal, ImagePicker aspect-square + app-button-component, validación local
 │           ├── technology/
 │           │   ├── models/     → TechnologyModel (id_technology), SaveTechnologyModel
 │           │   ├── services/   → TechnologyService (getAllPagination + getAll + create/update/delete + uploadImage/deleteImage)
-│           │   ├── page/       → technology-page/ (lista paginada, estado agrupado `technology` = { savePayload, isSaving } + `handleMutation`)
+│           │   ├── page/       → technology-page/ (lista paginada, estado agrupado `technology` = { savePayload, isSaving }; hereda CrudPage<TechnologyModel>; usa MutationService)
 │           │   └── components/
 │           │       └── technology-form-component/ → dialog modal, ImagePicker aspect-square + app-button-component, validación local
 │           └── project/
 │               ├── models/     → ProjectModel (id_project, languages, technologies), SaveProjectModel
 │               ├── services/   → ProjectService (getAllPagination + getById + create/update/delete + uploadImage/deleteImage)
-│               ├── pages/      → project-page/ (lista paginada, toasts/confirm/error services) + project-form-page/ (form con ImagePicker aspect-video, selects de language/technology, estado agrupado `project` = { isSaving })
+│               ├── pages/      → project-page/ (lista paginada, toasts/confirm/error services; hereda CrudPage<ProjectModel>; usa MutationService) + project-form-page/ (form con ImagePicker aspect-video, selects de language/technology, estado agrupado `project` = { isSaving })
 │               └── project.routes.ts → rutas ROOT/FORM
 ```
 
@@ -158,6 +164,7 @@ admin-app-angular/
 
 - `linkedSignal` para form data reactivo; `clearTrigger` signal para resetear formularios
 - **Paginación**: `PaginationRequestModel` (`page`, `limit`, `search`, `filter?`) es el payload de los GET paginados; cada service lo traduce a query params. **`limit` máximo 100** (el backend valida `le=100` → 422 si lo excede). Si necesitás listar todo (ej. dropdown de games), usar `limit: 100`, nunca 999/1000. `filter` es genérico (`number` para `game_id`, objeto para otros) — el service lo mapea al query param específico de la feature
+- **`CrudPage<TModel>`** (shared/base): clase base abstracta para páginas de listado paginado. Expone señales `totalPages`/`currentPage`/`limit` (default 10)/`search`, el computed `getAllPayload`, y los métodos `nextPage()`/`prevPage()`/`onFilterChange(filter)`/`onRefreshClick()`. La subclase implementa el abstracto `reload()` (recarga su rxResource de listado) y conserva SUS GETs (`rxResource`) y mutaciones (`MutationService`). **Override**: para cambiar un valor/lógica heredado usar `protected override` (p.ej. `protected override readonly limit = signal<number>(25)` o redefinir `onFilterChange`); requiere palabra `override` por `noImplicitOverride: true`. Las 9 páginas (project, game, language, technology, url-grp, url, genre, platform, guide) la heredan; url-page y guide-page conservan su propio payload con `filter` (`getAllUrlPayload`/`getAllGuidePayload`) — el de la base (`getAllPayload`) es solo para páginas sin filtro
 - **Auth por namespace**: la app admin es multi-proyecto → cada proyecto (game-guides, portfolio, futuros .NET) con su propia sesión. Angular usa convención uniforme y el BFF adapta. Sesiones en **sessionStorage** con prefijo `auth.{ns}.access_token/refresh_token/user` (sobreviven a F5, mueren al cerrar la pestaña). `AuthService` expone `sessionSignal(ns)` reactivo por namespace (Map de WritableSignal): `login()`/`logout()` lo actualizan, así el UI se desloguea solo cuando el interceptor fuerza logout
 - **GoogleAuthComponent** (shared): botón login + dropdown (avatar, nombre, rol, logout). Usa `effect()` en el constructor — NO escribir signals en constructor (NG0950, prohibido en SSR). Lee `sessionSignal(ns)` en vez de `this.authService` mutable. Renderizado solo donde el layout lo define vía `@Input authConfig?: {namespace, label}` en el navbar; actualmente solo GuideGamesLayout
 - **authInterceptor**: extrae ns de `/ssr-api/{ns}/...`, añade `Authorization: Bearer` a toda request del ns (excluye `/auth/`), hace refresh+retry en 401. Si el refresh falla → `void authService.logout(ns)` (limpia sesión + sessionSignal → el componente de login reaparece sin recargar). Correr tras `errorInterceptor` (auth primero) en `app.config.ts`
@@ -178,8 +185,8 @@ admin-app-angular/
 - Delete image genérico: `deleteResource<T>()` a `DELETE /{resource}/{id}/image` (games cover, characters, maps, screenshots)
 - CRUD imágenes: padre inyecta servicio, componente hijo emite modelo via `output`
 - `handleCrudAction<T>` abstrae el patrón CRUD de entidades (sources, characters); `handleImageAction<T>` el de operaciones de imagen (screenshots, maps, delete de imagen) — ver sección Game Form Page
-- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page**, **guide-page**, **genre-page** y **platform-page**
-- **`handleMutation<T>(action, state, options)`** (guide-page): helper LOCAL simple para mutaciones. `options`: `successMsg`, `errorMsg`, `onSuccess`, `onFinalize`. Centraliza `isSaving` (set true → `finalize` reset) y `subscribe` (éxito → toast + `onSuccess`; error → `console.error` + `errorService` con fallback). **Es el patrón de referencia para mutaciones**: más simple que `handleCrudAction`/`handleImageAction` (game-form-page) — **no consolidar** ni migrar game-form-page; usar `handleMutation` en features futuras
+- Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page**, **guide-page**, **genre-page**, **platform-page** y las páginas CRUD con modal (language, technology, url-grp, url)
+- **`MutationService.run<T>(action, state, options)`** (core service compartido): patrón ÚNICO de referencia para mutaciones (create/update/delete/upload). `state` es el objeto agrupado `{ isSaving }` de la feature; `options`: `successMsg`, `errorMsg`, `onSuccess`, `onFinalize`. Centraliza `isSaving` (set true → `finalize` reset) y `subscribe` (éxito → toast `SuccessService` + `onSuccess`; error → `console.error`). Es el sucesor del helper local `handleMutation` que antes se copiaba en 7 páginas (language, technology, url-grp, url, genre, platform, guide). **No migrar game-form-page**: conserva sus helpers `handleCrudAction`/`handleImageAction` (patrón distinto con reload en finalize) — son intencionalmente locales a esa página compleja
 - **Estilo de código**: comillas simples en imports y strings, semicolons siempre — uniforme en todo el proyecto
 - **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio` (`'aspect-square' | 'aspect-video' | null` — `null` = aspecto original sin clase), `labelText`, `displayImg`, `clearTrigger`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
 - **Botón delete**: usa `bg-red-500 hover:bg-red-600 text-white` en lugar de `btn-error` de DaisyUI
@@ -196,7 +203,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 7. ✅ **Characters Angular frontend**: form component (ImagePicker, linkedSignal, validaciones, loading) + list component (tabla, outputs onEdit/onDelete) + service con uploadImage/deleteImage
 8. ✅ **Characters Angular en page**: edit/delete/deleteImage conectados, clear tras save exitoso, estado agrupado por feature y helpers `handleCrudAction`/`handleImageAction`
 23. ✅ **Auth Google en admin por namespace**: sesiones en sessionStorage por namespace (game-guides/portfolio), botón en navbar solo donde el layout lo define; BFF expone client id y propaga `Authorization` (incl. uploads multipart); admin muestra detail real del backend en errores
-34. ✅ **CRUD Guides en admin (Angular)**: feature `guide` completo (models, service con filter→game_id, guide-page paginado por juego con rxResource, guide-form modal con validación + MessageErrorComponent, guide-list collapse); `limit` 5 por página
+34. ✅ **CRUD Guides en admin (Angular)**: feature `guide` completo (models, service con filter→game_id, guide-page paginado por juego con rxResource, guide-form modal con validación + MessageErrorComponent, guide-list collapse); `limit` 5 por página (luego unificado a 10, ver item 46)
 35. ✅ **Toasts de éxito (Angular)**: `SuccessService` con cola (`ToastModel[]`, auto-cierre 5s, cierre manual por id) + `toast-success-component` apilado en layouts; guide-page usa `successService.show()` en create/update/delete; `isSavingGuide` se setea después de validar (no deja loading atascado)
 38. ✅ **Migrar successMessage a `SuccessService` (Angular)**: genre, platform, game y game-form-page migrados al toast con cola (antes signal inline + message-success-component)
 41. ✅ **ConfirmService con modal de confirmación (Angular)**: `ConfirmService` (core) promise-based + `modal-confirm-component` (shared, renderizado en layouts); migrados los deletes de genre, platform, game, guide y game-form-page (source, character); eliminado el patrón viejo `showDeleteModal`/`ModalActionComponent` en game-guides
@@ -212,6 +219,14 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - ✅ **game**: feature completa a nivel senior — `game-service` (alias, semicolons, `getById` muerto eliminado), `game-model`/`game.routes` (alias `@features`), `image-list` (alt validado 1-200 contra schema `VARCHAR(200)`), `game-page` (`editItem` muerto eliminado, fallbacks errorService), `game-form` (validación local con MessageErrorComponent), `game-form-page` (sin `errorMessage` output ni `gameComputed()!`, semicolons, alias), **sub-recursos en modal** (`SourceFormComponent`, `CharacterFormComponent`, `ScreenshotFormComponent`, `MapFormComponent`; `image-form-component` obsoleto eliminado, `ImagePickerComponent` acepta `null` en aspectRatio), **estado agrupado por feature** (`game`/`screenshot`/`map` con `isSaving` propio; `handleImageAction` recibe `loading` por feature)
 45. ✅ **Portfolio en admin (Angular)** — migración completa a patrones senior: url-grp, url, language, technology y project migrados a `SuccessService`/`ConfirmService`/`ErrorService` con fallbacks reales, estado agrupado `{ savePayload, isSaving }` + helper local `handleMutation`, spinners `isLoading() && !hasValue()`, botones `app-button-component`, estilos uniformes (comillas simples, semicolons, alias `@features`); `image-field-component` reemplazado por `image-picker-component` en language/technology/project; `project-form-page` reemplazó el manejo manual de imagen (FileReader/previewUrl) por `ImagePickerComponent` y eliminó el `map(result => result)` muerto; `getById` eliminado de services sin uso (url-grp, url, language, technology), conservado en project (lo usa el form page); `getAll()` conservado en url-grp/language/technology (los usan url-page/project-form-page); **componentes obsoletos eliminados de shared**: `message-success-component`, `modal-action-component`, `image-field-component`
 51. 🔮 **Futuro**: Dashboard Angular completo, producción
+52. ✅ **Refactor de deuda técnica (Angular)** — realizado en sesión de revisión de código:
+  - **`strict: true`** en `tsconfig.json` + limpieza de 2 `??` redundantes (warnings NG8102 en image-viewer y select-list)
+  - **Manejo de errores unificado**: `errorInterceptor` como ÚNICA fuente de errores HTTP; eliminadas 30 llamadas duplicadas a `errorService.show()` en páginas/forms (antes doble manejo página + interceptor). Solo `error-interceptor.ts` (HTTP) y `google-auth-component.ts` (OAuth, no pasa por HTTP) lo usan
+  - **Paginación unificada**: default `limit` 10 en las 8 páginas CRUD (antes guía/otras usaban 5; `pagination-filter` y url-page ya usaban 10)
+  - **`MutationService`** (core): patrón único de mutaciones extraído del helper local `handleMutation` duplicado en 7 páginas (language, technology, url-grp, url, genre, platform, guide); `game-form-page` conserva `handleCrudAction`/`handleImageAction` (intencional)
+  - **`CrudPage<TModel>`** (shared/base): clase base abstracta con el andamiaje de paginación/filtro/reload; migradas las 9 páginas de listado (project, game, language, technology, url-grp, url, genre, platform, guide). Los GETs (`rxResource`) y mutaciones quedan en cada página
+  - **`z-test` eliminado**: ruta `test` + carpeta `features/z-test` removidas
+  - Verificado con `npx ng build` (0 errores/warnings)
 
 ---
 

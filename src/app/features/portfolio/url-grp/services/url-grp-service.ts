@@ -15,8 +15,8 @@ export class UrlGrpService {
   getAllPagination(params: PaginationRequestModel): Observable<PaginationResponseModel<UrlGrpModel>> {
     let path = `?page=${params.page}&limit=${params.limit}`;
 
-    if (params.search && params.search.trim() != '')
-      path = `${path}&search=${params.search}`;
+    if (params.search && params.search.trim() !== '')
+      path = `${path}&search=${encodeURIComponent(params.search)}`;
 
     return this.apiService.getAll<PaginationResponseModel<UrlGrpModel>>(
       this.namespace,
