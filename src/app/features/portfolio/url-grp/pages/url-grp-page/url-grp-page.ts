@@ -4,7 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
 import { SaveUrlGrpModel, UrlGrpModel } from '@features/portfolio/url-grp/models/url-grp-model';
 import { UrlGrpService } from '@features/portfolio/url-grp/services/url-grp-service';
-import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { CrudPage } from '@shared/base/crud-page';
 import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
@@ -25,7 +25,7 @@ import { MutationService } from '@core/services/mutation-service';
   ],
   templateUrl: './url-grp-page.html',
 })
-export class UrlGrpPage {
+export class UrlGrpPage extends CrudPage<UrlGrpModel> {
   private readonly confirmService = inject(ConfirmService);
   private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -33,17 +33,8 @@ export class UrlGrpPage {
     savePayload: signal<UrlGrpModel | null>(null),
     isSaving: signal<boolean>(false),
   };
-  protected readonly totalPages = signal<number>(1);
-  protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(10);
-  private readonly search = signal<string>('');
 
   private readonly service = inject(UrlGrpService);
-  private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
-    page: this.currentPage(),
-    limit: this.limit(),
-    search: this.search()
-  }));
   protected readonly computedList = computed<UrlGrpModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
@@ -65,26 +56,8 @@ export class UrlGrpPage {
   });
 
   // EVENTS -----------------------------------------------------------------
-  protected onRefreshClick(): void {
+  protected override reload(): void {
     this.getAllRX.reload();
-  }
-
-  protected onFilterChange(filter: { search: string; limit: number }): void {
-    this.search.set(filter.search);
-    this.limit.set(filter.limit);
-    this.currentPage.set(1);
-  }
-
-  protected nextPage(): void {
-    if (this.currentPage() < this.totalPages()){
-      this.currentPage.update(e => e + 1);
-    }
-  }
-
-  protected prevPage(): void {
-    if (this.currentPage() > 1){
-      this.currentPage.update(e => e - 1);
-    }
   }
 
   protected onCreate(): void {

@@ -4,7 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { SaveLanguageModel, LanguageModel } from '@features/portfolio/language/models/language-model';
 import { LanguageService } from '@features/portfolio/language/services/language-service';
-import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { CrudPage } from '@shared/base/crud-page';
 import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { LoadingComponent } from '@shared/components/loading-component/loading-component';
@@ -26,7 +26,7 @@ import { MutationService } from '@core/services/mutation-service';
   ],
   templateUrl: './language-page.html',
 })
-export class LanguagePage {
+export class LanguagePage extends CrudPage<LanguageModel> {
   private readonly confirmService = inject(ConfirmService);
   private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -34,17 +34,8 @@ export class LanguagePage {
     savePayload: signal<LanguageModel | null>(null),
     isSaving: signal<boolean>(false),
   };
-  protected readonly totalPages = signal<number>(1);
-  protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(10);
-  private readonly search = signal<string>('');
 
   private readonly service = inject(LanguageService);
-  private readonly getAllPayload = computed<PaginationRequestModel>(() => ({
-    page: this.currentPage(),
-    limit: this.limit(),
-    search: this.search()
-  }));
   protected readonly computedList = computed<LanguageModel[]>(() => this.getAllRX.value() ?? []);
 
   protected readonly getAllRX = rxResource({
@@ -66,26 +57,8 @@ export class LanguagePage {
   });
 
   // EVENTS -----------------------------------------------------------------
-  protected onRefreshClick(): void {
+  protected override reload(): void {
     this.getAllRX.reload();
-  }
-
-  protected onFilterChange(filter: { search: string; limit: number }): void {
-    this.search.set(filter.search);
-    this.limit.set(filter.limit);
-    this.currentPage.set(1);
-  }
-
-  protected nextPage(): void {
-    if (this.currentPage() < this.totalPages()){
-      this.currentPage.update(e => e + 1);
-    }
-  }
-
-  protected prevPage(): void {
-    if (this.currentPage() > 1){
-      this.currentPage.update(e => e - 1);
-    }
   }
 
   protected onCreate(): void {

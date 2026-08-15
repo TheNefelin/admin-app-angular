@@ -2,6 +2,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { GameService } from '@features/game-guides/game/services/game-service';
+import { CrudPage } from '@shared/base/crud-page';
 import { ButtonComponent } from '@shared/components/button-component/button-component';
 import { SelectSearchComponent } from '@shared/components/select-search-component/select-search-component';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
@@ -37,7 +38,7 @@ import { PaginationFilterComponent } from '@shared/components/pagination-filter-
   ],
   templateUrl: './guide-page.html',
 })
-export class GuidePage {
+export class GuidePage extends CrudPage<GuideModel> {
   // STATES -----------------------------------------------------------------
   // ------------------------------------------------------------------------
   protected readonly showGuideFormModal = signal<boolean>(false);
@@ -61,10 +62,6 @@ export class GuidePage {
 
   // GAME GUIDE -------------------------------------------------------------
   // ------------------------------------------------------------------------
-  protected readonly totalPages = signal<number>(1);
-  protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(10);
-  private readonly search = signal<string>('');
   protected readonly guide = {
     savePayload: signal<GuideModel | null>(null),
     isSaving: signal<boolean>(false),
@@ -325,25 +322,7 @@ export class GuidePage {
     this.clearTrigger.update(e => e + 1);
   }
 
-  protected prevPage(): void {
-    if (this.currentPage() > 1){
-      this.currentPage.update(e => e - 1);
-    }
-  }
-
-  protected nextPage(): void {
-    if (this.currentPage() < this.totalPages()){
-      this.currentPage.update(e => e + 1);
-    }
-  }
-
-  protected onRefreshClick(): void {
+  protected override reload(): void {
     this.getAllDetailByGamePagination.reload();
-  }
-
-  protected onFilterChange(filter: { search: string; limit: number }): void {
-    this.search.set(filter.search);
-    this.limit.set(filter.limit);
-    this.currentPage.set(1);
   }
 }

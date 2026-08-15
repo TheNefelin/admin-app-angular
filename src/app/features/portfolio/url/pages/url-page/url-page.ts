@@ -5,6 +5,7 @@ import { catchError, map, of } from 'rxjs';
 import { SaveUrlModel, FilterByUrlGrp, UrlModel, UrlModelDetail } from '@features/portfolio/url/models/url-model';
 import { UrlService } from '@features/portfolio/url/services/url-service';
 import { UrlGrpService } from '@features/portfolio/url-grp/services/url-grp-service';
+import { CrudPage } from '@shared/base/crud-page';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { PaginationFilterComponent } from '@shared/components/pagination-filter-component/pagination-filter-component';
@@ -29,7 +30,7 @@ import { MutationService } from '@core/services/mutation-service';
   ],
   templateUrl: './url-page.html',
 })
-export class UrlPage {
+export class UrlPage extends CrudPage<UrlModelDetail> {
   private readonly confirmService = inject(ConfirmService);
   private readonly mutation = inject(MutationService);
   protected readonly showFormModal = signal<boolean>(false);
@@ -37,10 +38,6 @@ export class UrlPage {
     savePayload: signal<UrlModel | null>(null),
     isSaving: signal<boolean>(false),
   };
-  protected readonly totalPages = signal<number>(1);
-  protected readonly currentPage = signal<number>(1);
-  private readonly limit = signal<number>(10);
-  private readonly search = signal<string>('');
   private readonly selectedUrlGrpId = signal<number | null>(null);
 
   private readonly serviceUrlrp = inject(UrlGrpService);
@@ -97,27 +94,9 @@ export class UrlPage {
     this.currentPage.set(1);
   }
 
-  protected onRefreshClick(): void {
+  protected override reload(): void {
     this.getAllUrlRX.reload();
     this.getAllUrlGrpRX.reload();
-  }
-
-  protected onFilterChange(filter: { search: string; limit: number }): void {
-    this.search.set(filter.search);
-    this.limit.set(filter.limit);
-    this.currentPage.set(1);
-  }
-
-  protected nextPage(): void {
-    if (this.currentPage() < this.totalPages()){
-      this.currentPage.update(e => e + 1);
-    }
-  }
-
-  protected prevPage(): void {
-    if (this.currentPage() > 1){
-      this.currentPage.update(e => e - 1);
-    }
   }
 
   protected onCreate(): void {
