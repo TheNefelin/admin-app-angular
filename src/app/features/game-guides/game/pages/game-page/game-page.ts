@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { GameModel } from '@features/game-guides/game/models/game-model';
 import { GameService } from '@features/game-guides/game/services/game-service';
 import { CrudPage } from '@shared/base/crud-page';

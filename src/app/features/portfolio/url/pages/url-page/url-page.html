@@ -70,7 +70,7 @@
                 <span>{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
               </td>
               <td>
-                <a [href]="item.link" target="_blank" class="text-error">{{ item.link }}</a>
+                <a [href]="item.link" target="_blank" rel="noopener noreferrer" class="text-error">{{ item.link }}</a>
                 <br />
                 <span class="font-bold">{{ item.urlgrp_name }}</span>
               </td>

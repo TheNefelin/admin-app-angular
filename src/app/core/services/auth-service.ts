@@ -45,8 +45,12 @@ function loadGoogleScript(): Promise<void> {
     const script = document.createElement('script');
     script.src = GOOGLE_SCRIPT_URL;
     script.async = true;
-    script.onload = () => resolve();
+    script.onload = () => {
+      clearTimeout(timeout);
+      resolve();
+    };
     script.onerror = () => {
+      clearTimeout(timeout);
       script.remove();
       reject(new Error('No se pudo cargar el script de Google'));
     };

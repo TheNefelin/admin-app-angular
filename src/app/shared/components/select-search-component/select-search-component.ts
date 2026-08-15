@@ -84,6 +84,7 @@ export class SelectSearchComponent {
     this.isOpen.set(true);
     if (this.selectedItemInternal() && value !== this.selectedItemInternal()!.name) {
       this.selectedItemInternal.set(null);
+      this.cleared.emit();
     }
   }
 
