@@ -1,5 +1,6 @@
 import { computed, signal } from '@angular/core';
 import { PaginationRequestModel } from '@shared/models/pagination-request-model';
+import { PaginationResponseModel } from '@shared/models/pagination-response-model';
 
 export abstract class CrudPage<TModel> {
   protected readonly totalPages = signal<number>(1);
@@ -12,6 +13,16 @@ export abstract class CrudPage<TModel> {
     limit: this.limit(),
     search: this.search()
   }));
+
+  protected mapPaginated(response: PaginationResponseModel<TModel>): TModel[] {
+    this.totalPages.set(Math.ceil(response.total / this.limit()));
+    return response.items;
+  }
+
+  protected emptyPaginated(): TModel[] {
+    this.totalPages.set(1);
+    return [];
+  }
 
   protected onRefreshClick(): void {
     this.reload();

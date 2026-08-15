@@ -234,6 +234,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **`loadGoogleScript` robusto**: rechaza en `onerror` del script y en timeout de 10s (antes el botón quedaba "Cargando..." para siempre si Google estaba bloqueado); `loginWithGoogle` chequea `window.google` antes de usarlo
   - **SSR sin prerender**: `app.routes.server.ts` usa un solo catch-all `RenderMode.Client` (eliminadas las 4 entradas de form pages redundantes). Build confirma `Prerendered 0 static routes` — las páginas de admin se renderizan en el cliente con la API disponible, sin HTML vacío ni doble carga
   - **Sesión**: se mantiene `sessionStorage` por namespace (muere al cerrar pestaña/navegador, sobrevive F5, no es localStorage)
+55. ✅ **Streams `rxResource` puros (Angular)** — el side-effect de `totalPages.set()` vivía DENTRO del `map` en los 9 streams `getAllPagination`; ahora `CrudPage` expone `mapPaginated(response)` (setea `totalPages` y devuelve `items`) y `emptyPaginated()` (resetea `totalPages` a 1 en error). En cada página el `map` quedó de una línea y el `catchError` vuelve `of(this.emptyPaginated())`, eliminando el estado stale de la paginación cuando una request falla. Aplica a game, guide, genre, platform, project, url, url-grp, language y technology
 
 ---
 

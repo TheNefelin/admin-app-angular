@@ -44,13 +44,10 @@ export class TechnologyPage extends CrudPage<TechnologyModel> {
       if (!params) return of(null);
 
       return this.service.getAllPagination(params).pipe(
-        map(response => {
-          this.totalPages.set(Math.ceil(response.total / this.limit()));
-          return response.items;
-        }),
+        map(response => this.mapPaginated(response)),
         catchError(err => {
           console.error('[TechnologyService::TechnologyPage] getAllPagination:', err);
-          return of([]);
+          return of(this.emptyPaginated());
         })
       );
     },

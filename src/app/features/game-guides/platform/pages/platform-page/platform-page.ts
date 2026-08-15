@@ -41,13 +41,10 @@ export class PlatformPage extends CrudPage<PlatformModel> {
       if (!params) return of(null);
 
       return this.service.getAllPagination(params).pipe(
-        map(response => {
-          this.totalPages.set(Math.ceil(response.total / this.limit()));
-          return response.items;
-        }),
+        map(response => this.mapPaginated(response)),
         catchError(err => {
           console.error('[PlatformService::PlatformPage] getAllPagination:', err);
-          return of([]);
+          return of(this.emptyPaginated());
         })
       );
     },

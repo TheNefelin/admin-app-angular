@@ -9,7 +9,7 @@ import { PaginationRequestModel } from '@shared/models/pagination-request-model'
 import { SelectItemModel } from '@shared/models/select-item-model';
 import { catchError, map, of } from 'rxjs';
 import { GuideFormComponent } from '@features/game-guides/guide/components/guide-form-component/guide-form-component';
-import { GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
+import { GuideDetailModel, GuideModel, SaveGuideModel } from '@features/game-guides/guide/models/guide-model';
 import { GuideService } from '@features/game-guides/guide/services/guide-service';
 import { PaginationNavComponent } from '@shared/components/pagination-nav-component/pagination-nav-component';
 import { GuideListComponent } from '@features/game-guides/guide/components/guide-list-component/guide-list-component';
@@ -38,7 +38,7 @@ import { PaginationFilterComponent } from '@shared/components/pagination-filter-
   ],
   templateUrl: './guide-page.html',
 })
-export class GuidePage extends CrudPage<GuideModel> {
+export class GuidePage extends CrudPage<GuideDetailModel> {
   // STATES -----------------------------------------------------------------
   // ------------------------------------------------------------------------
   protected readonly showGuideFormModal = signal<boolean>(false);
@@ -121,13 +121,10 @@ export class GuidePage extends CrudPage<GuideModel> {
       if (!params || !params.filter) return of(null);
 
       return this.guideService.getAllDetailByGamePagination(params).pipe(
-        map(response => {
-          this.totalPages.set(Math.ceil(response.total / this.limit()));
-          return response.items;
-        }),
+        map(response => this.mapPaginated(response)),
         catchError(err => {
           console.error('[GuideService::GuidePage] getAllDetailByGamePagination:', err);
-          return of([]);
+          return of(this.emptyPaginated());
         })
       );
     },
