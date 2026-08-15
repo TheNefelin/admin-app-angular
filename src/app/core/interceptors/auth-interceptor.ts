@@ -2,6 +2,7 @@ import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, from, switchMap, throwError } from 'rxjs';
 import { AuthService } from '@core/services/auth-service';
+import { SuccessService } from '@core/services/success-service';
 
 const NAMESPACE_REGEX = /^\/ssr-api\/([^/]+)\//;
 
@@ -12,6 +13,7 @@ function namespaceOf(url: string): string | null {
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
+  const successService = inject(SuccessService);
 
   const ns = namespaceOf(req.url);
   if (!ns || req.url.includes('/auth/')) return next(req);
@@ -27,7 +29,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
       return from(authService.refresh(ns)).pipe(
         switchMap((newToken) => {
-          if (!newToken) return throwError(() => error);
+          if (!newToken) {
+            authService.logout(ns);
+            successService.show('Sesión expirada, inicia sesión de nuevo', 'info');
+            return throwError(() => error);
+          }
           return next(attachToken(req, newToken));
         }),
       );

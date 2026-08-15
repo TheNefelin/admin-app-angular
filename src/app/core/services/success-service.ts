@@ -1,8 +1,11 @@
 import { Service, signal } from "@angular/core";
 
+export type ToastType = 'success' | 'info';
+
 export interface ToastModel {
   id: number;
   message: string;
+  type: ToastType;
 }
 
 @Service()
@@ -10,11 +13,11 @@ export class SuccessService {
   readonly toasts = signal<ToastModel[]>([]);
   private nextId = 0;
 
-  show(message: string | null): void {
+  show(message: string | null, type: ToastType = 'success'): void {
     if (!message) return;
 
     const id = ++this.nextId;
-    this.toasts.update(toasts => [...toasts, { id, message }]);
+    this.toasts.update(toasts => [...toasts, { id, message, type }]);
 
     setTimeout(() => this.clear(id), 5000);
   }

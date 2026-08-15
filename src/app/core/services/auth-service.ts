@@ -1,4 +1,4 @@
-import { Service } from '@angular/core';
+import { Service, signal, WritableSignal } from '@angular/core';
 
 export interface AuthUser {
   id_user: string;
@@ -66,6 +66,16 @@ function loadGoogleScript(): Promise<void> {
 @Service()
 export class AuthService {
   private readonly googleClientIds = new Map<string, string>();
+  private readonly sessionSignals = new Map<string, WritableSignal<AuthSession | null>>();
+
+  sessionSignal(ns: string): WritableSignal<AuthSession | null> {
+    let sig = this.sessionSignals.get(ns);
+    if (!sig) {
+      sig = signal<AuthSession | null>(this.getSession(ns));
+      this.sessionSignals.set(ns, sig);
+    }
+    return sig;
+  }
 
   async getGoogleClientId(ns: string): Promise<string> {
     const cached = this.googleClientIds.get(ns);
@@ -115,6 +125,7 @@ export class AuthService {
     sessionStorage.setItem(KEY(ns, 'access_token'), session.token);
     sessionStorage.setItem(KEY(ns, 'refresh_token'), session.refresh_token);
     sessionStorage.setItem(KEY(ns, 'user'), JSON.stringify(session.user));
+    this.sessionSignals.get(ns)?.set(session);
   }
 
   private clearSession(ns: string): void {
@@ -123,6 +134,7 @@ export class AuthService {
     sessionStorage.removeItem(KEY(ns, 'access_token'));
     sessionStorage.removeItem(KEY(ns, 'refresh_token'));
     sessionStorage.removeItem(KEY(ns, 'user'));
+    this.sessionSignals.get(ns)?.set(null);
   }
 
   async loginWithGoogle(ns: string): Promise<void> {

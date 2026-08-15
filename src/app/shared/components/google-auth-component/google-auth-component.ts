@@ -18,17 +18,13 @@ export class GoogleAuthComponent {
   readonly loading = signal(false);
 
   constructor() {
-    effect(() => {
-      const ns = this.namespace();
-      if (ns) this.session.set(this.authService.getSession(ns));
-    });
+    effect(() => this.session.set(this.authService.sessionSignal(this.namespace())()));
   }
 
   protected async login(): Promise<void> {
     this.loading.set(true);
     try {
       await this.authService.loginWithGoogle(this.namespace());
-      this.refreshSession();
     } catch (err) {
       this.errorService.show(err instanceof Error ? err.message : 'Error al iniciar sesión');
     } finally {
@@ -38,10 +34,5 @@ export class GoogleAuthComponent {
 
   protected async logout(): Promise<void> {
     await this.authService.logout(this.namespace());
-    this.refreshSession();
-  }
-
-  private refreshSession(): void {
-    this.session.set(this.authService.getSession(this.namespace()));
   }
 }
