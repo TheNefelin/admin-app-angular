@@ -231,6 +231,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 53. ✅ **Auditoría de calidad (Angular)** — hallazgos de severidad alta corregidos:
   - **XSS almacenado en `select-search-component`**: eliminado `[innerHTML]` y el método `highlight()` (generaba HTML en el `.ts`); nuevo `highlightParts(): HighlightPart[]` puro (segmentos `{ text, marked }`) renderizado en el template con `@for` + interpolación `{{ }}` (escape automático de Angular). Adiós también al regex con metacharacteres (el `indexOf` no necesita escape)
   - **Botón "Refrescar" muerto en `pagination-filter-component`**: conectado `(onClick)` al nuevo `onRefresh()`; tanto el botón como el Enter del form aplican los filtros actuales (sin esperar el debounce de 300ms) y disparan `reload()`. El componente quedó 100% declarativo (sin constructor ni `subscribe` manual): `refreshTrigger` signal + `outputFromObservable`
+  - **Modales no pierden datos al fallar el save**: `MutationService.run` (y el helper local `handleCrudAction` de game-form-page) ganaron `onClose`, que corre SOLO en éxito; los `onFinalize` que cerraban/reseteaban modales migraron a `onClose` en genre, platform, url-grp, url, language, technology y guide (3 modales) + game-form-page (source). Si la API falla, el modal queda abierto con los datos intactos
 
 ---
 

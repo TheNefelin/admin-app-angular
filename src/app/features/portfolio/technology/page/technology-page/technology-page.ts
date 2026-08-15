@@ -120,7 +120,7 @@ export class TechnologyPage extends CrudPage<TechnologyModel> {
         successMsg: id ? 'Technology modificado correctamente' : 'Technology creado correctamente',
         errorMsg: id ? 'Error al modificar el Technology' : 'Error al crear el Technology',
         onSuccess: () => this.getAllRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.technology.savePayload.set(null);
         },

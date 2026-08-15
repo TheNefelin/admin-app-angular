@@ -199,7 +199,7 @@ export class GuidePage extends CrudPage<GuideModel> {
         successMsg: `Guía ${ id ? 'modificada' : 'creada' } correctamente`,
         errorMsg: `Error al ${ id ? 'modificar' : 'crear' } la Guía`,
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showGuideFormModal.set(false);
           this.guide.savePayload.set(null);
         },
@@ -260,7 +260,7 @@ export class GuidePage extends CrudPage<GuideModel> {
         successMsg: `Aventura ${ adventureId ? 'modificada' : 'creada' } correctamente`,
         errorMsg: `Error al ${ adventureId ? 'modificar' : 'crear' } la Aventura`,
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
-        onFinalize: () => this.onCloseAdventureModal(),
+        onClose: () => this.onCloseAdventureModal(),
       }
     );
   }
@@ -310,7 +310,7 @@ export class GuidePage extends CrudPage<GuideModel> {
         successMsg: 'Imagen de la Aventura subida correctamente',
         errorMsg: 'Error al cargar la imagen de la Aventura',
         onSuccess: () => this.getAllDetailByGamePagination.reload(),
-        onFinalize: () => this.onCloseAdventureImageModal(),
+        onClose: () => this.onCloseAdventureImageModal(),
       }
     );
   }

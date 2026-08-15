@@ -85,7 +85,7 @@ export class UrlGrpPage extends CrudPage<UrlGrpModel> {
         successMsg: id ? 'Url Grp modificado correctamente' : 'Url Grp creado correctamente',
         errorMsg: id ? 'Error al modificar el Url Grp' : 'Error al crear el Url Grp',
         onSuccess: () => this.getAllRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.urlGrp.savePayload.set(null);
         },

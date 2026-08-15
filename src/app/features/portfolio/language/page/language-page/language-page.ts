@@ -120,7 +120,7 @@ export class LanguagePage extends CrudPage<LanguageModel> {
         successMsg: id ? 'Language modificado correctamente' : 'Language creado correctamente',
         errorMsg: id ? 'Error al modificar el Language' : 'Error al crear el Language',
         onSuccess: () => this.getAllRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.language.savePayload.set(null);
         },

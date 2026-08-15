@@ -257,17 +257,21 @@ export class GameFormPage {
       errorMsg: string;
       reloadOnSuccess?: boolean;
       onSuccess?: () => void;
+      onClose?: () => void;
       onFinalize?: () => void;
     },
   ): void {
+    let succeeded = false;
     options.loading.set(true);
     action.pipe(
       finalize(() => {
         options.loading.set(false);
+        if (succeeded) options.onClose?.();
         options.onFinalize?.();
       })
     ).subscribe({
       next: () => {
+        succeeded = true;
         if (options.successMsg) this.successService.show(options.successMsg);
         if (options.reloadOnSuccess) this.gameRX.reload();
         options.onSuccess?.();
@@ -384,7 +388,7 @@ export class GameFormPage {
         successMsg: sourceId ? 'Fuente modificada correctamente' : 'Fuente creada correctamente',
         errorMsg: sourceId ? 'Error al modificar la Fuente' : 'Error al crear la Fuente',
         reloadOnSuccess: true,
-        onFinalize: () => this.onClearSource(),
+        onClose: () => this.onClearSource(),
       }
     );
   }

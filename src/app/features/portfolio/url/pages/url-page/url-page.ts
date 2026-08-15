@@ -124,7 +124,7 @@ export class UrlPage extends CrudPage<UrlModelDetail> {
         successMsg: id ? 'Url modificada correctamente' : 'Url creada correctamente',
         errorMsg: id ? 'Error al modificar la Url' : 'Error al crear la Url',
         onSuccess: () => this.getAllUrlRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.url.savePayload.set(null);
         },

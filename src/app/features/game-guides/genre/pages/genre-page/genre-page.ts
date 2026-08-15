@@ -83,7 +83,7 @@ export class GenrePage extends CrudPage<GenreModel> {
         successMsg: id ? 'Género modificado correctamente' : 'Género creado correctamente',
         errorMsg: id ? 'Error al modificar el Género' : 'Error al crear el Género',
         onSuccess: () => this.getAllRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.genre.savePayload.set(null);
         },

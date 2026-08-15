@@ -83,7 +83,7 @@ export class PlatformPage extends CrudPage<PlatformModel> {
         successMsg: id ? 'Plataforma modificada correctamente' : 'Plataforma creada correctamente',
         errorMsg: id ? 'Error al modificar la Plataforma' : 'Error al crear la Plataforma',
         onSuccess: () => this.getAllRX.reload(),
-        onFinalize: () => {
+        onClose: () => {
           this.showFormModal.set(false);
           this.platform.savePayload.set(null);
         },
