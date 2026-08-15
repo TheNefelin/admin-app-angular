@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { GuideGamesLayoutComponent } from '@layouts/guide-games-layout-component/guide-games-layout-component';
 import { MainLayoutComponent } from '@layouts/main-layout-component/main-layout-component';
 import { PortfolioLayoutComponent } from '@layouts/portfolio-layout-component/portfolio-layout-component';
+import { DashboardPage } from '@features/dashboard/pages/dashboard-page/dashboard-page';
 import { NotFoundPage } from '@shared/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
@@ -11,7 +12,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+        component: DashboardPage,
       },
     ]
   },
@@ -21,7 +22,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+        component: DashboardPage,
       },
       {
         path: 'url-grp',
@@ -51,7 +52,7 @@ export const routes: Routes = [
     children: [
       {
         path: '',
-        loadChildren: () => import('@features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+        component: DashboardPage,
       },
       {
         path: 'genre',

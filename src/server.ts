@@ -78,8 +78,11 @@ function extractNamespace(originalUrl: string): { namespace: string; path: strin
 app.post(
   '/ssr-api/:namespace/:resource/:id/upload-image',
   express.raw({ type: 'multipart/form-data', limit: '10mb' }),
-  async (req, res) => {
+  async (req, res, next) => {
     try {
+      if (!req.is('multipart/form-data'))
+        return next();
+
       const { namespace, resource, id } = req.params;
       const origin = getOrigin(namespace);
 

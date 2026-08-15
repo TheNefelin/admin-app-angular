@@ -249,6 +249,11 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **Spinner solo en carga inicial**: game-page usaba `isLoading()` → al cambiar página/filtrar la tabla completa era reemplazada por el spinner (parpadeo). Ahora `isLoading() && !hasValue()` como el resto de páginas
   - **Imports con comillas simples**: 28 imports usaban `from "..."` (inconsistencia del auto-import). Normalizados a comillas simples en 18 archivos
   - **Accesibilidad (WCAG)**: labels de forms CRUD con `id` + `for` (asociación explícita, click enfoca el input, lectores de pantalla anuncian el campo). Inputs ya envueltos en `<label>` (select-search, image-picker, pagination search) mantienen la asociación implícita. `aria-label` en el checkbox del theme-toggle y label en el input de límite de paginación
+59. ✅ **Auditoría de calidad (Angular) — Bajas #12 a #14**:
+  - **Import aliases en vez de relativos**: los componentes de `shared/` y `layouts/` importaban entre sí con rutas relativas (`../button-component/...`); ahora usan los aliases `@shared/*` / `@layouts/*` configurados en `tsconfig.app.json`, consistente con el resto del proyecto. Los `./` de la raíz `src` (main.ts, app.config, etc.) son correctos y se mantienen
+  - **Upload multipart validado**: el handler `POST /ssr-api/:namespace/:resource/:id/upload-image` (portfolio) no validaba que el request fuera multipart — un request sin `multipart/form-data` dejaba `req.body` vacío y `new Uint8Array(...)` explotaba con un 502 genérico. Ahora hace `if (!req.is('multipart/form-data')) return next()` igual que el handler sin `:id`
+  - **Encabezado "Formulario" redundante eliminado** en `game-form-page` (repetía "CREAR/MODIFICAR GAME" de la cabecera)
+  - **Dashboard sin `loadChildren` triple**: `DASHBOARD_ROUTES` se lazy-cargaba en los 3 roots (Main, portfolio, game-guides) siendo un módulo de un solo componente. Ahora `DashboardPage` se usa como `component` directo en los 3 children y `dashboard.routes.ts` quedó eliminado
 
 ---
 
