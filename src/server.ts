@@ -143,8 +143,14 @@ app.post(
 );
 
 // ─── Config expuesta al navegador (sin secretos) ─────────────────────
+//   Client IDs de Google por namespace: cada app del admin (game-guides,
+//   portfolio, futuras) puede tener su propio Google OAuth client.
+const GOOGLE_CLIENT_IDS: Record<string, string> = {
+  'game-guides': process.env['GOOGLE_CLIENT_ID_GAME_GUIDES'] ?? '',
+};
+
 app.get('/ssr-api/config', (_req, res) => {
-  res.json({ googleClientId: process.env['PUBLIC_GOOGLE_CLIENT_ID'] ?? '' });
+  res.json({ googleClientIds: GOOGLE_CLIENT_IDS });
 });
 
 // ─── Proxy genérico para todo /ssr-api/ ──────────────────────────────

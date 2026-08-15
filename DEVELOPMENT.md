@@ -23,22 +23,19 @@ Documentación específica del **dashboard de administración** (`admin-app-angu
 
 ```
 admin-app-angular/
-├── src/server.ts              → Express SSR + proxy /ssr-api/ + multipart handlers + GET /ssr-api/config
+├── src/server.ts              → Express SSR + proxy /ssr-api/ + multipart handlers + GET /ssr-api/config (googleClientIds por namespace)
 ├── src/app/
 │   ├── core/
 │   │   ├── services/
 │   │   │   ├── api-service.ts     → CRUD genérico + postWithFile<T>() multipart + deleteResource<T>() image
-│   │   │   ├── auth-service.ts    → login Google (popup), refresh (rotación), logout; sesión en sessionStorage por namespace; sessionSignal(ns) reactivo
+│   │   │   ├── auth-service.ts    → login Google (popup), refresh (rotación), logout; client ID por namespace (getGoogleClientId(ns) con cache); sesión en sessionStorage por namespace; sessionSignal(ns) reactivo
 │   │   │   ├── error-service.ts   → Error signal global (modal en layouts)
 │   │   │   ├── success-service.ts → cola de toasts ToastModel[] con auto-cierre a los 5s y cierre manual por id
 │   │   │   ├── confirm-service.ts → diálogo de confirmación promise-based: dialog signal + confirm()/accept()/reject()
-│   │   │   └── mutation-service.ts → patrón único de mutaciones (isSaving + toast éxito + console.error); lo usan las 7 páginas CRUD con modal
+│   │   │   └── mutation-service.ts → patrón único de mutaciones (isSaving + toast éxito + console.error + onClose solo en éxito); lo usan las 7 páginas CRUD con modal
 │   │   └── interceptors/
 │   │       ├── auth-interceptor.ts → añade Bearer del namespace de la URL; refresh+retry en 401; logout forzado si el refresh falla
 │   │       └── error-interceptor.ts → formatea el detail del backend a error signal (ÚNICA fuente de errores HTTP; las páginas ya no llaman errorService.show)
-│   │   └── interceptors/
-│   │       ├── auth-interceptor.ts → añade Bearer del namespace de la URL; refresh+retry en 401; logout forzado si el refresh falla
-│   │       └── error-interceptor.ts → formatea el detail del backend a error signal
 │   ├── shared/
 │   │   ├── base/
 │   │   │   └── crud-page.ts       → CrudPage<TModel>: clase base abstracta con señales/métodos de paginación, filtro y reload (totalPages/currentPage/limit/search/getAllPayload + nextPage/prevPage/onFilterChange/onRefreshClick + reload() abstracto)
@@ -232,6 +229,11 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **XSS almacenado en `select-search-component`**: eliminado `[innerHTML]` y el método `highlight()` (generaba HTML en el `.ts`); nuevo `highlightParts(): HighlightPart[]` puro (segmentos `{ text, marked }`) renderizado en el template con `@for` + interpolación `{{ }}` (escape automático de Angular). Adiós también al regex con metacharacteres (el `indexOf` no necesita escape)
   - **Botón "Refrescar" muerto en `pagination-filter-component`**: conectado `(onClick)` al nuevo `onRefresh()`; tanto el botón como el Enter del form aplican los filtros actuales (sin esperar el debounce de 300ms) y disparan `reload()`. El componente quedó 100% declarativo (sin constructor ni `subscribe` manual): `refreshTrigger` signal + `outputFromObservable`
   - **Modales no pierden datos al fallar el save**: `MutationService.run` (y el helper local `handleCrudAction` de game-form-page) ganaron `onClose`, que corre SOLO en éxito; los `onFinalize` que cerraban/reseteaban modales migraron a `onClose` en genre, platform, url-grp, url, language, technology y guide (3 modales) + game-form-page (source). Si la API falla, el modal queda abierto con los datos intactos
+54. ✅ **Auth por namespace + SSR client render (Angular)**:
+  - **Google client ID por app**: `server.ts` expone `GET /ssr-api/config` → `{ googleClientIds }` (mapa por namespace); `AuthService.getGoogleClientId(ns)` busca el ID de esa app, lo cachea en `Map` y lanza error claro si no está configurado (caso portfolio hoy). Una feature futura solo agrega `GOOGLE_CLIENT_ID_<FEATURE>` al `.env.demo` + su entrada en `GOOGLE_CLIENT_IDS` de `server.ts`. Variable renombrada `PUBLIC_GOOGLE_CLIENT_ID` → `GOOGLE_CLIENT_ID_GAME_GUIDES` (server-only, sin prefijo `PUBLIC_`)
+  - **`loadGoogleScript` robusto**: rechaza en `onerror` del script y en timeout de 10s (antes el botón quedaba "Cargando..." para siempre si Google estaba bloqueado); `loginWithGoogle` chequea `window.google` antes de usarlo
+  - **SSR sin prerender**: `app.routes.server.ts` usa un solo catch-all `RenderMode.Client` (eliminadas las 4 entradas de form pages redundantes). Build confirma `Prerendered 0 static routes` — las páginas de admin se renderizan en el cliente con la API disponible, sin HTML vacío ni doble carga
+  - **Sesión**: se mantiene `sessionStorage` por namespace (muere al cerrar pestaña/navegador, sobrevive F5, no es localStorage)
 
 ---
 

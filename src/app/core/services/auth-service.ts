@@ -32,32 +32,53 @@ declare global {
 
 const KEY = (ns: string, suffix: string) => `auth.${ns}.${suffix}`;
 
+const GOOGLE_SCRIPT_URL = 'https://accounts.google.com/gsi/client';
+const GOOGLE_SCRIPT_TIMEOUT_MS = 10000;
+
 function loadGoogleScript(): Promise<void> {
-  return new Promise((resolve) => {
-    if (document.querySelector('script[src="https://accounts.google.com/gsi/client"]')) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${GOOGLE_SCRIPT_URL}"]`)) {
       resolve();
       return;
     }
+
     const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
+    script.src = GOOGLE_SCRIPT_URL;
+    script.async = true;
     script.onload = () => resolve();
+    script.onerror = () => {
+      script.remove();
+      reject(new Error('No se pudo cargar el script de Google'));
+    };
     document.head.appendChild(script);
+
+    const timeout = setTimeout(() => {
+      script.remove();
+      reject(new Error('Tiempo de espera agotado cargando el script de Google'));
+    }, GOOGLE_SCRIPT_TIMEOUT_MS);
   });
 }
 
 @Service()
 export class AuthService {
-  private googleClientId: string | null = null;
+  private readonly googleClientIds = new Map<string, string>();
 
-  async getGoogleClientId(): Promise<string> {
-    if (this.googleClientId) return this.googleClientId;
+  async getGoogleClientId(ns: string): Promise<string> {
+    const cached = this.googleClientIds.get(ns);
+    if (cached) return cached;
 
     const res = await fetch('/ssr-api/config');
     if (!res.ok) throw new Error('No se pudo cargar la configuración');
 
-    const data: { googleClientId: string } = await res.json();
-    this.googleClientId = data.googleClientId;
-    return this.googleClientId;
+    const data: { googleClientIds: Record<string, string> } = await res.json();
+    const clientId = data.googleClientIds[ns] ?? '';
+
+    if (!clientId) {
+      throw new Error(`Google login no configurado para el namespace "${ns}"`);
+    }
+
+    this.googleClientIds.set(ns, clientId);
+    return clientId;
   }
 
   getSession(ns: string): AuthSession | null {
@@ -101,8 +122,12 @@ export class AuthService {
   }
 
   async loginWithGoogle(ns: string): Promise<void> {
-    const clientId = await this.getGoogleClientId();
+    const clientId = await this.getGoogleClientId(ns);
     await loadGoogleScript();
+
+    if (!window.google) {
+      throw new Error('El script de Google no está disponible');
+    }
 
     return new Promise<void>((resolve, reject) => {
       const client = window.google!.accounts.oauth2.initTokenClient({
