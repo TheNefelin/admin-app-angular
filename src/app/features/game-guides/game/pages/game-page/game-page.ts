@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { catchError, map, of } from 'rxjs';
 import { GameModel } from '@features/game-guides/game/models/game-model';
@@ -11,8 +11,8 @@ import { PaginationNavComponent } from '@shared/components/pagination-nav-compon
 import { ROUTES_CONSTANTS } from '@shared/constants/routes-constant';
 import { Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage } from '@angular/common';
-import { SuccessService } from '@core/services/success-service';
 import { ConfirmService } from '@core/services/confirm-service';
+import { MutationService } from '@core/services/mutation-service';
 
 @Component({
   selector: 'app-game-page',
@@ -28,8 +28,10 @@ import { ConfirmService } from '@core/services/confirm-service';
 })
 export class GamePage extends CrudPage<GameModel> {
   private readonly router = inject(Router);
-  private readonly successService = inject(SuccessService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly mutation = inject(MutationService);
+
+  protected readonly deleting = signal<boolean>(false);
 
   private readonly service = inject(GameService);
   protected readonly computedList = computed<GameModel[]>(() => this.getAllRX.value() ?? []);
@@ -68,14 +70,14 @@ export class GamePage extends CrudPage<GameModel> {
     });
     if (!confirmed) return;
 
-    this.service.delete(item.id).subscribe({
-      next: () => {
-        this.successService.show('Eliminado correctamente');
-        this.getAllRX.reload();
-      },
-      error: (err) => {
-        console.error('[GameService::GamePage] onDelete:', err);
+    this.mutation.run(
+      this.service.delete(item.id),
+      { isSaving: this.deleting },
+      {
+        successMsg: 'Eliminado correctamente',
+        errorMsg: 'Error al eliminar el Game',
+        onSuccess: () => this.getAllRX.reload(),
       }
-    });
+    );
   }
 }

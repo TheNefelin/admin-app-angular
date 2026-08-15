@@ -9,6 +9,14 @@ import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
+function parseJsonSafe(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return { detail: text };
+  }
+}
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
@@ -93,7 +101,7 @@ app.post(
       });
 
       const text = await response.text();
-      res.status(response.status).json(text ? JSON.parse(text) : null);
+      res.status(response.status).json(text ? parseJsonSafe(text) : null);
     } catch (err) {
       console.error('[server.ts] upload error:', err);
       res.status(502).json({ detail: 'Error al subir la imagen' });
@@ -134,7 +142,7 @@ app.post(
       });
 
       const text = await response.text();
-      res.status(response.status).json(text ? JSON.parse(text) : null);
+      res.status(response.status).json(text ? parseJsonSafe(text) : null);
     } catch (err) {
       console.error('[server.ts] upload-image error:', err);
       res.status(502).json({ detail: 'Error al subir el archivo' });
@@ -190,7 +198,7 @@ app.use('/ssr-api', async (req, res) => {
     const response = await fetch(url, options);
     const text = await response.text();
 
-    res.status(response.status).json(text ? JSON.parse(text) : null);
+    res.status(response.status).json(text ? parseJsonSafe(text) : null);
   } catch (err) {
     console.error(`[server.ts] proxy error:`, err);
     res.status(502).json({ detail: 'Error de conexión con el servicio externo' });
