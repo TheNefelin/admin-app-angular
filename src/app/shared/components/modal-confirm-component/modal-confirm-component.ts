@@ -11,6 +11,6 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 export class ModalConfirmComponent {
   readonly title = input<string | null>('Sin Implementar'); 
   readonly message = input<string | null>('Sin Implementar');
-  protected readonly onConfirm = output<void>();
-  protected readonly onClose = output<void>();
+  protected readonly confirm = output<void>();
+  protected readonly closed = output<void>();
 }

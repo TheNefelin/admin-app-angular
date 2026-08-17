@@ -35,7 +35,7 @@
       </fieldset>
 
       <fieldset class="fieldset">
-        <label class="label">Seleccionar Url Grp</label>
+        <span class="label">Seleccionar Url Grp</span>
         <app-select-search-component
           [items]="urlgrpList()"
           [selectedId]="formData().id_urlgrp"
@@ -61,12 +61,12 @@
         <app-button-component
           [icon]="'create'"
           [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </div>

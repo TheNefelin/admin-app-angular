@@ -17,8 +17,8 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 })
 export class ScreenshotFormComponent {
   readonly isLoading = input<boolean>(false);
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveScreenshotModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveScreenshotModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
 
@@ -69,7 +69,7 @@ export class ScreenshotFormComponent {
       sort_order: sort,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

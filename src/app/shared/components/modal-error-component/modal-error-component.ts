@@ -7,5 +7,5 @@ import { Component, input, output } from '@angular/core';
 })
 export class ModalErrorComponent {
   readonly message = input<string | null>('Sin Implementar');
-  readonly close = output<void>();
+  readonly closed = output<void>();
 }

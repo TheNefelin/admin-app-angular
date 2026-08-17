@@ -58,12 +58,12 @@
         <app-button-component
           [icon]="'save'"
           [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
     

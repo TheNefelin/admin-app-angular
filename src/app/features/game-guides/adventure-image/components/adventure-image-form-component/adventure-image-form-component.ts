@@ -18,8 +18,8 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 export class AdventureImageFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly clearTrigger = input<number>(0);
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveAdventureImageModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveAdventureImageModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
 
@@ -73,7 +73,7 @@ export class AdventureImageFormComponent {
       sort_order: sort,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

@@ -13,7 +13,7 @@
     <app-button-component 
       [icon]="'clear'" 
       [textBtn]="'Limpiar'"
-      (onClick)="onClear()" />  
+      (clicked)="onClear()" />  
   </div>
 
   <header class="flex gap-4 bg-base-200 p-4 rounded-2xl border border-base-300">
@@ -38,8 +38,8 @@
   </header>
 
   <app-pagination-filter-component
-    (onRefreshClick)="onRefreshClick()"
-    (onFilterChange)="onFilterChange($event)"/>    
+    (refreshClick)="onRefreshClick()"
+    (filterChange)="onFilterChange($event)"/>    
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -52,26 +52,26 @@
       class="ml-auto"
       [icon]="'create'" 
       [textBtn]="'Guía - Crear Sección'"
-      (onClick)="onCreateGuideModal()" />
+      (clicked)="onCreateGuideModal()" />
   }
 
   <app-guide-list-component
     [isLoading]="getAllDetailByGamePagination.isLoading() && !getAllDetailByGamePagination.hasValue()"
     [guideDetailList]="getAllDetailByGamePagination.value() ?? []" 
-    (onEditGuideModal)="onEditGuideModal($event)"
-    (onDeleteGuide)="onDeleteGuide($event)"
-    (onCreateAdventureModal)="onCreateAdventureModal($event)"
-    (onEditAdventureModal)="onEditAdventureModal($event)"
-    (onDeleteAdventure)="onDeleteAdventure($event)"
-    (onOpenAdventureImageModal)="onOpenAdventureImageModal($event)"
-    (onDeleteAdventureImage)="onDeleteAdventureImage($event)" />
+    (editGuideModal)="onEditGuideModal($event)"
+    (deleteGuide)="onDeleteGuide($event)"
+    (createAdventureModal)="onCreateAdventureModal($event)"
+    (editAdventureModal)="onEditAdventureModal($event)"
+    (deleteAdventure)="onDeleteAdventure($event)"
+    (openAdventureImageModal)="onOpenAdventureImageModal($event)"
+    (deleteAdventureImage)="onDeleteAdventureImage($event)" />
 
   @if (selectedGame()) {
     <app-button-component 
       class="ml-auto"
       [icon]="'create'" 
       [textBtn]="'Guía - Crear Sección'"
-      (onClick)="onCreateGuideModal()" />
+      (clicked)="onCreateGuideModal()" />
   }
 
   <app-pagination-nav-component
@@ -85,21 +85,21 @@
   <app-guide-form-component 
     [isLoading]="guide.isSaving()"
     [selectedGuide]="guide.savePayload()"
-    (onClose)="onCloseGuideModal()"
-    (onSubmit)="onSubmitGuide($event)" />
+    (closed)="onCloseGuideModal()"
+    (submitted)="onSubmitGuide($event)" />
 }
 
 @if (showAdventureFormModal()) {
   <app-adventure-form-component
     [isLoading]="adventure.isSaving()"
     [selectedAdventure]="adventure.savePayload()?.data ?? null"
-    (onSubmit)="onSubmitAdventure($event)"
-    (onClose)="onCloseAdventureModal()" />
+    (submitted)="onSubmitAdventure($event)"
+    (closed)="onCloseAdventureModal()" />
 }
 
 @if (showAdventureImageFormModal()) {
   <app-adventure-image-form-component
     [isLoading]="adventureImage.isSaving()"
-    (onSubmit)="onSubmitAdventureImage($event)"
-    (onClose)="onCloseAdventureImageModal()" />
+    (submitted)="onSubmitAdventureImage($event)"
+    (closed)="onCloseAdventureImageModal()" />
 }

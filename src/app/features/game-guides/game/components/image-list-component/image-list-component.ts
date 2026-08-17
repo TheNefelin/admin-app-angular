@@ -11,9 +11,9 @@ import { ImageViewerComponent } from '@shared/components/image-viewer-component/
 })
 export class ImageListComponent {
   readonly imageList = input<ScreenshotModel[] | undefined>([]);
-  protected readonly onDeleteImage = output<number>();
+  protected readonly deleteImage = output<number>();
 
   protected onDeleteImageClick(id: number): void {
-    this.onDeleteImage.emit(id);
+    this.deleteImage.emit(id);
   }
 }

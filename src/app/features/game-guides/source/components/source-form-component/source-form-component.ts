@@ -19,8 +19,8 @@ export class SourceFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly sourcePayload = input<SourceModel | null>();
   readonly clearTrigger = input<number>(0);
-  protected readonly onSubmit = output<SaveSourceModel>();
-  protected readonly onClose = output<void>();
+  protected readonly submitted = output<SaveSourceModel>();
+  protected readonly closed = output<void>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.sourcePayload()?.id);
@@ -80,7 +80,7 @@ export class SourceFormComponent {
       sort_order: sort,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

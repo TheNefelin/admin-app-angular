@@ -18,8 +18,8 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 export class GuideFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly selectedGuide = input<GuideModel | null>(null);
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveGuideModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveGuideModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.selectedGuide()?.id);
@@ -74,7 +74,7 @@ export class GuideFormComponent {
       summary: summary,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

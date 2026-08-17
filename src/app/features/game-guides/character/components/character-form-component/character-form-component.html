@@ -24,8 +24,8 @@
           [labelText]="'Personajes'"
           [aspectRatio]="'aspect-square'"
           [displayImg]="formData().image_url"
-          (onSelectedFile)="onSelectedFile($event)"
-          (onDeleteFile)="onDeleteFile()" />
+          (selectedFile)="onSelectedFile($event)"
+          (deleteFile)="onDeleteFile()" />
 
         <div>
           <fieldset class="fieldset">
@@ -90,12 +90,12 @@
         <app-button-component
           [icon]="'save'"
           [textBtn]="isEditMode() ? 'Modificar' : 'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </form>

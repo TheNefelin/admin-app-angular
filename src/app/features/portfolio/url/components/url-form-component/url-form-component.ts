@@ -21,8 +21,8 @@ export class UrlFormComponent {
   readonly data = input<UrlModel | null>(null);
   readonly urlgrpList = input<SelectItemModel[]>([]);
 
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveUrlModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveUrlModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id_url);
@@ -81,7 +81,7 @@ export class UrlFormComponent {
       return;
     }
 
-    this.onSubmit.emit({ ...this.formData(), name, link });
+    this.submitted.emit({ ...this.formData(), name, link });
     this.errorMessage.set(null);
   }
 }

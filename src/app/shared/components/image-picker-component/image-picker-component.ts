@@ -16,8 +16,8 @@ export class ImagePickerComponent {
   readonly labelText = input<string | null>(null)
   readonly displayImg = input<string | null>(null)
   readonly clearTrigger = input<number>(0);
-  protected readonly onSelectedFile = output<File | null>();
-  protected readonly onDeleteFile = output<void>();
+  protected readonly selectedFile = output<File | null>();
+  protected readonly deleteFile = output<void>();
 
   protected readonly previewImg = signal<{ file: File; dataUrl: string } | null>(null);
   protected readonly image = computed<string | null>(() =>
@@ -28,26 +28,26 @@ export class ImagePickerComponent {
     this.clear();
   });
   
-  protected selectedFile(file: File | null): void {
+  protected handleFileSelected(file: File | null): void {
     if (!file) { this.previewImg.set(null); return; }
 
     const reader = new FileReader();
     reader.onload = () => this.previewImg.set({ file, dataUrl: reader.result as string });
     reader.readAsDataURL(file);
 
-    this.onSelectedFile.emit(file);
+    this.selectedFile.emit(file);
   }
 
-  protected deleteFile(): void {
+  protected handleDeleteFile(): void {
     if (this.previewImg()) {
       this.clear();
     } else {
-      this.onDeleteFile.emit();
+      this.deleteFile.emit();
     }
   }
 
   private clear(): void {
     this.previewImg.set(null);
-    this.onSelectedFile.emit(null); 
+    this.selectedFile.emit(null); 
   }
 }

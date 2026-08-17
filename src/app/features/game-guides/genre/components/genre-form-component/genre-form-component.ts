@@ -17,8 +17,8 @@ export class GenreFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly data = input<GenreModel | null>(null);
 
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveGenreModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveGenreModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id);
@@ -38,7 +38,7 @@ export class GenreFormComponent {
       return;
     }
 
-    this.onSubmit.emit({ name });
+    this.submitted.emit({ name });
     this.errorMessage.set(null);
   }
 }

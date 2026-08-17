@@ -29,7 +29,7 @@
     
           <app-button-component 
             [icon]="'delete'"
-            (onClick)="onDeleteItem.emit(item)" />
+            (clicked)="deleteItem.emit(item)" />
         </li>
       }    
     } @else {

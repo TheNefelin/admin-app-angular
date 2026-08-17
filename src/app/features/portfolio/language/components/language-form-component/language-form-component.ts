@@ -19,9 +19,9 @@ export class LanguageFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly data = input<LanguageModel | null>(null);
 
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<{ data: SaveLanguageModel; file: File | null }>();
-  protected readonly onDeleteImage = output<void>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<{ data: SaveLanguageModel; file: File | null }>();
+  protected readonly deleteImage = output<void>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly selectedFile = signal<File | null>(null);
@@ -41,7 +41,7 @@ export class LanguageFormComponent {
 
   protected onDeleteFile(): void {
     if (this.data()?.img_url) {
-      this.onDeleteImage.emit();
+      this.deleteImage.emit();
     }
     this.selectedFile.set(null);
   }
@@ -53,7 +53,7 @@ export class LanguageFormComponent {
       return;
     }
 
-    this.onSubmit.emit({
+    this.submitted.emit({
       data: { ...this.formData(), name },
       file: this.selectedFile()
     });

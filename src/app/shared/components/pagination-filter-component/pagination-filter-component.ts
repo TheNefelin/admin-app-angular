@@ -11,14 +11,14 @@ import { debounceTime, distinctUntilChanged, map, merge } from 'rxjs';
   templateUrl: './pagination-filter-component.html',
 })
 export class PaginationFilterComponent {
-  readonly onRefreshClick = output<void>();
+  readonly refreshClick = output<void>();
 
   protected searchValue = signal('');
   protected limitValue = signal('10');
 
   private readonly refreshTrigger = signal(0);
 
-  readonly onFilterChange = outputFromObservable(
+  readonly filterChange = outputFromObservable(
     merge(
       toObservable(this.searchValue).pipe(debounceTime(300), distinctUntilChanged()),
       toObservable(this.limitValue).pipe(debounceTime(300), distinctUntilChanged()),
@@ -39,7 +39,7 @@ export class PaginationFilterComponent {
 
   private applyAndRefresh(): void {
     this.refreshTrigger.update(v => v + 1);
-    this.onRefreshClick.emit();
+    this.refreshClick.emit();
   }
 
   private currentFilter(): { search: string; limit: number } {

@@ -7,6 +7,6 @@
       [sort]="item.sort_order"
       [imageUrl]="item.image_url"
       [altText]="item.alt_text"
-      (onDelete)="onDeleteAdventureImage.emit($event)" />
+      (delete)="deleteAdventureImage.emit($event)" />
   }
 </section>

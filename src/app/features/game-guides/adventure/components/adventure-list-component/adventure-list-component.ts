@@ -13,8 +13,8 @@ import { AdventureImageListComponent } from '@features/game-guides/adventure-ima
 })
 export class AdventureListComponent {
   readonly adventureDetailList = input<AdventureDetailModel[]>([]);
-  protected readonly onEditAdventureModal = output<AdventureModel>();
-  protected readonly onDeleteAdventure = output<AdventureModel>();
-  protected readonly onOpenAdventureImageModal = output<number>();
-  protected readonly onDeleteAdventureImage = output<{ id: number; alt: string }>();
+  protected readonly editAdventureModal = output<AdventureModel>();
+  protected readonly deleteAdventure = output<AdventureModel>();
+  protected readonly openAdventureImageModal = output<number>();
+  protected readonly deleteAdventureImage = output<{ id: number; alt: string }>();
 }

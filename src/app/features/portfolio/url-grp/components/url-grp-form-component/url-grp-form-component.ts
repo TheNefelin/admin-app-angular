@@ -17,8 +17,8 @@ export class UrlGrpFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly data = input<UrlGrpModel | null>(null);
 
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveUrlGrpModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveUrlGrpModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id_urlgrp);
@@ -43,7 +43,7 @@ export class UrlGrpFormComponent {
       return;
     }
 
-    this.onSubmit.emit({ ...this.formData(), name });
+    this.submitted.emit({ ...this.formData(), name });
     this.errorMessage.set(null);
   }
 }

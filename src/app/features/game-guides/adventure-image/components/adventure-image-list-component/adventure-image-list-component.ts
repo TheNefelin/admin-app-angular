@@ -11,5 +11,5 @@ import { ImageViewerComponent } from '@shared/components/image-viewer-component/
 })
 export class AdventureImageListComponent {
   readonly adventureImageList = input<AdventureImageModel[]>([]);
-  protected readonly onDeleteAdventureImage = output<{ id: number; alt: string }>();
+  protected readonly deleteAdventureImage = output<{ id: number; alt: string }>();
 }

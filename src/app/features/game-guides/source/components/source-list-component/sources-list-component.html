@@ -25,10 +25,10 @@
               <div class="flex gap-2">
                 <app-button-component 
                   [icon]="'edit'" 
-                  (onClick)="onEdit.emit(item)"/>
+                  (clicked)="edit.emit(item)"/>
                 <app-button-component 
                   [icon]="'delete'" 
-                  (onClick)="onDelete.emit(item)"/>
+                  (clicked)="delete.emit(item)"/>
               </div>
             }
           </td>

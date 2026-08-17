@@ -52,20 +52,20 @@
           <app-button-component 
             [icon]="'create'"
             [textBtn]="'Cargar Imagen'"
-            (onClick)="onOpenAdventureImageModal.emit(item.id)" />          
+            (clicked)="openAdventureImageModal.emit(item.id)" />          
           <app-button-component 
             [icon]="'edit'"
-            (onClick)="onEditAdventureModal.emit(item)" />
+            (clicked)="editAdventureModal.emit(item)" />
           <app-button-component 
             [icon]="'delete'"
-            (onClick)="onDeleteAdventure.emit(item)" />
+            (clicked)="deleteAdventure.emit(item)" />
         </div>
       </header>
                 
       <footer class="list-row">
         <app-adventure-image-list-component 
           [adventureImageList]="item.images"
-          (onDeleteAdventureImage)="onDeleteAdventureImage.emit($event)" />
+          (deleteAdventureImage)="deleteAdventureImage.emit($event)" />
       </footer>
     </section>
   }

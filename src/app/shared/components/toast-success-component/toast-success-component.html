@@ -4,7 +4,11 @@
       <div class="alert text-white cursor-pointer"
            [class.alert-success]="toast.type === 'success'"
            [class.alert-info]="toast.type === 'info'"
-           (click)="close.emit(toast.id)">
+           role="button"
+           tabindex="0"
+           (click)="closed.emit(toast.id)"
+           (keydown.enter)="closed.emit(toast.id)"
+           (keydown.space)="closed.emit(toast.id)">
         <span>{{ toast.message }}</span>
       </div>
     }

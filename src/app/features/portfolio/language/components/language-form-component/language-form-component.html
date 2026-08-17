@@ -17,8 +17,8 @@
           [labelText]="'Language'"
           [aspectRatio]="'aspect-square'"
           [displayImg]="data()?.img_url ?? null"
-          (onSelectedFile)="onFileSelected($event)"
-          (onDeleteFile)="onDeleteFile()" />
+          (selectedFile)="onFileSelected($event)"
+          (deleteFile)="onDeleteFile()" />
 
         <fieldset class="fieldset">
           <label class="label" for="language-name">Nombre</label>
@@ -37,12 +37,12 @@
         <app-button-component
           [icon]="'create'"
           [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </div>

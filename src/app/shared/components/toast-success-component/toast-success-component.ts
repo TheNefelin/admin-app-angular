@@ -8,5 +8,5 @@ import { ToastModel } from '@core/services/success-service';
 })
 export class ToastSuccessComponent {
   readonly toasts = input<ToastModel[]>([]);
-  readonly close = output<number>();
+  readonly closed = output<number>();
 }

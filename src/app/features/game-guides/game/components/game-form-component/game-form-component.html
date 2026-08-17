@@ -8,8 +8,8 @@
       [isLoading]="isLoading() || isSaving()"
       [displayImg]="computedGame()?.cover_url ?? null"
       [labelText]="'Imagen de Portada'"
-      (onSelectedFile)="onSelectedFile($event)"
-      (onDeleteFile)="onDeleteImage.emit()" />
+      (selectedFile)="onSelectedFile($event)"
+      (deleteFile)="deleteImage.emit()" />
 
     <div>
       <fieldset class="fieldset">
@@ -100,7 +100,7 @@
 
   <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <fieldset class="fieldset">
-      <label class="label">Seleccionar Plataformas</label>
+      <span class="label">Seleccionar Plataformas</span>
       <app-select-search-component
         [items]="computedPlatformList()"
         [isLoading]="isLoading()"
@@ -109,11 +109,11 @@
 
       <app-select-list-component
         [data]="formPlatformList()"
-        (onDeleteItem)="onDeletePlatform($event)"/>
+        (deleteItem)="onDeletePlatform($event)"/>
     </fieldset>
 
     <fieldset class="fieldset">
-      <label class="label">Seleccionar Generos</label>
+      <span class="label">Seleccionar Generos</span>
       <app-select-search-component
         [items]="computedGenreList()"
         [isLoading]="isLoading()"
@@ -122,7 +122,7 @@
 
       <app-select-list-component
         [data]="formGenreList()"
-        (onDeleteItem)="onDeleteGenre($event)"/>
+        (deleteItem)="onDeleteGenre($event)"/>
     </fieldset>
   </section>
 
@@ -135,7 +135,7 @@
       <app-button-component
         [icon]="'save'"
         [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-        (onClick)="submit()" />
+        (clicked)="submit()" />
     }
   </div>
 </form>

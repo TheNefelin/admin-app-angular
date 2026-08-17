@@ -2,10 +2,10 @@
   <span class="font-bold text-2xl italic px-2">PLATFORMS</span>
 
   <app-pagination-filter-component
-    (onRefreshClick)="onRefreshClick()"
-    (onFilterChange)="onFilterChange($event)"/>
+    (refreshClick)="onRefreshClick()"
+    (filterChange)="onFilterChange($event)"/>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear Plataforma'" (onClick)="onCreate()"/>
+  <app-button-component [icon]="'create'" [textBtn]="'Crear Plataforma'" (clicked)="onCreate()"/>
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -35,8 +35,8 @@
               <td>{{ item.name }}</td>
               <th>
                 <div class="flex gap-2">
-                  <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
-                  <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+                  <app-button-component [icon]="'edit'" (clicked)="onEdit(item)"/>
+                  <app-button-component [icon]="'delete'" (clicked)="onDelete(item)"/>
                 </div>
               </th>
             </tr>
@@ -65,7 +65,7 @@
   <app-platform-form-component
     [isLoading]="platform.isSaving()"
     [data]="platform.savePayload()"
-    (onSubmit)="onSubmitForm($event)"
-    (onClose)="onCloseForm()"
+    (submitted)="onSubmitForm($event)"
+    (closed)="onCloseForm()"
   />
 }

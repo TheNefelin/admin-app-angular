@@ -14,6 +14,6 @@ import { LoadingComponent } from '@shared/components/loading-component/loading-c
 export class SourcesListComponent {
   readonly isLoading = input<boolean>(false);
   readonly sourceList = input<SourceModel[]>([]);
-  protected readonly onEdit = output<SourceModel>();
-  protected readonly onDelete = output<SourceModel>();
+  protected readonly edit = output<SourceModel>();
+  protected readonly delete = output<SourceModel>();
 }

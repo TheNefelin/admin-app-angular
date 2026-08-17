@@ -28,8 +28,8 @@ export class GameFormComponent {
   readonly computedPlatformList = input<SelectItemModel[]>([]);
   readonly computedGenreList = input<SelectItemModel[]>([]);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly onDeleteImage = output<void>();
-  protected readonly onSubmit = output<{ data: SaveGameModel; file: File | null }>();
+  protected readonly deleteImage = output<void>();
+  protected readonly submitted = output<{ data: SaveGameModel; file: File | null }>();
 
   protected readonly clearSelectTrigger = signal<number>(0);
   protected selectedFile: File | null = null;
@@ -160,7 +160,7 @@ export class GameFormComponent {
       return;
     }
 
-    this.onSubmit.emit({
+    this.submitted.emit({
       data: this.formData(),
       file: this.selectedFile,
     });

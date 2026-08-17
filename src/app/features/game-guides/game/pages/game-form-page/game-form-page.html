@@ -12,7 +12,7 @@
     <app-button-component
       [icon]="'goto'"
       [textBtn]="'Volver'"
-      (onClick)="goToGame()"/>
+      (clicked)="goToGame()"/>
   </div>
 
   <app-game-form-component
@@ -22,8 +22,8 @@
     [computedGame]="gameComputed()"
     [computedPlatformList]="platformListComputed()"
     [computedGenreList]="genreListComputed()"
-    (onDeleteImage)="onDeleteImage()"
-    (onSubmit)="onSubmit($event)" />
+    (deleteImage)="onDeleteImage()"
+    (submitted)="onSubmit($event)" />
 
   @if (isEditMode()) {
     <span class="font-bold text-2xl px-2">
@@ -34,13 +34,13 @@
       <app-button-component
         [icon]="'create'"
         [textBtn]="'Crear Fuente'"
-        (onClick)="source.showForm.set(true)" />
+        (clicked)="source.showForm.set(true)" />
 
       <app-sources-list-component
         [isLoading]="source.isSaving()"
         [sourceList]="gameComputed()?.sources ?? []"
-        (onEdit)="onEditSource($event)"
-        (onDelete)="onDeleteSource($event)" />
+        (edit)="onEditSource($event)"
+        (delete)="onDeleteSource($event)" />
     </section>
   }
 
@@ -53,11 +53,11 @@
       <app-button-component
         [icon]="'create'"
         [textBtn]="'Crear Screenshot'"
-        (onClick)="screenshot.showForm.set(true)" />
+        (clicked)="screenshot.showForm.set(true)" />
 
       <app-image-list-component
         [imageList]="gameComputed()?.screenshots"
-        (onDeleteImage)="onDeleteScreenshot($event)" />
+        (deleteImage)="onDeleteScreenshot($event)" />
     </section>
   }
 
@@ -70,11 +70,11 @@
       <app-button-component
         [icon]="'create'"
         [textBtn]="'Crear Map'"
-        (onClick)="map.showForm.set(true)" />
+        (clicked)="map.showForm.set(true)" />
 
       <app-image-list-component
         [imageList]="gameComputed()?.maps"
-        (onDeleteImage)="onDeleteMap($event)" />
+        (deleteImage)="onDeleteMap($event)" />
     </section>
   }
 
@@ -87,14 +87,14 @@
       <app-button-component
         [icon]="'create'"
         [textBtn]="'Crear Personaje'"
-        (onClick)="character.showForm.set(true)" />
+        (clicked)="character.showForm.set(true)" />
 
       <div class="overflow-hidden">
         <app-character-list-component
           [isLoading]="character.isSaving()"
           [characterList]="gameComputed()?.characters ?? []"
-          (onEdit)="onEditCharacter($event)"
-          (onDelete)="onDeleteCharacter($event)" />
+          (edit)="onEditCharacter($event)"
+          (delete)="onDeleteCharacter($event)" />
       </div>
     </div>
   }
@@ -105,8 +105,8 @@
     [isLoading]="source.isSaving()"
     [sourcePayload]="source.savePayload()"
     [clearTrigger]="source.resetTrigger()"
-    (onClose)="onClearSource()"
-    (onSubmit)="onSubmitSource($event)" />
+    (closed)="onClearSource()"
+    (submitted)="onSubmitSource($event)" />
 }
 
 @if (character.showForm()) {
@@ -114,21 +114,21 @@
     [isLoading]="character.isSaving()"
     [saveCharacter]="character.savePayload()"
     [clearTrigger]="character.resetTrigger()"
-    (onClose)="onClearCharacter()"
-    (onDeleteImage)="onDeleteCharacterImage($event)"
-    (onSubmit)="onSubmitCharacter($event)" />
+    (closed)="onClearCharacter()"
+    (deleteImage)="onDeleteCharacterImage($event)"
+    (submitted)="onSubmitCharacter($event)" />
 }
 
 @if (screenshot.showForm()) {
   <app-screenshot-form-component
     [isLoading]="screenshot.isSaving()"
-    (onClose)="screenshot.showForm.set(false)"
-    (onSubmit)="onUploadScreenshot($event)" />
+    (closed)="screenshot.showForm.set(false)"
+    (submitted)="onUploadScreenshot($event)" />
 }
 
 @if (map.showForm()) {
   <app-map-form-component
     [isLoading]="map.isSaving()"
-    (onClose)="map.showForm.set(false)"
-    (onSubmit)="onUploadMap($event)" />
+    (closed)="map.showForm.set(false)"
+    (submitted)="onUploadMap($event)" />
 }

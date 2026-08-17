@@ -14,7 +14,7 @@
       <app-image-picker-component
         [labelText]="'Screenshot'"
         [aspectRatio]="'aspect-video'"
-        (onSelectedFile)="onSelectedFile($event)" />
+        (selectedFile)="onSelectedFile($event)" />
 
       <fieldset class="fieldset">
         <label class="label" for="screenshot-alt">Alt</label>
@@ -41,12 +41,12 @@
         <app-button-component
           [icon]="'save'"
           [textBtn]="'Guardar'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </div>

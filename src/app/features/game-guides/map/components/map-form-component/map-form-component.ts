@@ -17,8 +17,8 @@ import { MessageErrorComponent } from '@shared/components/message-error-componen
 })
 export class MapFormComponent {
   readonly isLoading = input<boolean>(false);
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveMapModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveMapModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
 
@@ -69,7 +69,7 @@ export class MapFormComponent {
       sort_order: sort,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

@@ -6,12 +6,12 @@
       <app-button-component
         [icon]="'save'"
         [textBtn]="'Confirmar'"
-        (onClick)="onConfirm.emit()" />
+        (clicked)="confirm.emit()" />
 
       <app-button-component
         [icon]="'cancel'"
         [textBtn]="'Cancelar'"
-        (onClick)="onClose.emit()" />
+        (clicked)="closed.emit()" />
     </div>
   </div>
 </dialog>

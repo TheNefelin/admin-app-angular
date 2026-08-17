@@ -39,12 +39,12 @@
         <app-button-component
           [icon]="'create'"
           [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component
           [icon]="'cancel'"
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </div>

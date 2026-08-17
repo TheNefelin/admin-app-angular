@@ -1,11 +1,11 @@
 <section class="grid gap-2">
   <span class="font-bold text-2xl italic px-2">PROYECTOS</span>
 
-  <app-button-component [icon]="'create'" [textBtn]="'Crear proyecto'" (onClick)="onCreate()"/>
+  <app-button-component [icon]="'create'" [textBtn]="'Crear proyecto'" (clicked)="onCreate()"/>
 
   <app-pagination-filter-component
-    (onRefreshClick)="onRefreshClick()"
-    (onFilterChange)="onFilterChange($event)"/>
+    (refreshClick)="onRefreshClick()"
+    (filterChange)="onFilterChange($event)"/>
 
   <app-pagination-nav-component
     [currentPage]="currentPage()"
@@ -117,8 +117,8 @@
               </td>
               <td>
                 <div class="flex gap-2">
-                  <app-button-component [icon]="'edit'" (onClick)="onEdit(item)"/>
-                  <app-button-component [icon]="'delete'" (onClick)="onDelete(item)"/>
+                  <app-button-component [icon]="'edit'" (clicked)="onEdit(item)"/>
+                  <app-button-component [icon]="'delete'" (clicked)="onDelete(item)"/>
                 </div>
               </td>
             </tr>

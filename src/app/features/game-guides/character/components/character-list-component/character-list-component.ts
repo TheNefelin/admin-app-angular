@@ -17,6 +17,6 @@ import { LoadingComponent } from '@shared/components/loading-component/loading-c
 export class CharacterListComponent {
   readonly isLoading = input<boolean>(false);
   readonly characterList = input<CharacterModel[]>([]);
-  protected readonly onEdit = output<CharacterModel>();
-  protected readonly onDelete = output<CharacterModel>();
+  protected readonly edit = output<CharacterModel>();
+  protected readonly delete = output<CharacterModel>();
 }

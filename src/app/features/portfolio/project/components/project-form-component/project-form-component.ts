@@ -27,8 +27,8 @@ export class ProjectFormComponent {
   readonly computedProject = input<ProjectModel | null>(null);
   readonly computedLanguageList = input<SelectItemModel[]>([]);
   readonly computedTechnologyList = input<SelectItemModel[]>([]);
-  protected readonly onSubmit = output<{ data: SaveProjectModel; file: File | null }>();
-  protected readonly onDeleteImage = output<void>();
+  protected readonly submitted = output<{ data: SaveProjectModel; file: File | null }>();
+  protected readonly deleteImage = output<void>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly clearSelectTrigger = signal<number>(0);
@@ -57,7 +57,7 @@ export class ProjectFormComponent {
 
   protected onDeleteImageClick(): void {
     if (this.computedProject()?.img_url) {
-      this.onDeleteImage.emit();
+      this.deleteImage.emit();
     }
     this.selectedFile.set(null);
   }
@@ -134,7 +134,7 @@ export class ProjectFormComponent {
       return;
     }
 
-    this.onSubmit.emit({
+    this.submitted.emit({
       data: { ...this.formData(), name },
       file: this.selectedFile()
     });

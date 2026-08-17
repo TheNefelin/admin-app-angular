@@ -17,8 +17,8 @@ export class PlatformFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly data = input<PlatformModel | null>(null);
 
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SavePlatformModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SavePlatformModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.data()?.id);
@@ -38,7 +38,7 @@ export class PlatformFormComponent {
       return;
     }
 
-    this.onSubmit.emit({ name });
+    this.submitted.emit({ name });
     this.errorMessage.set(null);
   }
 }

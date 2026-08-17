@@ -17,11 +17,11 @@ import { AdventureModel } from '@features/game-guides/adventure/models/adventure
 export class GuideListComponent {
   readonly isLoading = input<boolean>(false);
   readonly guideDetailList = input<GuideDetailModel[]>([]);
-  protected readonly onEditGuideModal = output<GuideModel>();
-  protected readonly onDeleteGuide = output<GuideModel>();
-  protected readonly onCreateAdventureModal = output<number>();
-  protected readonly onEditAdventureModal = output<AdventureModel>();
-  protected readonly onDeleteAdventure = output<AdventureModel>();
-  protected readonly onOpenAdventureImageModal = output<number>();
-  protected readonly onDeleteAdventureImage = output<{ id: number; alt: string }>();
+  protected readonly editGuideModal = output<GuideModel>();
+  protected readonly deleteGuide = output<GuideModel>();
+  protected readonly createAdventureModal = output<number>();
+  protected readonly editAdventureModal = output<AdventureModel>();
+  protected readonly deleteAdventure = output<AdventureModel>();
+  protected readonly openAdventureImageModal = output<number>();
+  protected readonly deleteAdventureImage = output<{ id: number; alt: string }>();
 }

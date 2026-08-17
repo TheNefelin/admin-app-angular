@@ -16,7 +16,7 @@
     <app-button-component
       [icon]="'delete'"
       [textBtn]="'Eliminar'"
-      (onClick)="onDelete.emit({ id: id(), alt: altText() })" />
+      (clicked)="delete.emit({ id: id(), alt: altText() })" />
   </div>
 
   <footer class="absolute bottom-0 w-full bg-neutral/60 text-neutral-content backdrop-blur-sm p-2 flex gap-1">

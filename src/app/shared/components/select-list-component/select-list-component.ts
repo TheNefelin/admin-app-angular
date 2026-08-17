@@ -16,5 +16,5 @@ import { ButtonComponent } from '@shared/components/button-component/button-comp
 export class SelectListComponent {
   readonly isLoading = input<boolean>(false);
   readonly data = input<SelectItemModel[]>([]);
-  readonly onDeleteItem = output<SelectItemModel>();
+  readonly deleteItem = output<SelectItemModel>();
 }

@@ -44,7 +44,7 @@
             <span class="badge badge-ghost badge-sm">{{ item.updated_at | date:'yyyy-MM-dd' }}</span>
           </td>
           <td>
-            <label class="flex gap-4 items-center">
+            <div class="flex gap-4 items-center">
               @if (item.is_playable) {
                 <div class="text-success m-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
@@ -61,7 +61,7 @@
                 </div>
               }
               <div class="font-bold opacity-50">{{ item.sort_order }}</div>
-            </label>
+            </div>
           </td>
           <td>
             <div class="flex gap-2 items-center">
@@ -70,10 +70,10 @@
               } @else {
                 <app-button-component 
                   [icon]="'edit'" 
-                  (onClick)="onEdit.emit(item)"/>
+                  (clicked)="edit.emit(item)"/>
                 <app-button-component 
                   [icon]="'delete'" 
-                  (onClick)="onDelete.emit(item)"/>
+                  (clicked)="delete.emit(item)"/>
               }
             </div>
           </td>

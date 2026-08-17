@@ -10,11 +10,11 @@
           <div class="flex gap-2">
             <app-button-component 
               [icon]="'edit'" 
-              (onClick)="onEditGuideModal.emit(item)" /> 
+              (clicked)="editGuideModal.emit(item)" /> 
 
             <app-button-component 
               [icon]="'delete'" 
-              (onClick)="onDeleteGuide.emit(item)" />
+              (clicked)="deleteGuide.emit(item)" />
           </div>
 
         </summary>
@@ -31,19 +31,19 @@
           <app-button-component 
             [icon]="'create'"
             [textBtn]="'Aventura - Crear Sección'"
-            (onClick)="onCreateAdventureModal.emit(item.id)" />
+            (clicked)="createAdventureModal.emit(item.id)" />
 
           <app-adventure-list-component
             [adventureDetailList]="item.adventures"
-            (onEditAdventureModal)="onEditAdventureModal.emit($event)"
-            (onDeleteAdventure)="onDeleteAdventure.emit($event)"
-            (onOpenAdventureImageModal)="onOpenAdventureImageModal.emit($event)"
-            (onDeleteAdventureImage)="onDeleteAdventureImage.emit($event)" />
+            (editAdventureModal)="editAdventureModal.emit($event)"
+            (deleteAdventure)="deleteAdventure.emit($event)"
+            (openAdventureImageModal)="openAdventureImageModal.emit($event)"
+            (deleteAdventureImage)="deleteAdventureImage.emit($event)" />
 
           <app-button-component 
             [icon]="'create'"
             [textBtn]="'Aventura - Crear Sección'"
-            (onClick)="onCreateAdventureModal.emit(item.id)" />            
+            (clicked)="createAdventureModal.emit(item.id)" />            
         </div>
       </details>
     }

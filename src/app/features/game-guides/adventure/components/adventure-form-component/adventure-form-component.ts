@@ -18,8 +18,8 @@ import { DatePipe } from '@angular/common';
 export class AdventureFormComponent {
   readonly isLoading = input<boolean>(false);
   readonly selectedAdventure = input<AdventureModel | null>(null);
-  protected readonly onClose = output<void>();
-  protected readonly onSubmit = output<SaveAdventureModel>();
+  protected readonly closed = output<void>();
+  protected readonly submitted = output<SaveAdventureModel>();
 
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEditMode = computed<boolean>(() => !!this.selectedAdventure()?.id);
@@ -66,7 +66,7 @@ export class AdventureFormComponent {
       description: description,
     };
 
-    this.onSubmit.emit(data);
+    this.submitted.emit(data);
     this.errorMessage.set(null);
   }
 }

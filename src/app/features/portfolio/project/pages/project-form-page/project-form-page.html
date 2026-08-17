@@ -12,7 +12,7 @@
     <app-button-component
       [icon]="'goto'"
       [textBtn]="'Volver'"
-      (onClick)="goToProject()"/>
+      (clicked)="goToProject()"/>
   </div>
 
   @if (isLoading()) {
@@ -27,7 +27,7 @@
       [computedProject]="computedProject()"
       [computedLanguageList]="computedLanguageList()"
       [computedTechnologyList]="computedTechnologyList()"
-      (onDeleteImage)="onDeleteImage()"
-      (onSubmit)="onSubmit($event)" />
+      (deleteImage)="onDeleteImage()"
+      (submitted)="onSubmit($event)" />
   }
 </section>

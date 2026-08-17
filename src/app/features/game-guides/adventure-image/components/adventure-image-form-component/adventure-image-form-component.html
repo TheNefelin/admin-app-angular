@@ -15,7 +15,7 @@
       <app-image-picker-component 
         [labelText]="'Cargar Imagen'"
         [aspectRatio]="'aspect-video'" 
-        (onSelectedFile)="onSelectedFile($event)" />
+        (selectedFile)="onSelectedFile($event)" />
 
       <fieldset class="fieldset">
         <label class="label" for="adventure-image-alt">Alt</label>
@@ -45,12 +45,12 @@
         <app-button-component 
           [icon]="'create'"
           [textBtn]="'Crear'"
-          (onClick)="submit()" />
+          (clicked)="submit()" />
 
         <app-button-component 
           [icon]="'cancel'" 
           [textBtn]="'Cancelar'"
-          (onClick)="onClose.emit()" />
+          (clicked)="closed.emit()" />
       </div>
     }
   </div>

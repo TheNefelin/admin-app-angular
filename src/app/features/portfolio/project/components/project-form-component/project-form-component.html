@@ -9,8 +9,8 @@
       [labelText]="'Imagen del Proyecto'"
       [aspectRatio]="'aspect-video'"
       [displayImg]="computedProject()?.img_url ?? null"
-      (onSelectedFile)="onSelectedFile($event)"
-      (onDeleteFile)="onDeleteImageClick()" />
+      (selectedFile)="onSelectedFile($event)"
+      (deleteFile)="onDeleteImageClick()" />
 
     <div>
       <fieldset class="fieldset">
@@ -65,7 +65,7 @@
 
   <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <fieldset class="fieldset">
-      <label class="label">Seleccionar Lenguaje</label>
+      <span class="label">Seleccionar Lenguaje</span>
       <app-select-search-component
         [items]="computedLanguageList()"
         [isLoading]="isLoading()"
@@ -74,11 +74,11 @@
 
       <app-select-list-component
         [data]="formLanguageList()"
-        (onDeleteItem)="onDeleteLanguage($event)"/>
+        (deleteItem)="onDeleteLanguage($event)"/>
     </fieldset>
 
     <fieldset class="fieldset">
-      <label class="label">Seleccionar Tecnologia</label>
+      <span class="label">Seleccionar Tecnologia</span>
       <app-select-search-component
         [items]="computedTechnologyList()"
         [isLoading]="isLoading()"
@@ -87,7 +87,7 @@
 
       <app-select-list-component
         [data]="formTechnologyList()"
-        (onDeleteItem)="onDeleteTechnology($event)"/>
+        (deleteItem)="onDeleteTechnology($event)"/>
     </fieldset>
   </section>
 
@@ -100,7 +100,7 @@
       <app-button-component
         [icon]="'save'"
         [textBtn]="isEditMode() ? 'Guardar' : 'Crear'"
-        (onClick)="submit()" />
+        (clicked)="submit()" />
     }
   </div>
 </form>

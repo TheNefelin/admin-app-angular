@@ -16,5 +16,5 @@ export class ImageViewerComponent {
   readonly sort = input<number | null>(null);
   readonly imageUrl = input<string>();
   readonly altText = input<string>("");
-  protected readonly onDelete = output<{ id: number; alt: string }>();
+  protected readonly delete = output<{ id: number; alt: string }>();
 }
