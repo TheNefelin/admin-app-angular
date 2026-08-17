@@ -16,6 +16,7 @@ Documentación específica del **dashboard de administración** (`admin-app-angu
 | Estilos | Tailwind 4 + DaisyUI 5 |
 | Estado | Signals (`linkedSignal`, `clearTrigger`, `sessionSignal`) |
 | Data fetching | `rxResource` (lecturas) + `MutationService` (mutaciones) |
+| Lint | ESLint 10 (flat config `angular-eslint` v22, `tsRecommended` + `templateRecommended` + `templateAccessibility`) — `pnpm lint` en 0 errores |
 
 ---
 
@@ -82,13 +83,13 @@ admin-app-angular/
 │           │   ├── services/   → CharacterService (CRUD + uploadImage + deleteImage)
 │           │   └── components/
 │           │       ├── character-form-component/ → dialog modal crear/modificar (ImagePicker aspect-square, name/slug/description/sort/isPlayable, id/fechas, validación local con MessageErrorComponent)
-│           │       └── character-list-component/ → Tabla con avatar, descripción, fechas, PJ jugable/sort; outputs onEdit/onDelete
+│           │       └── character-list-component/ → Tabla con avatar, descripción, fechas, PJ jugable/sort; outputs edit/delete
 │           ├── adventure/
 │           │   ├── models/     → AdventureModel + AdventureDetailModel (agrega images[]) extends SaveAdventureModel
 │           │   ├── services/   → AdventureService (CRUD)
 │           │   └── components/
 │           │       ├── adventure-form-component/ → dialog modal (description, sort_order, is_important, is_optional), linkedSignal + clearTrigger
-│           │       └── adventure-list-component/ → badges Importante/Opcional, outputs onEdit/onDelete
+│           │       └── adventure-list-component/ → badges Importante/Opcional, outputs edit/delete
 │           ├── adventure-image/
 │           │   ├── models/     → AdventureImageModel, SaveAdventureImageModel (file)
 │           │   ├── services/   → AdventureImageService (uploadImage multipart, deleteImage)
@@ -101,7 +102,7 @@ admin-app-angular/
 │           │   ├── pages/      → guide-page/ (lista paginada por juego con adventures anidadas, rxResource, toasts success/error, estado agrupado por feature `guide`/`adventure`/`adventureImage`; hereda CrudPage<GuideModel>; usa MutationService)
 │           │   └── components/
 │           │       ├── guide-form-component/ → dialog modal, validación con MessageErrorComponent, linkedSignal + clearTrigger
-│           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs onEdit/onDelete
+│           │       └── guide-list-component/ → accordion por guía (details) que anida adventure-list, outputs edit/delete
 │           └── source/
 │               ├── models/     → SourceModel, SaveSourceModel
 │               ├── services/   → SourceService (CRUD + getAllPagination)
@@ -149,7 +150,7 @@ admin-app-angular/
 - **`handleCrudAction<T>(action, options)`**: helper genérico para CRUD de entidades (sources, characters). `options`: `loading` (signal del feature), `successMsg`, `errorMsg`, `reloadOnSuccess`, `onSuccess` (ej: resetear el form tras guardar), `onFinalize`.
 - **`handleImageAction<T>(action, loading, successMsg, errorMsg, options?)`**: helper para operaciones de imagen (screenshots, maps, delete imagen de character). `loading` es la signal `isSaving` de la feature (ej: `this.screenshot.isSaving`). `options?: { onSuccess }` (ej: cerrar el modal tras guardar). Hace reload en `finalize`.
 - **Form hijos**: `linkedSignal` reactivo al payload + `clearTrigger` input para resetear. Tras un submit exitoso la página llama `onClearCharacter()` (payload null + resetTrigger++) → el form vuelve a valores por defecto y limpia `selectedFile` (equivale a pulsar Limpiar).
-- **GameFormComponent** (hijo): owns form state via `linkedSignal`, recibe `computedGame`, emite `onSubmit` con `{ data: SaveGameModel, file: File | null }`. Cover image se envía como paso separado tras crear/actualizar el game. Usa `ImagePickerComponent` para selección/preview de imagen.
+- **GameFormComponent** (hijo): owns form state via `linkedSignal`, recibe `computedGame`, emite `submitted` con `{ data: SaveGameModel, file: File | null }`. Cover image se envía como paso separado tras crear/actualizar el game. Usa `ImagePickerComponent` para selección/preview de imagen.
 - **Fuentes, screenshots, maps, characters**: CRUD independientes con sus propios componentes y servicios. Se renderizan fuera del `<form>` principal.
 - **Secciones protegidas con `@if (isEditMode())`**: solo visibles después de crear el game (cuando existe `game.id`).
 - **Reset de formulario**: `clearTrigger` signal + `linkedSignal` — incrementar el trigger reinicia el form a valores por defecto.
@@ -169,7 +170,7 @@ admin-app-angular/
 - **Feedback de éxito/error**:
   - **Éxito → `SuccessService`** (toast, patrón nuevo): `successService.show(msg)` acumula en una cola (`toasts` signal, `ToastModel[]`); cada toast se auto-elimina a los 5s (`setTimeout` por id) y se puede cerrar clickeándolo (`clear(id)`). Los layouts renderizan `app-toast-success-component` (`toast toast-end`) leyendo `successService.toasts()`. Solo en operaciones de escritura (create/update/delete), NO en GETs
   - **Error → `ErrorService`** (modal): `errorService.show(msg)` setea un signal único `error`; los layouts renderizan `app-modal-error-component` con `@if (errorService.error(); as msg)` y `(close)="errorService.clear()"`. El `errorInterceptor` lo dispara automáticamente ante cualquier HTTP error
-  - **Confirmación → `ConfirmService`** (modal, promise-based): `await confirmService.confirm({ title, message })` abre `app-modal-confirm-component` (renderizado en layouts con `@if (confirmService.dialog(); as dialog)`) y resuelve `Promise<boolean>`. `accept()`/`reject()` resuelven con `true`/`false` y cierran. La página nunca toca `onConfirm`/`onClose` — solo espera el boolean. `isLoading` de la mutación queda en la feature (no en el service). Usado en deletes de genre, platform, game, guide y game-form-page (source, character)
+  - **Confirmación → `ConfirmService`** (modal, promise-based): `await confirmService.confirm({ title, message })` abre `app-modal-confirm-component` (renderizado en layouts con `@if (confirmService.dialog(); as dialog)`) y resuelve `Promise<boolean>`. `accept()`/`reject()` resuelven con `true`/`false` y cierran. La página nunca toca `confirm`/`closed` — solo espera el boolean. `isLoading` de la mutación queda en la feature (no en el service). Usado en deletes de genre, platform, game, guide y game-form-page (source, character)
   - **Los forms muestran validaciones locales** con `app-message-error-component` (`@if (errorMessage())`), nunca como toast/modal
   - ⚠️ **Migración completada**: genre, platform, game, game-form-page y **portfolio** (url-grp, url, language, technology, project) ya usan `SuccessService`/`ConfirmService`/`ErrorService`. Los componentes obsoletos `message-success-component`, `modal-action-component` e `image-field-component` fueron eliminados de `shared`
 - `rxResource` para lecturas; `subscribe()` para mutaciones (create/delete/upload)
@@ -185,7 +186,7 @@ admin-app-angular/
 - Estado agrupado por feature: cada CRUD hijo usa un objeto `{ savePayload, isSaving }` en la página, nunca signals planos dispersos (`isSavingSource`, `characterSavePayload`, etc.) — aplica en **game-form-page**, **guide-page**, **genre-page**, **platform-page** y las páginas CRUD con modal (language, technology, url-grp, url)
 - **`MutationService.run<T>(action, state, options)`** (core service compartido): patrón ÚNICO de referencia para mutaciones (create/update/delete/upload). `state` es el objeto agrupado `{ isSaving }` de la feature; `options`: `successMsg`, `errorMsg`, `onSuccess`, `onFinalize`. Centraliza `isSaving` (set true → `finalize` reset) y `subscribe` (éxito → toast `SuccessService` + `onSuccess`; error → `console.error`). Es el sucesor del helper local `handleMutation` que antes se copiaba en 7 páginas (language, technology, url-grp, url, genre, platform, guide). **No migrar game-form-page**: conserva sus helpers `handleCrudAction`/`handleImageAction` (patrón distinto con reload en finalize) — son intencionalmente locales a esa página compleja
 - **Estilo de código**: comillas simples en imports y strings, semicolons siempre — uniforme en todo el proyecto
-- **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio` (`'aspect-square' | 'aspect-video' | null` — `null` = aspecto original sin clase), `labelText`, `displayImg`, `clearTrigger`. Outputs: `onSelectedFile(File | null)`, `onDeleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
+- **`ImagePickerComponent`** (shared): componente genérico para seleccionar/previsualizar/limpiar imágenes. Inputs: `isLoading`, `aspectRatio` (`'aspect-square' | 'aspect-video' | null` — `null` = aspecto original sin clase), `labelText`, `displayImg`, `clearTrigger`. Outputs: `selectedFile(File | null)`, `deleteFile()`. Usa el patrón `previewImg signal<{ file: File; dataUrl: string } | null>` interno.
 - **Botón delete**: usa `bg-red-500 hover:bg-red-600 text-white` en lugar de `btn-error` de DaisyUI
 - **Componentes compartidos**: `select-list-component`, `image-picker-component`, `select-search-component` en shared usan `app-button-component` para botones de acción (evita inline SVGs duplicados)
 - **Hydration**: componentes con `File` API o `@if/@else` que causan mismatch usan `ngSkipHydration` en el template padre
@@ -197,7 +198,7 @@ admin-app-angular/
 Los items del flujo del proyecto original que pertenecen a este dashboard (sus números son los originales de `DEVELOPMENT.md` de la raíz):
 
 2. ✅ **Dashboard Angular**: CRUD Games con slug auto-gen, image upload, paginación
-7. ✅ **Characters Angular frontend**: form component (ImagePicker, linkedSignal, validaciones, loading) + list component (tabla, outputs onEdit/onDelete) + service con uploadImage/deleteImage
+7. ✅ **Characters Angular frontend**: form component (ImagePicker, linkedSignal, validaciones, loading) + list component (tabla, outputs edit/delete) + service con uploadImage/deleteImage
 8. ✅ **Characters Angular en page**: edit/delete/deleteImage conectados, clear tras save exitoso, estado agrupado por feature y helpers `handleCrudAction`/`handleImageAction`
 23. ✅ **Auth Google en admin por namespace**: sesiones en sessionStorage por namespace (game-guides/portfolio), botón en navbar solo donde el layout lo define; BFF expone client id y propaga `Authorization` (incl. uploads multipart); admin muestra detail real del backend en errores
 34. ✅ **CRUD Guides en admin (Angular)**: feature `guide` completo (models, service con filter→game_id, guide-page paginado por juego con rxResource, guide-form modal con validación + MessageErrorComponent, guide-list collapse); `limit` 5 por página (luego unificado a 10, ver item 46)
@@ -227,7 +228,7 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - Verificado con `npx ng build` (0 errores/warnings)
 53. ✅ **Auditoría de calidad (Angular)** — hallazgos de severidad alta corregidos:
   - **XSS almacenado en `select-search-component`**: eliminado `[innerHTML]` y el método `highlight()` (generaba HTML en el `.ts`); nuevo `highlightParts(): HighlightPart[]` puro (segmentos `{ text, marked }`) renderizado en el template con `@for` + interpolación `{{ }}` (escape automático de Angular). Adiós también al regex con metacharacteres (el `indexOf` no necesita escape)
-  - **Botón "Refrescar" muerto en `pagination-filter-component`**: conectado `(onClick)` al nuevo `onRefresh()`; tanto el botón como el Enter del form aplican los filtros actuales (sin esperar el debounce de 300ms) y disparan `reload()`. El componente quedó 100% declarativo (sin constructor ni `subscribe` manual): `refreshTrigger` signal + `outputFromObservable`
+  - **Botón "Refrescar" muerto en `pagination-filter-component`**: conectado `(clicked)` al nuevo `onRefresh()`; tanto el botón como el Enter del form aplican los filtros actuales (sin esperar el debounce de 300ms) y disparan `reload()`. El componente quedó 100% declarativo (sin constructor ni `subscribe` manual): `refreshTrigger` signal + `outputFromObservable`
   - **Modales no pierden datos al fallar el save**: `MutationService.run` (y el helper local `handleCrudAction` de game-form-page) ganaron `onClose`, que corre SOLO en éxito; los `onFinalize` que cerraban/reseteaban modales migraron a `onClose` en genre, platform, url-grp, url, language, technology y guide (3 modales) + game-form-page (source). Si la API falla, el modal queda abierto con los datos intactos
 54. ✅ **Auth por namespace + SSR client render (Angular)**:
   - **Google client ID por app**: `server.ts` expone `GET /ssr-api/config` → `{ googleClientIds }` (mapa por namespace); `AuthService.getGoogleClientId(ns)` busca el ID de esa app, lo cachea en `Map` y lanza error claro si no está configurado (caso portfolio hoy). Una feature futura solo agrega `GOOGLE_CLIENT_ID_<FEATURE>` al `.env.demo` + su entrada en `GOOGLE_CLIENT_IDS` de `server.ts`. Variable renombrada `PUBLIC_GOOGLE_CLIENT_ID` → `GOOGLE_CLIENT_ID_GAME_GUIDES` (server-only, sin prefijo `PUBLIC_`)
@@ -254,6 +255,19 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
   - **Upload multipart validado**: el handler `POST /ssr-api/:namespace/:resource/:id/upload-image` (portfolio) no validaba que el request fuera multipart — un request sin `multipart/form-data` dejaba `req.body` vacío y `new Uint8Array(...)` explotaba con un 502 genérico. Ahora hace `if (!req.is('multipart/form-data')) return next()` igual que el handler sin `:id`
   - **Encabezado "Formulario" redundante eliminado** en `game-form-page` (repetía "CREAR/MODIFICAR GAME" de la cabecera)
   - **Dashboard sin `loadChildren` triple**: `DASHBOARD_ROUTES` se lazy-cargaba en los 3 roots (Main, portfolio, game-guides) siendo un módulo de un solo componente. Ahora `DashboardPage` se usa como `component` directo en los 3 children y `dashboard.routes.ts` quedó eliminado
+60. ✅ **Auditoría de calidad (Angular) — ESLint + outputs a convención Angular**:
+   - **ESLint configurado (flat config)**: `eslint.config.js` con `angular-eslint` v22 (umbrella) — `tsRecommended` para TS, `templateRecommended` + `templateAccessibility` para HTML, `ignores: ['dist/**']`. Script `pnpm lint`. **0 errores** (antes 81). DevDeps: `eslint`, `typescript-eslint`, `angular-eslint`, `@angular-eslint/*`, `@eslint/js`
+   - **Outputs sin prefijo `on`** (regla `no-output-on-prefix`): 58 outputs renombrados a convención Angular — `onClick`→`clicked` (ButtonComponent), `onSubmit`→`submitted`, `onClose`→`closed`, `onEdit`→`edit`, `onDelete`→`delete`, `onDeleteImage`→`deleteImage`, `onSelectedFile`→`selectedFile`, `onDeleteFile`→`deleteFile`, `onConfirm`→`confirm`, `onRefreshClick`→`refreshClick`, `onFilterChange`→`filterChange`, `onDeleteItem`→`deleteItem`, y los de adventure/guide (editAdventureModal, deleteAdventure, openAdventureImageModal, deleteAdventureImage, createAdventureModal, editGuideModal, deleteGuide). **Los métodos handler `onXxx(...)` NO se renombran** (solo aplica a `output()`/`@Output()`, no a métodos)
+   - **`no-output-native`**: `close` → `closed` en modal-error y toast-success (no nombrar outputs como eventos DOM nativos)
+   - **Labels decorativos** → `span`/`div` (regla `label-has-associated-control`): labels sin control asociado (encabezados de sección, contenedor de iconos) eran falsos labels; ahora `span.label` / `div`
+   - **Toast accesible por teclado**: `role="button"` + `tabindex="0"` + `keydown.enter/space` en el toast clickeable
+   - **Colisión resuelta en `image-picker-component`**: los métodos handler `selectedFile()`/`deleteFile()` chocaban con los outputs homónimos tras renombrar; métodos renombrados a `handleFileSelected`/`handleDeleteFile`
+   - **`npm start` corregido**: era `ng serve` (dev server sin SSR); ahora `pnpm build && node dist/admin-app-angular/server/server.mjs` (servidor Express de producción)
+61. ✅ **CI (Angular) — GitHub Actions**:
+   - **`.github/workflows/ci.yml`** (archivo nuevo): workflow mínimo de validación — corre en cada **pull request** y en cada **push a `master`** (rama default del repo)
+   - Pasos: `actions/checkout@v4` → `pnpm/action-setup@v4` (pnpm 11.21.0, fijado en `packageManager`) → `actions/setup-node@v4` (Node 22, `cache: pnpm`) → `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build`
+   - **No toca el deploy**: el hosting actual sigue desplegando; el CI solo valida que lint + build pasen en PR y push
+   - **Branch protection en `master` NO configurado** (decisión explícita del usuario)
 
 ---
 
@@ -263,7 +277,8 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
 cd admin-app-angular
 pnpm dev        # servir con SSR
 pnpm build      # build SSR
-pnpm start      # servidor Express
+pnpm start      # build + servidor Express de producción (dist)
+pnpm lint       # ESLint (0 errores)
 ```
 
-Referencias de patrones senior: `admin-app-angular/SKILL.md` (checklist de código senior, Angular 22 Signals, SSR).
+Referencias de patrones senior: `SKILL_ANGULAR.md` (checklist de código senior, Angular 22 Signals, SSR) — transversal, en la raíz del repo.
