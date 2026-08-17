@@ -72,6 +72,9 @@ importers:
       daisyui:
         specifier: ^5.7.16
         version: 5.7.16
+      eslint:
+        specifier: 10.8.1
+        version: 10.8.1(jiti@2.7.0)
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0
