@@ -268,6 +268,11 @@ Los items del flujo del proyecto original que pertenecen a este dashboard (sus n
    - Pasos: `actions/checkout@v4` → `pnpm/action-setup@v4` (pnpm 11.21.0, fijado en `packageManager`) → `actions/setup-node@v4` (Node 22, `cache: pnpm`) → `pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm build`
    - **No toca el deploy**: el hosting actual sigue desplegando; el CI solo valida que lint + build pasen en PR y push
    - **Branch protection en `master` NO configurado** (decisión explícita del usuario)
+   - **Fix CI "eslint: not found"**: `eslint` llegó como dependencia TRANSITIVA de `@eslint/js`/`angular-eslint`; en instalaciones limpias (`--frozen-lockfile`) pnpm no expone binarios de deps transitivas en `node_modules/.bin` → `pnpm lint` fallaba solo en CI. Se promovió a devDependency **directa** fijada en `10.8.1` (la versión que ya resolvía el lockfile); ahora una sola versión de eslint
+62. ✅ **Incidente producción (upload 500 en Vercel)**:
+   - **Síntoma**: upload de imagen en Project fallaba con 500 solo en Vercel (local OK)
+   - **Causa raíz**: **credenciales de Cloudinary mal configuradas** (configuración, no código) — corregido por el usuario
+   - **Lección operativa**: ante un 500 en uploads, verificar primero credenciales del proveedor de almacenamiento (Cloudinary) antes de tocar el código
 
 ---
 
